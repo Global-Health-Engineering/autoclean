@@ -7,7 +7,7 @@ import sys
 from timeit import default_timer as timer
 import pandas as pd
 from loguru import logger
-from AutoClean.modules import *
+from Functions.modules import *
 
 class AutoClean:
 
