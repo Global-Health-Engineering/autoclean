@@ -1,0 +1,21 @@
+name,age,city,salary,date_joined
+John,25,New York,50000,2020-01-15
+Jane,30,Boston,60000,2020-02-20
+Bob,35,Chicago,55000,2020-03-10
+Alice,28,New York,52000,2020-04-05
+John,25,New York,50000,2020-01-15
+Charlie,45,Boston,75000,2020-05-15
+Diana,32,,58000,2020-06-20
+Eve,,,62000,2020-07-25
+Frank,29,Chicago,,2020-08-30
+Grace,55,New York,250000,2020-09-10
+Henry,27,Boston,48000,2020-10-15
+Ivy,31,new york,54000,2020-11-20
+Jack,33,NEW YORK,56000,2020-12-25
+Kate,26,Chcago,51000,2021-01-10
+Leo,150,Miami,53000,2021-02-15
+Mary,29,Los Angeles,59000,2021-03-20
+Nina,34,Boston,61000,2021-04-25
+Oscar,-5,Chicago,57000,2021-05-30
+John,25,New York,50000,2020-01-15
+Paul,38,Miami,63000,2021-06-10
