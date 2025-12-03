@@ -166,7 +166,7 @@ def _handle_numerical_statistical(df: pd.DataFrame, i_num_cols: list, method: st
 
                 print(f"Missing values in column {idx} filled with median")
 
-             elif method == 'mode':
+            elif method == 'mode':
                 # Calculate the most frequent value in column idx, which returns series (can be multiple values if tie of which first value is taken ([0]))
                 fill_value = df[idx].mode()[0]
 

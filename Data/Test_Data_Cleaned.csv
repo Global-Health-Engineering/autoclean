@@ -1,0 +1,21 @@
+name,age,city,salary,date_joined,department,status
+John,25.0,New York,50000.0,2020-01-15,Sales,Active
+Jane,30.0,Boston,60000.0,2020-02-20,Sales,Active
+Bob,35.0,Chicago,55000.0,2020-03-10,Sales,Active
+Alice,28.0,New York,52000.0,2020-04-05,Marketing,Active
+John,25.0,New York,50000.0,2020-01-15,Marketing,Active
+Charlie,45.0,Boston,75000.0,2020-05-15,Engineering,Active
+Diana,32.0,New York,58000.0,2020-06-20,Engineering,Active
+Eve,36.421052631578945,New York,62000.0,2020-07-25,Engineering,Active
+Frank,29.0,Chicago,66526.31578947368,2020-08-30,Sales,Active
+Grace,55.0,New York,250000.0,2020-09-10,HR,Active
+Henry,27.0,Boston,48000.0,2020-10-15,Human Resources,Active
+Ivy,31.0,New York,54000.0,2020-11-20,HR,Active
+Jack,33.0,N.Y.,56000.0,2020-12-25,Sales,Active
+Kate,26.0,NYC,51000.0,2021-01-10,Slaes,Active
+Leo,150.0,Miami,53000.0,2021-02-15,IT,Active
+Mary,29.0,Los Angeles,59000.0,2021-03-20,Information Technology,Active
+Nina,34.0,Boston,61000.0,2021-04-25,IT,Active
+Oscar,-5.0,Chicago,57000.0,2021-05-30,Mktg,Active
+John,25.0,New York,50000.0,2020-01-15,Sales,Active
+Paul,38.0,Miami,63000.0,2021-06-10,Marketing,Active
