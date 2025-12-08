@@ -27,6 +27,10 @@ Methods for categorical columns (method_categ):
     - 'missforest': Random Forest iterative imputation
     - 'false': Skip categorical columns
 
+Column Selection (columns):
+    - None: Process all columns (default)
+    - ['col1', 'col2', ...]: Process only specified columns
+    
 Note on parameters for MissForest and KNN: 
     - n_neighbors : Number of neighbors for KNN imputation (default=5)
     - max_iter : Maximum iterations for MissForest imputation (default=10)
@@ -40,6 +44,7 @@ Note on parameters for MissForest and KNN:
 def handle_missing_values(df: pd.DataFrame, 
                           method_num: str = 'mean', 
                           method_categ: str = 'mode',
+                          columns: list = None,
                           n_neighbors: int = 5, 
                           max_iter: int = 10,
                           n_estimators: int = 10) -> pd.DataFrame:
@@ -53,24 +58,34 @@ def handle_missing_values(df: pd.DataFrame,
     #       .columns gets the indexes of the categorical columns.
     #       list() convert the indexes to a list.
 
+    # Filter columns if specific columns are requested
+    if columns is not None:
+        # Keep only columns that are in the specified list
+        i_num_cols = [col for col in i_num_cols if col in columns]
+        # Note: List comprehension - keeps only numerical columns that are in the columns list
+        i_categ_cols = [col for col in i_categ_cols if col in columns]
+        # Note: List comprehension - keeps only categorical columns that are in the columns list
+
     # Count total missing values 
-    n_num_missing = df[i_num_cols].isna().sum().sum()
+    n_num_missing = df[i_num_cols].isna().sum().sum() if i_num_cols else 0
     # Note: df[i_num_cols] returns a dataframe with only numerical columns. 
     #       .isna() returns a dataframe of True / False, with True for missing values. 
     #       First .sum() sums each column.
     #       Second .sum() sums all the column totals.
-    n_categ_missing = df[i_categ_cols].isna().sum().sum()
+    #       if i_num_cols else 0 handles case where i_num_cols is empty
+    n_categ_missing = df[i_categ_cols].isna().sum().sum() if i_categ_cols else 0
     # Note: df[i_categ_cols] returns a dataframe with only categorical columns. 
     #       .isna() returns a dataframe of True / False, with True for missing values. 
     #       First .sum() sums each column.
     #       Second .sum() sums all the column totals.
+    #       if i_categ_cols else 0 handles case where i_categ_cols is empty
     n_total_missing = n_categ_missing + n_num_missing
 
     if n_total_missing == 0: 
-        print("No missing values found")
+        print("No missing values found in selected columns" if columns else "No missing values found")
         return df
     
-    print(f"{n_num_missing} numerical missing values & {n_categ_missing} categorical missing values found")
+    print(f"{n_num_missing} numerical missing values & {n_categ_missing} categorical missing values found in selected columns")
     
     # If no numerical missing values, then set methode to false
     if n_num_missing == 0: 
@@ -81,7 +96,7 @@ def handle_missing_values(df: pd.DataFrame,
         if method_num == 'delete':
             df = _handle_numerical_delete(df, i_num_cols)
             # Possible that n_categ_missing has changed through deleting rows 
-            n_categ_missing = df[i_categ_cols].isna().sum().sum()
+            n_categ_missing = df[i_categ_cols].isna().sum().sum() if i_categ_cols else 0
 
         elif method_num in ['mean', 'median', 'mode']:
             df = _handle_numerical_statistical(df, i_num_cols, method_num)
