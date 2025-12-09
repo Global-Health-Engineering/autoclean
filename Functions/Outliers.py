@@ -24,9 +24,9 @@ Two methods:
 def handle_outliers(df: pd.DataFrame, method: str = 'winsorize', multiplier: float = 1.5) -> pd.DataFrame:
     # Get indexes of numerical columns
     i_num_cols = list(df.select_dtypes(include = np.number).columns)
-    # Note: .select_dtypes(include=np.number) returns a dataframe with numerical columns.
-    #       .columns gets the indexes of the numerical columns.
-    #       list() convert the indexes to a list.
+    # Note: .select_dtypes(include = np.number) returns a dataframe with numerical columns 
+    #       .columns gets the indexes of the numerical columns (as pandas Index object)
+    #       list() convert to list
     total_outliers = 0
     
     for idx in i_num_cols:
@@ -43,7 +43,7 @@ def handle_outliers(df: pd.DataFrame, method: str = 'winsorize', multiplier: flo
         outliers = (df[idx] < lower_bound) | (df[idx] > upper_bound) 
         # Note: In pandas logical operators can be applied to rows, columns & dataframes and are executed element wise, 
         #       such that the output is a series or dataframe with booleans.
-        #       The element wise operator of 'or' is |. 
+        #       The element wise operator of 'or' is |.  
         
         # Get # of outliers (of the column with index i) & add to total outliers
         n_outliers = outliers.sum()
@@ -60,14 +60,14 @@ def handle_outliers(df: pd.DataFrame, method: str = 'winsorize', multiplier: flo
                 # Replace outliers with bound values
                 df.loc[lower_mask, idx] = lower_bound 
                 df.loc[upper_mask, idx] = upper_bound
-                # Note: df.loc[mask, col] creates a series (w.r.t the original dataframe df) of column col with mask applied.
-                #       The '=' is executed element wise. 
+                # Note: df.loc[mask, col] creates a series (w.r.t the original dataframe df) of column col with mask applied
+                #       The '=' is executed element wise 
  
             elif method == 'delete':
                 # Remove rows with outliers
                 df = df[~outliers]
-                # Note: '~' flips True & False.
-                #       df[mask] gets dataframe with rows for which mask is true.
+                # Note: '~' flips True & False
+                #       df[mask] gets dataframe with rows for which mask is true
     
     if method == 'delete':
         # Reset index of rows & don't keep the old ones as a new column (drop = true)
