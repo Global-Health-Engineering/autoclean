@@ -5,7 +5,7 @@ import numpy as np
 """
 Handle outliers in numerical columns
 
-If a numerical value is outside the range [q1 - multiplier * iqr, q3 - multiplier * iqr] = [lower bound, upper bound], 
+If a numerical value is outside the range [q1 - multiplier * iqr, q3 + multiplier * iqr] = [lower bound, upper bound], 
 it's considered as a outlier
 
 The parameter 'multiplier' is set by default to 1.5 (standard in statistics)
