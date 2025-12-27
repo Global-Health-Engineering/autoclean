@@ -17,17 +17,36 @@ Two methods:
     2. method = 'delete'
     Rows containing an outlier are removed
 """
+
 # ============================================================================
 # Main Function (Public)
 # ============================================================================
 
-def handle_outliers(df: pd.DataFrame, method: str = 'winsorize', multiplier: float = 1.5) -> pd.DataFrame:
+def handle_outliers(df: pd.DataFrame, method: str = 'winsorize', multiplier: float = 1.5) -> tuple:
+    """
+    Returns:
+        (df, report): Cleaned DataFrame and report dict
+    """
+    
+    # Terminal output: start
+    print("Handling outliers... ", end="", flush=True)
+    
+    # Initialize report
+    report = {
+        'method': method,
+        'multiplier': multiplier,
+        'total_outliers': 0,
+        'rows_deleted': 0,
+        'outliers': []
+    }
+    
     # Get indexes of numerical columns
     i_num_cols = list(df.select_dtypes(include = np.number).columns)
     # Note: .select_dtypes(include = np.number) returns a dataframe with numerical columns 
     #       .columns gets the indexes of the numerical columns (as pandas Index object)
     #       list() convert to list
-    total_outliers = 0
+    
+    n_rows_before = len(df)
     
     for idx in i_num_cols:
         # Calculate 25th percentile q1, 75th percentile q3 & the interquartile range iqr (of column with index i)
@@ -47,15 +66,31 @@ def handle_outliers(df: pd.DataFrame, method: str = 'winsorize', multiplier: flo
         
         # Get # of outliers (of the column with index i) & add to total outliers
         n_outliers = outliers.sum()
-        total_outliers += n_outliers
+        report['total_outliers'] += n_outliers
 
         if n_outliers > 0:
-            print(f"Column {idx} (with lower bound = {lower_bound:.2f} & upper bound = {upper_bound:.2f}) has {n_outliers} outliers")
-            
             if method == 'winsorize':
                 # Get boolean mask (typ: Series), for the two types of outliers (of column with index i)
                 lower_mask = (df[idx] < lower_bound)
                 upper_mask = (df[idx] > upper_bound)
+                
+                # Track outliers before replacing (for report)
+                for row_idx in df[lower_mask].index:
+                    report['outliers'].append({
+                        'row': int(row_idx),
+                        'column': idx,
+                        'original_value': df.at[row_idx, idx],
+                        'new_value': lower_bound,
+                        'bound': 'lower'
+                    })
+                for row_idx in df[upper_mask].index:
+                    report['outliers'].append({
+                        'row': int(row_idx),
+                        'column': idx,
+                        'original_value': df.at[row_idx, idx],
+                        'new_value': upper_bound,
+                        'bound': 'upper'
+                    })
                 
                 # Replace outliers with bound values
                 df.loc[lower_mask, idx] = lower_bound 
@@ -64,6 +99,16 @@ def handle_outliers(df: pd.DataFrame, method: str = 'winsorize', multiplier: flo
                 #       The '=' is executed element wise 
  
             elif method == 'delete':
+                # Track outliers before deleting (for report)
+                for row_idx in df[outliers].index:
+                    report['outliers'].append({
+                        'row': int(row_idx),
+                        'column': idx,
+                        'original_value': df.at[row_idx, idx],
+                        'new_value': 'deleted',
+                        'bound': 'lower' if df.at[row_idx, idx] < lower_bound else 'upper'
+                    })
+                
                 # Remove rows with outliers
                 df = df[~outliers]
                 # Note: '~' flips True & False
@@ -72,6 +117,11 @@ def handle_outliers(df: pd.DataFrame, method: str = 'winsorize', multiplier: flo
     if method == 'delete':
         # Reset index of rows & don't keep the old ones as a new column (drop = true)
         df = df.reset_index(drop = True)
-        
-    print(f"{total_outliers} outliers handled")
-    return df
+        report['rows_deleted'] = n_rows_before - len(df)
+    
+    # Terminal output: end
+    print("✓")
+    
+    return df, report
+
+

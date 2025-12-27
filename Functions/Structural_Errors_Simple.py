@@ -37,15 +37,29 @@ Note: This method works well for case variations and typos, but cannot understan
 def handle_structural_errors_simple(df: pd.DataFrame, 
                                      column: str, 
                                      threshold: float = 20.0,
-                                     method: str = 'average') -> pd.DataFrame:
+                                     method: str = 'average') -> tuple:
     """
     Cluster similar categorical values and replace with canonical form.
+    
+    Returns:
+        (df, report): Cleaned DataFrame and report dict
     """
+    
+    # Terminal output: start
+    print("Correcting structural errors (simple)... ", end="", flush=True)
+    
+    # Initialize report
+    report = {
+        'column': column,
+        'threshold': threshold,
+        'method': method,
+        'clusters': []
+    }
     
     # Check if column exists
     if column not in df.columns:
-        print(f"Column '{column}' not found in dataframe")
-        return df
+        print(f"ERROR: Column '{column}' not found")
+        return df, report
     
     # Get unique values from column (excluding NaN)
     unique_values = df[column].dropna().unique().tolist()
@@ -53,10 +67,8 @@ def handle_structural_errors_simple(df: pd.DataFrame,
     
     # Check if clustering is needed
     if n_unique <= 1:
-        print(f"Column '{column}' has {n_unique} unique value(s) - no clustering needed")
-        return df
-    
-    print(f"Clustering column '{column}' with {n_unique} unique values (threshold={threshold})")
+        print("✓")
+        return df, report
     
     # Step 1: Create distance matrix using RapidFuzz string similarity
     distance_matrix = _create_distance_matrix(unique_values)
@@ -65,16 +77,19 @@ def handle_structural_errors_simple(df: pd.DataFrame,
     clusters = _hierarchical_clustering(distance_matrix, threshold, method)
     
     # Step 3: Create mapping from each value to its canonical form
-    mapping = _create_canonical_mapping(unique_values, clusters)
+    mapping, cluster_info = _create_canonical_mapping(unique_values, clusters)
+    
+    # Update report with cluster info
+    report['clusters'] = cluster_info
     
     # Step 4: Apply mapping to dataframe
     if len(mapping) > 0:
         df[column] = df[column].replace(mapping)
-        print(f"Replaced {len(mapping)} values with canonical forms")
-    else:
-        print(f"No similar values found to cluster")
     
-    return df
+    # Terminal output: end
+    print("✓")
+    
+    return df, report
 
 
 # ============================================================================
@@ -136,14 +151,14 @@ def _hierarchical_clustering(distance_matrix: np.ndarray,
     return clusters
 
 
-def _create_canonical_mapping(values: list, clusters: np.ndarray) -> dict:
+def _create_canonical_mapping(values: list, clusters: np.ndarray) -> tuple:
     """
     Create mapping from each value to its canonical (standard) form.
     
-    The canonical form is chosen as the most "standard looking" value:
-    1. Prefer Title Case versions
-    2. If tied, prefer longer (more complete) version
-    3. If still tied, use alphabetical order
+    Returns:
+        (mapping, cluster_info): 
+            - mapping: dict {original: canonical} for values that need replacing
+            - cluster_info: list of dicts for report
     """
     
     # Group values by cluster ID
@@ -155,26 +170,25 @@ def _create_canonical_mapping(values: list, clusters: np.ndarray) -> dict:
     
     # Create mapping for clusters with multiple values
     mapping = {}
-    n_clusters_with_variations = 0
+    cluster_info = []
     
     for cluster_id, group in cluster_groups.items():
         if len(group) > 1:
             # This cluster has variations that need to be unified
-            n_clusters_with_variations += 1
-            
-            # Choose the canonical (standard) form
             canonical = _choose_canonical(group)
             
-            print(f"  Cluster: {group} → '{canonical}'")
+            # Add to cluster info for report
+            cluster_info.append({
+                'values': group,
+                'canonical': canonical
+            })
             
             # Map all non-canonical values to the canonical form
             for value in group:
                 if value != canonical:
                     mapping[value] = canonical
     
-    print(f"Found {n_clusters_with_variations} clusters with variations")
-    
-    return mapping
+    return mapping, cluster_info
 
 
 def _choose_canonical(values: list) -> str:
@@ -208,60 +222,3 @@ def _choose_canonical(values: list) -> str:
     scored_values.sort(key=lambda x: (-x[0], x[1]))
     
     return scored_values[0][1]
-
-
-# ============================================================================
-# Utility Function: Preview Clusters (Public)
-# ============================================================================
-
-def preview_clusters(df: pd.DataFrame, 
-                     column: str, 
-                     threshold: float = 20.0,
-                     method: str = 'average') -> dict:
-    """
-    Preview what clusters would be formed WITHOUT modifying the dataframe.
-    Useful for exploring different threshold values before applying.
-    
-    Returns:
-        Dictionary with cluster_id as key and list of values as value
-    """
-    
-    # Check if column exists
-    if column not in df.columns:
-        print(f"Column '{column}' not found in dataframe")
-        return {}
-    
-    unique_values = df[column].dropna().unique().tolist()
-    n_unique = len(unique_values)
-    
-    if n_unique <= 1:
-        print(f"Column '{column}' has {n_unique} unique value(s)")
-        return {}
-    
-    # Create distance matrix and cluster
-    distance_matrix = _create_distance_matrix(unique_values)
-    clusters = _hierarchical_clustering(distance_matrix, threshold, method)
-    
-    # Group by cluster
-    cluster_groups = {}
-    for value, cluster_id in zip(unique_values, clusters):
-        if cluster_id not in cluster_groups:
-            cluster_groups[cluster_id] = []
-        cluster_groups[cluster_id].append(value)
-    
-    # Print results
-    print(f"\nColumn '{column}' - Threshold {threshold}:")
-    print("-" * 50)
-    
-    n_with_variations = 0
-    for cluster_id, group in sorted(cluster_groups.items()):
-        if len(group) > 1:
-            n_with_variations += 1
-            canonical = _choose_canonical(group)
-            print(f"  Cluster {cluster_id}: {group} → '{canonical}'")
-        else:
-            print(f"  Cluster {cluster_id}: '{group[0]}' (no variations)")
-    
-    print(f"\nTotal: {len(cluster_groups)} clusters, {n_with_variations} with variations")
-    
-    return cluster_groups

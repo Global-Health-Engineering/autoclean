@@ -1,0 +1,19 @@
+id, facility_type    , water_source   , city         , ph_level, turbidity, status
+ 1, School           , Borehole       , New York     ,      7.2,      15.3, activ
+ 2, Hospital         , Municipal Water, new york     ,      7.5,      12.1, Active
+ 3, clinic           , borehole       , NYC          ,      6.9,      18.7, Active
+ 4, school           , Deep Well      , Boston       ,      7.1,      14.2, Active
+ 5, School           , Borehole       , New York     ,      7.2,      15.3, Active
+ 6, health center    , City Water     , boston       ,      7.4,      11.5, active
+ 7, Primary School   , Tap Water      ,              ,      7.0,      16.8, Active
+ 8, HOSPITAL         , municipal      , BOSTON       ,      7.6,      10.2, Inactive
+ 9, Medical Clinic   , Borehole       , Los Angeles  ,         ,      19.5, Active
+10, SCHOOL           , well           , LA           ,      7.3,      13.8, Active
+11, Health Centre    , River Water    , los angeles  ,      6.8,     250.0, Active
+12, Hosp             , Municipal Water, San Francisco,      7.5,          , Active
+13, CLINIC           , BOREHOLE       , SF           ,      7.2,      15.0, ACTIVE
+14, Elem School      , Hand Pump      , san francisco,     15.2,      14.5, Active
+15, HC               , Piped Water    , L.A.         ,      7.4,          , Active
+16, Elementary School, Tube Well      , N.Y.         ,      7.3,      13.2, inactive
+17, Med Clinic       , bore hole      , N.Y.C.       ,      7.1,      14.8, Active
+18, Health Center    , Ground Water   , Frisco       ,      6.9,      16.2, Active

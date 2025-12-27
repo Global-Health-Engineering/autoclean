@@ -56,7 +56,7 @@ def handle_structural_errors_llm(df: pd.DataFrame,
                                   column: str,
                                   preference: float = None,
                                   damping: float = 0.9,
-                                  context: str = None) -> pd.DataFrame:
+                                  context: str = None) -> tuple:
     """
     Cluster similar categorical values using embeddings + Affinity Propagation,
     then use LLM to propose canonical names.
@@ -71,21 +71,33 @@ def handle_structural_errors_llm(df: pd.DataFrame,
         context: Optional context for LLM (e.g., "These are WASH facility types")
     
     Returns:
-        DataFrame with clustered values replaced by canonical form
+        (df, report): Cleaned DataFrame and report dict
     """
+    
+    # Terminal output: start
+    print("Correcting structural errors (LLM)... ", end="", flush=True)
+    
+    # Initialize report
+    report = {
+        'column': column,
+        'preference': preference,
+        'damping': damping,
+        'context': context,
+        'clusters': []
+    }
     
     # Load API key from .env file
     load_dotenv()
     api_key = os.getenv("OPENAI_API_KEY")
     
     if not api_key:
-        print("Error: OPENAI_API_KEY not found in .env file")
-        return df
+        print("ERROR: OPENAI_API_KEY not found")
+        return df, report
     
     # Check if column exists
     if column not in df.columns:
-        print(f"Column '{column}' not found in dataframe")
-        return df
+        print(f"ERROR: Column '{column}' not found")
+        return df, report
     
     # Get unique values from column (excluding NaN)
     unique_values = df[column].dropna().unique().tolist()
@@ -93,43 +105,40 @@ def handle_structural_errors_llm(df: pd.DataFrame,
     
     # Check if clustering is needed
     if n_unique <= 1:
-        print(f"Column '{column}' has {n_unique} unique value(s) - no clustering needed")
-        return df
-    
-    print(f"Clustering column '{column}' with {n_unique} unique values using LLM")
-    print("-" * 60)
+        print("✓")
+        return df, report
     
     # Initialize OpenAI client
     client = OpenAI(api_key=api_key)
     
     # Step 1: Convert strings to embeddings
-    print("Step 1: Generating embeddings...")
     embeddings = _get_embeddings(unique_values, client)
     
     # Step 2: Cluster with Affinity Propagation using cosine similarity
-    print("Step 2: Clustering with Affinity Propagation (cosine similarity)...")
-    cluster_labels = _cluster_affinity_propagation(embeddings, preference, damping)
+    cluster_labels, auto_preference = _cluster_affinity_propagation(embeddings, preference, damping)
+    
+    # Update report with auto preference if it was calculated
+    if preference is None:
+        report['preference'] = auto_preference
     
     # Group values by cluster
     cluster_groups = _group_by_cluster(unique_values, cluster_labels)
-    n_clusters = len(cluster_groups)
-    n_multi = sum(1 for v in cluster_groups.values() if len(v) > 1)
-    print(f"       Found {n_clusters} clusters ({n_multi} with multiple values)")
     
     # Step 3: LLM proposes canonical names for each cluster
-    print("Step 3: LLM selecting canonical names...")
     instructor_client = instructor.from_openai(client)
-    mapping = _get_canonical_mapping(cluster_groups, instructor_client, context)
+    mapping, cluster_info = _get_canonical_mapping(cluster_groups, instructor_client, context)
+    
+    # Update report with cluster info
+    report['clusters'] = cluster_info
     
     # Step 4: Apply mapping to dataframe
-    print("-" * 60)
     if len(mapping) > 0:
         df[column] = df[column].replace(mapping)
-        print(f"Replaced {len(mapping)} values with canonical forms")
-    else:
-        print(f"No values needed replacement")
     
-    return df
+    # Terminal output: end
+    print("✓")
+    
+    return df, report
 
 
 # ============================================================================
@@ -155,40 +164,33 @@ def _get_embeddings(values: list, client: OpenAI) -> np.ndarray:
     # Convert to numpy array
     embeddings_array = np.array(embeddings)
     
-    print(f"       Generated {len(embeddings)} embeddings (dimension: {len(embeddings[0])})")
-    
     return embeddings_array
 
 
 def _cluster_affinity_propagation(embeddings: np.ndarray, 
                                    preference: float,
-                                   damping: float) -> np.ndarray:
+                                   damping: float) -> tuple:
     """
     Cluster embeddings using Affinity Propagation with COSINE SIMILARITY.
     
-    Key insight: Text embeddings work much better with cosine similarity
-    than Euclidean distance. Cosine similarity measures the angle between
-    vectors, which captures semantic similarity better.
-    
-    Cosine similarity ranges from 0 (different) to 1 (identical).
+    Returns:
+        (cluster_labels, auto_preference): Labels and the preference used
     """
     
     # Compute cosine similarity matrix
-    # This is the KEY FIX - using cosine similarity instead of Euclidean distance
     similarity_matrix = cosine_similarity(embeddings)
     # Note: similarity_matrix[i][j] = cosine similarity between embedding i and j
     #       Values range from ~0 (different) to 1 (identical)
     
-    # Print some similarity stats for debugging
-    # Get upper triangle (excluding diagonal)
+    # Get upper triangle (excluding diagonal) for stats
     upper_tri = similarity_matrix[np.triu_indices(len(similarity_matrix), k=1)]
-    print(f"       Similarity stats: min={upper_tri.min():.3f}, max={upper_tri.max():.3f}, mean={upper_tri.mean():.3f}")
     
     # If preference not set, use a value that encourages meaningful clusters
+    auto_preference = None
     if preference is None:
         # Use a value below the median similarity - this tends to create reasonable clusters
-        preference = np.median(upper_tri) - 0.1
-        print(f"       Auto preference: {preference:.3f}")
+        auto_preference = np.median(upper_tri) - 0.1
+        preference = auto_preference
     
     # Run Affinity Propagation with precomputed similarity matrix
     ap = AffinityPropagation(
@@ -200,10 +202,7 @@ def _cluster_affinity_propagation(embeddings: np.ndarray,
     )
     cluster_labels = ap.fit_predict(similarity_matrix)
     
-    n_clusters = len(set(cluster_labels))
-    print(f"       Affinity Propagation found {n_clusters} clusters")
-    
-    return cluster_labels
+    return cluster_labels, auto_preference if auto_preference else preference
 
 
 def _group_by_cluster(values: list, cluster_labels: np.ndarray) -> dict:
@@ -226,33 +225,39 @@ def _group_by_cluster(values: list, cluster_labels: np.ndarray) -> dict:
 
 def _get_canonical_mapping(cluster_groups: dict, 
                             client: instructor.Instructor,
-                            context: str = None) -> dict:
+                            context: str = None) -> tuple:
     """
     Use LLM to propose canonical name for each cluster.
     
     Returns:
-        Dictionary: {original_value: canonical_value} for values that need replacing
+        (mapping, cluster_info):
+            - mapping: {original_value: canonical_value} for values that need replacing
+            - cluster_info: list of dicts for report
     """
     
     mapping = {}
+    cluster_info = []
     
     for cluster_id, values in cluster_groups.items():
         if len(values) == 1:
             # Single value cluster - no need for LLM
-            print(f"  Cluster {cluster_id}: '{values[0]}' (single value)")
             continue
         
         # Ask LLM to choose canonical name
         canonical = _llm_choose_canonical(values, client, context)
         
-        print(f"  Cluster {cluster_id}: {values} → '{canonical}'")
+        # Add to cluster info for report
+        cluster_info.append({
+            'values': values,
+            'canonical': canonical
+        })
         
         # Create mapping for non-canonical values
         for value in values:
             if value != canonical:
                 mapping[value] = canonical
     
-    return mapping
+    return mapping, cluster_info
 
 
 def _llm_choose_canonical(values: list, 
@@ -285,57 +290,3 @@ IMPORTANT: Choose ONE canonical form. If the values include a full name and abbr
     )
     
     return response.canonical
-
-
-# ============================================================================
-# Utility Function: Preview Clusters (Public)
-# ============================================================================
-
-def preview_clusters_llm(df: pd.DataFrame, 
-                          column: str,
-                          preference: float = None,
-                          damping: float = 0.9) -> dict:
-    """
-    Preview what clusters would be formed WITHOUT modifying the dataframe.
-    Shows embeddings + AP clustering results before LLM canonical selection.
-    
-    Useful for exploring different preference values.
-    """
-    
-    # Load API key
-    load_dotenv()
-    api_key = os.getenv("OPENAI_API_KEY")
-    
-    if not api_key:
-        print("Error: OPENAI_API_KEY not found in .env file")
-        return {}
-    
-    if column not in df.columns:
-        print(f"Column '{column}' not found in dataframe")
-        return {}
-    
-    unique_values = df[column].dropna().unique().tolist()
-    
-    if len(unique_values) <= 1:
-        print(f"Column '{column}' has {len(unique_values)} unique value(s)")
-        return {}
-    
-    print(f"Previewing LLM clusters for column '{column}'")
-    print("-" * 60)
-    
-    # Get embeddings and cluster
-    client = OpenAI(api_key=api_key)
-    embeddings = _get_embeddings(unique_values, client)
-    cluster_labels = _cluster_affinity_propagation(embeddings, preference, damping)
-    cluster_groups = _group_by_cluster(unique_values, cluster_labels)
-    
-    # Print results
-    print("-" * 60)
-    print("Clusters (before LLM canonical selection):")
-    for cluster_id, values in sorted(cluster_groups.items()):
-        if len(values) > 1:
-            print(f"  Cluster {cluster_id}: {values}")
-        else:
-            print(f"  Cluster {cluster_id}: '{values[0]}' (single)")
-    
-    return cluster_groups
