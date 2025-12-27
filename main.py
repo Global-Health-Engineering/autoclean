@@ -186,9 +186,9 @@ def run_pipeline(
 def test_basic():
     """Basic test - just preprocessing and duplicates"""
     run_pipeline(
-        input_path='data/test.csv',
-        output_path='output/test_cleaned.csv',
-        report_path='output/test_report.md',
+        input_path='Data/Messy/Test_Data.csv',
+        output_path='Data/Cleaned/Test_Data_cleaned.csv',
+        report_path='Report/Test_Data_report.md',
     )
 
 
