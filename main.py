@@ -2,16 +2,15 @@
 import pandas as pd
 
 # Import cleaning functions
-from Functions.Preprocessing import preprocess_data
+from Functions.Pre_Processing import preprocess_data
 from Functions.Duplicates import handle_duplicates
 from Functions.Missing_Values import handle_missing_values
 from Functions.DateTime_Standardization import standardize_datetime
 from Functions.Outliers import handle_outliers
 from Functions.Structural_Errors_Simple import handle_structural_errors_simple
 from Functions.Structural_Errors_LLM import handle_structural_errors_llm
-from Functions.Postprocessing import postprocess_data
+from Functions.Post_Processing import postprocess_data
 from Functions.Cleaning_Report import generate_cleaning_report
-
 
 # ============================================================================
 # Pipeline Function

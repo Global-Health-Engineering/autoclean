@@ -61,14 +61,14 @@ def postprocess_data(df_cleaned: pd.DataFrame,
             # Note: .round(0) rounds all elements of the series to 0 decimal places (needed for imputed values)
             #.      .astype('Int64) converts all elements to integers or keeps NaN values 
 
-            report['changes'].append({'column': col, 'action': 'restore to integer'})
+            report['changes'].append({'column': col, 'action': 'Restored to integer'})
             # Note: In the dict report the value of 'changes' is a list of dict
 
         # Otherwise → round to original decimal places
         else:
             decimals = _get_decimals(original_data)
             df[col] = df[col].round(decimals)
-            report['changes'].append({'column': col, 'action': f'{decimals} decimals'})
+            report['changes'].append({'column': col, 'action': f'Rounded to {decimals} decimals'})
     
     # Terminal output: end
     print("✓")
