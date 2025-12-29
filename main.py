@@ -12,6 +12,7 @@ from Functions.Structural_Errors_LLM import handle_structural_errors_llm
 from Functions.Post_Processing import postprocess_data
 from Functions.Cleaning_Report import generate_cleaning_report
 
+
 # ============================================================================
 # Pipeline Function
 # ============================================================================
@@ -185,9 +186,9 @@ def run_pipeline(
 def test_basic():
     """Basic test - just preprocessing and duplicates"""
     run_pipeline(
-        input_path='Data/Messy/Test_Data.csv',
-        output_path='Data/Cleaned/Test_Data_cleaned.csv',
-        report_path='Report/Test_Data_report.md',
+        input_path='data/test.csv',
+        output_path='output/test_cleaned.csv',
+        report_path='output/test_report.md',
     )
 
 
@@ -292,4 +293,4 @@ if __name__ == '__main__':
     # test_full_pipeline()
     # test_wash_data()
     # test_imdb_data()
-    # test_structural_llm() 
+    # test_structural_llm()

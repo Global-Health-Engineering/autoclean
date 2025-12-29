@@ -19,7 +19,7 @@ Parameters:
     clean_names: Must match the clean_names parameter used in Pre_Processing.py (default: True)
 
 Returns:
-    Final (polished) dataframe and final report (as tuple)
+    Final (polished) dataframe and report (as tuple)
 """
 
 # =============================================================================
@@ -42,9 +42,7 @@ def postprocess_data(df_cleaned: pd.DataFrame,
     # Note: clean_names() (from Pyjanitor) converts to lowercase, replaces spaces with underscores
     
     # Initialize report (as dictionary)
-    report = {
-        'changes': []
-    }
+    report = {'changes': []}
     
     # Loop through numeric columns
     for col in list(df.select_dtypes(include = np.number).columns):
