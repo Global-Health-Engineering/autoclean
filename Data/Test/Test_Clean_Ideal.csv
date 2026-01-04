@@ -1,0 +1,74 @@
+city,facility_type,water_source,funding_organization,date_installed,population_served,water_quality_score,depth_meters,distance_km,daily_usage,is_functional,maintenance_frequency,number_of_staff
+New York,Hospital,Borehole,WHO,2024-01-15,2500,85,45,12,500,Yes,Monthly,25
+New York,Hospital,Borehole,WHO,2024-01-15,2400,82,42,11,480,Yes,Monthly,24
+New York,Hospital,Borehole,WHO,2024-01-15,2600,88,48,13,520,Yes,Monthly,26
+New York,Hospital,Borehole,WHO,2024-01-20,2450,84,44,12,490,Yes,Monthly,25
+New York,Hospital,Borehole,WHO,2024-01-20,2550,86,46,12,510,Yes,Monthly,26
+Boston,Clinic,Hand Pump,UNICEF,2024-02-10,1200,72,25,8,240,Yes,Quarterly,12
+Boston,Clinic,Hand Pump,UNICEF,2024-02-10,1150,70,23,7,230,Yes,Quarterly,11
+Boston,Clinic,Hand Pump,UNICEF,2024-02-10,1250,74,27,9,250,Yes,Quarterly,12
+Boston,Clinic,Hand Pump,UNICEF,2024-02-15,1180,71,24,8,236,Yes,Quarterly,12
+Los Angeles,Health Center,Piped Water,Scottish Government,2024-03-01,3200,90,0,2,640,No,Monthly,32
+Los Angeles,Health Center,Piped Water,Scottish Government,2024-03-01,3100,88,0,2,620,No,Monthly,31
+Los Angeles,Health Center,Piped Water,Scottish Government,2024-03-01,3300,92,0,3,660,No,Monthly,33
+Los Angeles,Health Center,Piped Water,Scottish Government,2024-03-05,3150,89,0,2,630,No,Monthly,32
+Chicago,Hospital,Borehole,UNICEF,2024-03-15,1800,78,35,15,360,Yes,Quarterly,18
+Chicago,Hospital,Borehole,UNICEF,2024-03-15,1750,76,33,14,350,Yes,Quarterly,17
+Chicago,Hospital,Borehole,UNICEF,2024-03-15,1850,80,37,16,370,Yes,Quarterly,18
+Seattle,Clinic,Hand Pump,WHO,2024-04-01,950,68,20,6,190,Yes,Monthly,10
+Seattle,Clinic,Hand Pump,WHO,2024-04-01,920,66,18,5,184,Yes,Monthly,9
+Seattle,Clinic,Hand Pump,WHO,2024-04-01,980,70,22,7,196,Yes,Monthly,10
+Denver,Health Center,Piped Water,Scottish Government,2024-04-15,2800,88,0,3,560,Yes,Quarterly,28
+Denver,Health Center,Piped Water,Scottish Government,2024-04-15,2750,86,0,3,550,Yes,Quarterly,28
+Denver,Health Center,Piped Water,Scottish Government,2024-04-15,2850,90,0,4,570,Yes,Quarterly,29
+New York,Clinic,Borehole,UNICEF,2024-05-01,2100,82,40,10,420,Yes,Monthly,21
+New York,Clinic,Borehole,UNICEF,2024-05-01,2100,80,38,9,420,Yes,Monthly,21
+New York,Clinic,Borehole,UNICEF,2024-05-01,2150,84,39,10,430,Yes,Monthly,22
+New York,Clinic,Borehole,UNICEF,2024-05-05,2050,80,39,10,410,Yes,Quarterly,20
+Boston,Hospital,Hand Pump,WHO,2024-05-15,1500,75,28,9,290,Yes,Quarterly,15
+Boston,Hospital,Hand Pump,WHO,2024-05-15,1450,73,26,8,290,Yes,Quarterly,14
+Boston,Hospital,Hand Pump,WHO,2024-05-15,1400,73,30,10,280,Yes,Quarterly,14
+Los Angeles,Clinic,Piped Water,Scottish Government,2024-06-01,2900,91,0,2,580,No,Monthly,29
+Los Angeles,Clinic,Piped Water,Scottish Government,2024-06-01,2850,89,0,2,570,No,Monthly,29
+Los Angeles,Clinic,Piped Water,Scottish Government,2024-06-01,2950,93,0,3,590,No,Monthly,30
+Chicago,Health Center,Borehole,UNICEF,2024-06-15,2200,81,38,14,440,Yes,Quarterly,22
+Chicago,Health Center,Borehole,UNICEF,2024-06-15,2150,79,36,13,430,Yes,Quarterly,22
+Chicago,Health Center,Borehole,UNICEF,2024-06-15,2250,83,40,15,450,Yes,Quarterly,22
+Seattle,Hospital,Hand Pump,WHO,2024-07-01,1100,69,22,7,220,Yes,Monthly,11
+Seattle,Hospital,Hand Pump,WHO,2024-07-01,1050,67,20,6,210,Yes,Monthly,10
+Seattle,Hospital,Hand Pump,WHO,2024-07-01,1150,71,24,8,230,Yes,Monthly,11
+Denver,Clinic,Piped Water,Scottish Government,2024-07-15,2600,87,0,3,520,Yes,Quarterly,26
+Denver,Clinic,Piped Water,Scottish Government,2024-07-15,2550,85,0,3,510,Yes,Quarterly,26
+Denver,Clinic,Piped Water,Scottish Government,2024-07-15,2650,89,0,4,530,Yes,Quarterly,27
+New York,Health Center,Borehole,WHO,2024-08-01,2700,86,42,11,540,No,Monthly,27
+New York,Health Center,Borehole,WHO,2024-08-01,2650,84,40,10,530,No,Monthly,27
+New York,Health Center,Borehole,WHO,2024-08-01,2750,88,44,12,550,No,Monthly,28
+Boston,Clinic,Hand Pump,UNICEF,2024-08-15,1300,73,26,8,260,Yes,Quarterly,13
+Boston,Clinic,Hand Pump,UNICEF,2024-08-15,1250,71,24,7,250,Yes,Quarterly,12
+Boston,Clinic,Hand Pump,UNICEF,2024-08-15,1350,75,28,9,270,Yes,Quarterly,13
+Los Angeles,Hospital,Piped Water,Scottish Government,2024-09-01,3500,94,0,2,700,Yes,Monthly,35
+Los Angeles,Hospital,Piped Water,Scottish Government,2024-09-01,3450,92,0,2,690,Yes,Monthly,35
+Los Angeles,Hospital,Piped Water,Scottish Government,2024-09-01,3550,96,0,3,710,Yes,Monthly,36
+Chicago,Clinic,Borehole,WHO,2024-09-15,1900,79,36,14,380,Yes,Quarterly,19
+Chicago,Clinic,Borehole,WHO,2024-09-15,1850,77,34,13,370,Yes,Quarterly,18
+Chicago,Clinic,Borehole,WHO,2024-09-15,1950,81,38,15,390,Yes,Quarterly,19
+Seattle,Health Center,Hand Pump,UNICEF,2024-10-01,1000,68,21,6,200,No,Monthly,10
+Seattle,Health Center,Hand Pump,UNICEF,2024-10-01,950,66,19,5,190,No,Monthly,9
+Seattle,Health Center,Hand Pump,UNICEF,2024-10-01,1050,70,23,7,210,No,Monthly,10
+Denver,Hospital,Piped Water,Scottish Government,2024-10-15,2900,89,0,3,580,Yes,Quarterly,29
+Denver,Hospital,Piped Water,Scottish Government,2024-10-15,2850,87,0,3,570,Yes,Quarterly,29
+Denver,Hospital,Piped Water,Scottish Government,2024-10-15,2950,91,0,4,590,Yes,Quarterly,30
+New York,Clinic,Borehole,UNICEF,2024-11-01,2000,80,38,10,430,Yes,Monthly,20
+New York,Clinic,Borehole,UNICEF,2024-11-01,1975,78,36,9,390,Yes,Monthly,19
+New York,Clinic,Borehole,UNICEF,2024-11-01,2100,82,37,10,420,Yes,Monthly,21
+Boston,Health Center,Hand Pump,WHO,2024-11-15,1400,74,27,8,280,Yes,Quarterly,14
+Boston,Health Center,Hand Pump,WHO,2024-11-15,1350,72,26,7,270,Yes,Quarterly,13
+Boston,Health Center,Hand Pump,WHO,2024-11-15,1400,74,29,9,280,Yes,Quarterly,14
+Los Angeles,Clinic,Piped Water,Scottish Government,2024-12-01,3000,88,0,2,600,Yes,Monthly,30
+Los Angeles,Clinic,Piped Water,Scottish Government,2024-12-01,3000,80,0,2,600,Yes,Monthly,30
+Los Angeles,Clinic,Piped Water,Scottish Government,2024-12-01,3100,88,0,3,620,Yes,Monthly,31
+Chicago,Hospital,Borehole,UNICEF,2024-12-15,1800,78,35,14,360,Yes,Quarterly,18
+Chicago,Hospital,Borehole,UNICEF,2024-12-15,1800,76,35,14,360,Yes,Quarterly,18
+Seattle,Clinic,Hand Pump,WHO,2024-12-20,1000,70,22,7,200,Yes,Monthly,10
+Seattle,Clinic,Hand Pump,WHO,2024-12-20,980,68,20,6,196,Yes,Monthly,10
+Denver,Health Center,Piped Water,Scottish Government,2024-12-25,2750,88,0,3,550,No,Quarterly,28
