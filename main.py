@@ -11,15 +11,18 @@ from Functions.Structural_Errors import fix_structural_errors
 from Functions.Post_Processing import postprocess_data
 from Functions.Cleaning_Report import generate_cleaning_report
 
+
 # =============================================================================
 # SETTINGS
 # =============================================================================
 
 INPUT_FILE = 'Data/Test/Test.csv'
 OUTPUT_FILE = 'Data/Test/Test_Cleaned.csv'
+REPORT_FILE = 'Data/Test/Test_Report.md'
+
 
 # =============================================================================
-# PRE-PROCESSING
+# LOAD DATA
 # =============================================================================
 
 df_original, df, report_pre = preprocess_data(INPUT_FILE,
@@ -94,4 +97,19 @@ df, report_post = postprocess_data(df, df_original)
 # =============================================================================
 
 df.to_csv(OUTPUT_FILE, index=False)
-print(f"\nSaved: {OUTPUT_FILE}")
+
+
+# =============================================================================
+# GENERATE REPORT
+# =============================================================================
+
+reports = {
+    'preprocessing': report_pre,
+    'duplicates': report_dup,
+    # 'missing_values': report_miss,
+    # 'datetime': report_date,
+    # 'outliers': report_out,
+    # 'structural_errors': report_struct,
+    'postprocessing': report_post
+}
+generate_cleaning_report(reports, REPORT_FILE, dataset_name=INPUT_FILE)

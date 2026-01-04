@@ -2,9 +2,9 @@
 import pandas as pd
 
 # Import subfunctions
-from Structural_Errors_Helper.Similarity import rapidfuzz_similarity, embedding_similarity
-from Structural_Errors_Helper.Clustering import hierarchical_clustering, connected_components_clustering, affinity_propagation_clustering
-from Structural_Errors_Helper.Canonical import most_frequent, llm_selection
+from Functions.Structural_Errors_Helper.Similarity import rapidfuzz_similarity, embedding_similarity
+from Functions.Structural_Errors_Helper.Clustering import hierarchical_clustering, connected_components_clustering, affinity_propagation_clustering
+from Functions.Structural_Errors_Helper.Canonical import most_frequent, llm_selection
 
 """
 Structural Errors: Fix inconsistent string values in categorical columns
