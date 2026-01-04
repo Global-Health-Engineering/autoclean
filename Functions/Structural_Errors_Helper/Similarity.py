@@ -49,12 +49,13 @@ def rapidfuzz_similarity(values: list) -> np.ndarray:
 # Method 2: Embedding Similarity (OpenAI)
 # =============================================================================
 
-def embedding_similarity(values: list) -> np.ndarray:
+def embedding_similarity(values: list, model: str = "text-embedding-3-small") -> np.ndarray:
     """
     Compute similarity matrix using OpenAI embeddings and cosine similarity.
     
     Parameters:
         values: List of unique string values to compare
+        model: OpenAI model ("text-embedding-3-small" or "text-embedding-3-large")
     
     Returns:
         np.ndarray: Similarity matrix (n x n) with values 0-1
@@ -66,7 +67,7 @@ def embedding_similarity(values: list) -> np.ndarray:
     client = OpenAI()
     response = client.embeddings.create(
         input=[str(v) for v in values],
-        model="text-embedding-3-small"
+        model=model
     )
     embeddings = np.array([item.embedding for item in response.data])
     

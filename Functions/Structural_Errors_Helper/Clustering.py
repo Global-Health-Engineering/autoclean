@@ -3,6 +3,7 @@ import numpy as np
 from scipy.cluster.hierarchy import linkage, fcluster
 from scipy.sparse import csr_matrix
 from scipy.sparse.csgraph import connected_components
+from sklearn.cluster import AffinityPropagation
 
 """
 Clustering: Group similar values into clusters
@@ -11,8 +12,8 @@ Takes a similarity matrix and returns cluster labels (which cluster each value b
 Available methods:
     - hierarchical_clustering: Industry standard, threshold-based
     - connected_components_clustering: Simplest, graph-based
+    - affinity_propagation_clustering: Auto-finds number of clusters
 """
-
 
 # =============================================================================
 # Method 1: Hierarchical Clustering
@@ -73,5 +74,32 @@ def connected_components_clustering(similarity_matrix: np.ndarray, threshold: fl
     
     # Find connected components
     n_clusters, labels = connected_components(csr_matrix(adjacency), directed=False)
+    
+    return labels
+
+
+# =============================================================================
+# Method 3: Affinity Propagation Clustering
+# =============================================================================
+
+def affinity_propagation_clustering(similarity_matrix: np.ndarray, damping: float = 0.7) -> np.ndarray:
+    """
+    Cluster values using Affinity Propagation.
+    
+    Parameters:
+        similarity_matrix: Square matrix (n x n) with similarity scores 0-1
+        damping: Damping factor (0.5-1.0, default: 0.7)
+                 Higher = more stable, slower convergence
+    
+    Returns:
+        np.ndarray: Cluster labels (array of integers, one per value)
+    
+    Note:
+        Affinity Propagation automatically determines the number of clusters.
+        It finds "exemplars" (representative points) that best represent clusters.
+    """
+    # Run Affinity Propagation (uses similarity matrix directly)
+    af = AffinityPropagation(affinity='precomputed', damping=damping, random_state=42)
+    labels = af.fit_predict(similarity_matrix)
     
     return labels

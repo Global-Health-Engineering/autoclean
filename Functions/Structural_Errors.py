@@ -3,7 +3,7 @@ import pandas as pd
 
 # Import subfunctions
 from Structural_Errors_Helper.Similarity import rapidfuzz_similarity, embedding_similarity
-from Structural_Errors_Helper.Clustering import hierarchical_clustering, connected_components_clustering
+from Structural_Errors_Helper.Clustering import hierarchical_clustering, connected_components_clustering, affinity_propagation_clustering
 from Structural_Errors_Helper.Canonical import most_frequent, llm_selection
 
 """
@@ -28,7 +28,8 @@ def fix_structural_errors(
     similarity: str = "rapidfuzz",
     clustering: str = "hierarchical",
     canonical: str = "most_frequent",
-    threshold: float = 0.85
+    threshold: float = 0.85,
+    embedding_model: str = "text-embedding-3-small"
 ) -> tuple:
     """
     Fix structural errors in a categorical column.
@@ -37,9 +38,10 @@ def fix_structural_errors(
         df: DataFrame to clean
         column: Column name to fix
         similarity: "rapidfuzz" (character-based) or "embeddings" (semantic)
-        clustering: "hierarchical" (standard) or "connected_components" (simple)
+        clustering: "hierarchical", "connected_components", or "affinity_propagation"
         canonical: "most_frequent" (simple) or "llm" (intelligent)
         threshold: Minimum similarity to group values (0-1, default: 0.85)
+        embedding_model: "text-embedding-3-small" or "text-embedding-3-large"
     
     Returns:
         tuple: (df_cleaned, report)
@@ -57,6 +59,7 @@ def fix_structural_errors(
         'clustering': clustering,
         'canonical': canonical,
         'threshold': threshold,
+        'embedding_model': embedding_model,
         'unique_before': df[column].nunique(),
         'unique_after': None,
         'mapping': {},
@@ -81,7 +84,7 @@ def fix_structural_errors(
     if similarity == "rapidfuzz":
         similarity_matrix = rapidfuzz_similarity(unique_values)
     elif similarity == "embeddings":
-        similarity_matrix = embedding_similarity(unique_values)
+        similarity_matrix = embedding_similarity(unique_values, embedding_model)
     else:
         raise ValueError(f"Unknown similarity: {similarity}")
     
@@ -92,6 +95,8 @@ def fix_structural_errors(
         labels = hierarchical_clustering(similarity_matrix, threshold)
     elif clustering == "connected_components":
         labels = connected_components_clustering(similarity_matrix, threshold)
+    elif clustering == "affinity_propagation":
+        labels = affinity_propagation_clustering(similarity_matrix)
     else:
         raise ValueError(f"Unknown clustering: {clustering}")
     
