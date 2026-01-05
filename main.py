@@ -7,7 +7,7 @@ from Functions.Duplicates import handle_duplicates
 from Functions.Missing_Values import handle_missing_values
 from Functions.DateTime_Standardization import standardize_datetime
 from Functions.Outliers import handle_outliers
-from Functions.Structural_Errors import fix_structural_errors
+from Functions.Structural_Errors import handle_structural_errors
 from Functions.Post_Processing import postprocess_data
 from Functions.Cleaning_Report import generate_cleaning_report
 
@@ -75,7 +75,7 @@ df, report_out = handle_outliers(df,
 # STRUCTURAL ERRORS
 # =============================================================================
 """
-df, report_struct = fix_structural_errors(df,
+df, report_struct = handle_structural_errors(df,
                                           column = 'city',
                                           similarity = 'rapidfuzz',
                                           clustering = 'hierarchical',

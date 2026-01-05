@@ -32,7 +32,7 @@ def most_frequent(cluster_values: list, value_counts: dict) -> str:
     """
     best_value = None
     best_count = 0
-
+    
     # If cluster contains only one value, return it
     if len(cluster_values) == 1:
         return cluster_values[0]
@@ -110,6 +110,5 @@ Reply only with the corresponding number from the list above. Only one integer n
             return cluster_values[index]
     
     # Fallback
-    else: 
-        print(f"Warning: LLM returned invalid response: {response}, using fallback: {cluster_values[0]}")
-        return cluster_values[0]
+    print(f"Warning: LLM returned invalid response: {response}, using fallback: {cluster_values[0]}")
+    return cluster_values[0]

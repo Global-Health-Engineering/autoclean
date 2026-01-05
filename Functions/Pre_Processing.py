@@ -1,5 +1,6 @@
 # Imported libraries
 import pandas as pd
+import numpy as np
 import janitor  # Python library PyJanitor 
 
 """
@@ -55,19 +56,18 @@ def preprocess_data(filepath: str, clean_names: bool = True) -> tuple:
 
     # Strip whitespace from string columns
     for col in list(df.select_dtypes(include = 'object').columns):
-        df[col] = df[col].apply(lambda x: x.strip() if isinstance(x, str) else x)
+        df[col] = df[col].map(lambda x: x.strip() if isinstance(x, str) else x)
     # Note: select_dtypes(include = 'object') returns string columns or mixed type columns 
     #       .columns returns the column names (as pandas Index)
     #       list() convert to list 
-    #       .apply(func) runs function on every cell in column
+    #       .map(func) runs function on every cell in column
     #       Lambda function: strips whitespace if value is string, otherwise returns input 
     #       x.strip() removes leading/trailing whitespace
     #       isinstance(x, str) checks if x is a string
  
-    # Standardize missing values (Common representations of missing data → NaN)
-    missing_values = ['', ' ', 'NA', 'N/A', 'na', 'n/a', 'NaN', 'nan', 
-                      'NULL', 'null', 'None', 'none', '-', '--', '.']
-    df = df.replace(missing_values, pd.NA)
+    # Standardize missing values (Common representations of missing data → np.nan)
+    missing_values = ['', ' ', 'NULL', 'null', 'None', 'none', '-', '--', '.']
+    df = df.replace(missing_values, np.nan)
     # Note: df.replace(list, value) replaces any item in list with value
 
     # Remove empty rows and columns (using remove_empty() from PyJanitor)

@@ -15,7 +15,6 @@ Returns:
 # ============================================================================
 
 def handle_duplicates(df: pd.DataFrame) -> tuple:
-    
     # Terminal output: start
     print("Handling duplicates... ", end="", flush=True)
     # Note: With flush = True, print is immediately

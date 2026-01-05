@@ -8,7 +8,7 @@ import os
 from dotenv import load_dotenv
 
 """
-Similarity: Compute similarity matrix between string values
+Similarity: Compute similarity matrix between string values 
 Returns a similarity matrix (n x n) for n unique values, where cell [i,j] = similarity between value i and j
 Values range from 0 (different) to 1 (identical)
 
@@ -25,7 +25,7 @@ For further information, see look at Structural_errors.md in the folder Addition
 
 def rapidfuzz_similarity(values: list) -> np.ndarray:
     """
-    Compute similarity matrix using RapidFuzz token_sort_ratio
+    From list values compute similarity matrix using RapidFuzz token_sort_ratio
     """
     # Get the # of unique values (values = list of unique values)
     n = len(values)
@@ -56,7 +56,7 @@ def rapidfuzz_similarity(values: list) -> np.ndarray:
 
 def embedding_similarity(values: list, model: str = "text-embedding-3-small") -> np.ndarray:
     """
-    Compute similarity matrix using OpenAI embeddings and cosine similarity
+    From list values compute similarity matrix using OpenAI embeddings and cosine similarity
     
     Available OpenAI model: 
     - "text-embedding-3-small" (default, best for Everyday language)
