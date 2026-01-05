@@ -41,7 +41,7 @@ Group (cluster) similar values together and replace them with one canonical (sta
 
 A similarity matrix shows how similar every value is to every other value. For n unique values, we get an n × n matrix.
 
-**Example** (4 values):
+**Example** (4 unique values):
 ```
               Value A   Value B   Value C   Value D
 Value A        1.00      0.85      0.20      0.15
@@ -68,88 +68,86 @@ Split each string into words (tokens), sort them alphabetically, then join back 
 ```
 "Health Center" → ["Health", "Center"] → ["Center", "Health"] → "Center Health"
 "Center Health" → ["Center", "Health"] → ["Center", "Health"] → "Center Health"
-```
 
 After sorting, both strings are identical.
+```
 
 **2. Ratio Calculation**
 
-Compare the sorted strings character by character and calculate the similarity ratio.
+Compare the sorted strings character by charcter and calculate the similarity ratio: `(matching characters * 2 ) / (total characters in both strings)`. 
 
-For single words:
 ```
-"Hospital" vs "Hosptial"
-→ Most characters match → High similarity (~0.88)
-```
-
-For multiple words (after token sort):
-```
-"Center Health" vs "Center Health"
-→ All characters match → Similarity = 1.0
-
 "Center Health" vs "Centre Health"
-→ Most characters match (only e vs r differs) → High similarity (~0.92)
+→ Most characters match → High similarity (~0.92)
 ```
-
-**Parameters:**
-| Parameter | Value | Description |
-|-----------|-------|-------------|
-| method | `token_sort_ratio` | Sorts words alphabetically, then calculates character ratio |
 
 **Best for:** Typos, case differences, spacing issues, word order differences
 
-**Limitation:** Cannot understand meaning. "NYC" and "New York City" have low character similarity because they share few characters.
+**Limitation:** Cannot understand meaning. "NYC" and "New York City" have low character similarity because they share few characters. But obviously they are meant to be the same thing. 
 
 ---
 
 ### Method B: Embeddings (Semantic)
 
-Embeddings convert text into numerical vectors that capture meaning. Similar meanings → similar vectors.
+Embeddings convert text into numerical vectors that capture semantic meaning. Each word or phrase becomes a vector of numbers.
 
 #### Text to Vector
 
-Each string is converted to a high-dimensional vector (list of numbers). The embedding model (trained on billions of texts) learns to place words with similar meanings close together in vector space.
+Each string is converted to a high-dimensional vector. The embedding model (from OpenAI) learns to point words with similar meaning in similar **directions** in  the vector space. Note that OpenAI embeddings are normalized (all vectors have length 1), so lenght carries no meaning, only the direction.
 
 ```
-"New York City"  →  [0.023, -0.041, 0.018, ..., 0.033]   (1536 numbers)
-"NYC"            →  [0.025, -0.038, 0.021, ..., 0.031]   (1536 numbers)
-"Los Angeles"    →  [-0.019, 0.052, -0.008, ..., -0.027] (1536 numbers)
+"New York"  →  [0.12, -0.34, 0.56, 0.78, ...]
+"NYC"       →  [0.11, -0.33, 0.55, 0.77, ...]   ← similar to "New York"!
+"Boston"    →  [0.45, 0.23, -0.12, 0.34, ...]   ← different direction
 ```
 
-These vectors are normalized (length = 1). Words with similar meaning point in similar directions in this high-dimensional space.
 
 #### Cosine Similarity
 
-We measure similarity by the angle between two vectors:
+Cosine similarity measures the angle between two vectors. A smaller angle means the vectors point in more similar directions, which means the texts have more similar meanings.
 
 ```
-                    A · B
-cosine(A, B) = ─────────────
-               ||A|| × ||B||
-
-Where:
-- A · B = dot product (multiply corresponding elements, sum them)
-- ||A|| = magnitude (length of vector)
+               A · B    
+cos(θ)  =  ───────────── 
+           ||A|| × ||B||      
 ```
 
-- Vectors pointing in the same direction → cosine = 1 (identical meaning)
-- Vectors perpendicular → cosine = 0 (unrelated meaning)
+- Numerator: Dot product of vectors A and B
+- Denominator: Product of vector lengths (normalizes the result)
 
-**Result:**
+Note: Since OpenAI embeddings are already normalized (length = 1), the denominator equals 1, 
+      so cosine similarity simplifies to just the dot product.
+
+**Range of cosine similarity:** 0 to 1 
+
+| Value | Meaning | Example |
+|-------|---------|---------|
+| 1.0 | Identical | "New York" vs "New York" |
+| > 0.8 | Same thing | "New York" vs "NYC" |
+| 0.5 | Somewhat related | "New York" vs "Boston" (both cities) |
+| 0.0 | Unrelated | "New York" vs "Banana" |
+
+**Result:** We compute similarity between all pairs to create the similarity matrix:
 ```
-"NYC" vs "New York City"  →  cosine ≈ 0.92  (high - same meaning!)
-"NYC" vs "Los Angeles"    →  cosine ≈ 0.45  (low - different cities)
+              New York   new york   NYC     NY    Boston   boston
+New York        1.00       0.95    0.88   0.85    0.45     0.44
+new york        0.95       1.00    0.87   0.84    0.44     0.46
+NYC             0.88       0.87    1.00   0.90    0.42     0.41
+NY              0.85       0.84    0.90   1.00    0.43     0.42
+Boston          0.45       0.44    0.42   0.43    1.00     0.96
+boston          0.44       0.46    0.41   0.42    0.96     1.00
 ```
 
-**Parameters:**
-| Parameter | Options | Description |
-|-----------|---------|-------------|
-| model | `text-embedding-3-small` | Faster, cheaper, 1536 dimensions |
-| model | `text-embedding-3-large` | Better quality, 3072 dimensions |
+**Parameters (Models):**
+
+| Model | Dimensions of Vector | Use Case |
+|-------|------------|----------|
+| `text-embedding-3-small` | 1536 | Everyday language |
+| `text-embedding-3-large` | 3072 | Specialized/technical vocabulary |
 
 **Best for:** Abbreviations, synonyms, semantic variations
 
-**Limitation:** Requires API call (cost, latency). May over-group unrelated short strings.
+**Limitation:** Requires API call, slower, costs money.
 
 ---
 
@@ -163,15 +161,16 @@ Clustering groups similar values together based on the similarity matrix. Each g
 
 | Method | Threshold? | Best For |
 |--------|------------|----------|
-| **Hierarchical** | Yes | Most cases. Best when you want control over how strict the grouping is. Good for typos, case errors, and spacing issues where you can set a clear similarity threshold. |
-| **Connected Components** | Yes | Simple and fast. Best when similar values should always be grouped together, even indirectly. If A is similar to B, and B is similar to C, then A, B, and C are all grouped together. |
-| **Affinity Propagation** | No (auto) | Best when you don't know what similarity threshold to use. The algorithm automatically determines the optimal number of clusters. Good for exploring data or when error types are mixed. |
+| **Hierarchical** | Yes | All-rounder. You directly control how strict the grouping is via the threshold. Most predictable behavior and good default choice.|
+| **Connected Components** | Yes | Simple and fast. Best when similar values should always be grouped together, even indirectly (if A~B and B~C, then A,B,C grouped). |
+| **Affinity Propagation** | No (auto) | When you don't know what threshold to use. Automatically finds the optimal number of clusters. Good for exploring data or mixed error types. |
 
 ### Method Details
 
+
 **Hierarchical Clustering**
 
-Starts with each value in its own cluster. Repeatedly finds the two most similar clusters and merges them. Stops when the similarity between clusters drops below the threshold. You control how aggressive the grouping is via the threshold parameter.
+Starts with each value in its own cluster. Repeatedly finds the two most similar clusters and merges them. When clusters merge, their similarity to other clusters is calculated as the average of all pairwise similarities (average linkage). Stops when the similarity between clusters drops below the threshold. You control how aggressive the grouping is via the threshold parameter.
 
 **Connected Components Clustering**
 
@@ -179,7 +178,18 @@ Builds a graph where each value is a node. Draws a connection between two nodes 
 
 **Affinity Propagation Clustering**
 
-Values "vote" for which value should represent them (the exemplar). Through iterative message passing, the algorithm finds natural groupings and their representative values. No threshold needed - the algorithm decides the optimal grouping automatically.
+The algorithm maintains two values for every pair of points (i, k):
+- **Responsibility r(i,k):** "How much does value i want k to be its representative?" (high if k is similar to i and i has no better options)
+- **Availability a(i,k):** "How good of a representative would k be for i?" (high if many others also want k to represent them)
+
+The iteration process:
+1. Compute all responsibilities based on similarities
+2. Compute all availabilities based on responsibilities
+3. Update responsibilities using new availabilities
+4. Update availabilities using new responsibilities
+5. Repeat until values stop changing
+
+For more details: https://en.wikipedia.org/wiki/Affinity_propagation
 
 ### Parameters
 
@@ -196,7 +206,7 @@ Values "vote" for which value should represent them (the exemplar). Through iter
 **Affinity Propagation:**
 | Parameter | Default | Description |
 |-----------|---------|-------------|
-| damping | 0.7 | Controls how much values update their preferences each iteration (0.5-1.0). Higher values make updates smaller, which helps the algorithm converge smoothly without oscillating. |
+| damping | 0.7 | Controls how values update each round. Without damping, the algorithm replaces old values completely with new computed values. This can cause oscillation where preferences flip back and forth forever. With damping = 0.7, the new value is blended: 70% old value + 30% newly computed value. This gradual change ensures the algorithm converges to a stable solution. |
 
 ---
 
@@ -204,7 +214,7 @@ Values "vote" for which value should represent them (the exemplar). Through iter
 
 ### What is a Canonical Name?
 
-The canonical name is the "correct" or "standard" form that will represent all values in a cluster.
+The canonical name is the standardized form that will represent all values in a cluster. 
 
 ### Method A: Most Frequent
 
@@ -242,7 +252,7 @@ The mapping is a dictionary that connects each original value to its canonical n
     "New York": "New York",    (canonical stays the same)
     "new york": "New York",    (mapped to canonical)
     "NEW YORK": "New York",    (mapped to canonical)
-    "NYC": "NYC"               (different cluster, own canonical)
+    "NYC": "New York"          (mapped to canonical)
 }
 ```
 
@@ -250,4 +260,4 @@ The mapping is a dictionary that connects each original value to its canonical n
 
 Every value in the categorical column is replaced with its canonical name from the mapping. Values not in the mapping (e.g., NaN) remain unchanged.
 
-**Result:** A cleaned DataFrame column with standardized categorical values, ready for analysis.
+**Result:** A cleaned DataFrame column with standardized and consistent categorical values.
