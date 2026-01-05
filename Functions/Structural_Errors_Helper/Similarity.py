@@ -62,7 +62,7 @@ def embedding_similarity(values: list, model: str = "text-embedding-3-small") ->
     - "text-embedding-3-small" (default, best for Everyday language)
     - "text-embedding-3-large" (best for Specialized/technical vocabulary) 
     """
-     # Get API key from .env file
+    # Get API key from .env file
     load_dotenv()
     api_key = os.getenv("OPENAI_API_KEY")
 
