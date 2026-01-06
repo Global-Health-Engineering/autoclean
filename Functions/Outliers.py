@@ -28,6 +28,7 @@ Returns:
 def handle_outliers(df: pd.DataFrame, method: str = 'winsorize', multiplier: float = 1.5) -> tuple:
     # Terminal output: start
     print("Handling outliers... ", end="", flush=True)
+    # Note: With flush = True, print is immediately
     
     # Initialize report
     report = {'method': method,

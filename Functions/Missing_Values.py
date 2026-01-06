@@ -38,6 +38,9 @@ Note on remaining parameters for MissForest and KNN:
     - max_iter : Maximum iterations for MissForest imputation (default=10)
     - n_estimators : Number of trees in Random Forest for MissForest (default=10)
 
+Returns: 
+    Cleaned datafram and report (as tuple)
+
 For further information about the algorithms KNN & MissForest, see in the folder Additional_Information
 """
 
@@ -52,31 +55,25 @@ def handle_missing_values(df: pd.DataFrame,
                           n_neighbors: int = 5, 
                           max_iter: int = 10,
                           n_estimators: int = 10) -> tuple:
-    """
-    Returns:
-        (df, report): Cleaned DataFrame and report dict
-    """
-    
     # Terminal output: start
     print("Handling missing values... ", end="", flush=True)
-    
+    # Note: With flush = True, print is immediately
+
     # Initialize report
-    report = {
-        'method_num': method_num,
-        'method_categ': method_categ,
-        'num_missing_before': 0,
-        'categ_missing_before': 0,
-        'rows_deleted': 0,
-        'imputations': []
-    }
+    report = {'method_num': method_num,
+              'method_categ': method_categ,
+              'num_missing_before': 0,
+              'categ_missing_before': 0,
+              'rows_deleted': 0,
+              'imputations': []}
     
     # Get indexes of numerical & categorical columns
     i_num_cols = list(df.select_dtypes(include = np.number).columns)
     # Note: .select_dtypes(include = np.number) returns a dataframe with numerical columns 
     #       .columns gets the indexes of the numerical columns (as pandas Index object)
     #       list() convert to list
-    i_categ_cols = list(df.select_dtypes(exclude = np.number).columns)
-    # Note: .select_dtypes(exclude = np.number) returns a dataframe with categorical columns
+    i_categ_cols = list(df.select_dtypes(include = ['object', 'category', 'bool']).columns)
+    # Note: .select_dtypes(include = ['object', 'category', 'bool']) returns a dataframe with categorical columns
     #       .columns gets the indexes of the numerical columns (as pandas Index object)
     #       list() convert to list
 
@@ -92,16 +89,18 @@ def handle_missing_values(df: pd.DataFrame,
     #       .isna() returns a dataframe of True / False, with True for missing values 
     #       First .sum() sums each column
     #       Second .sum() sums all the column totals
+    #       if i_num_cols is empty, n_num_missing = 0
     n_categ_missing = df[i_categ_cols].isna().sum().sum() 
     # Note: df[i_categ_cols] returns a dataframe with (selected) categorical columns 
     #       .isna() returns a dataframe of True / False, with True for missing values 
     #       First .sum() sums each column
     #       Second .sum() sums all the column totals
+    #       if i_categ_cols is empty, n_categ_missing = 0
     n_total_missing = n_categ_missing + n_num_missing
 
     # Update report
-    report['num_missing_before'] = int(n_num_missing)
-    report['categ_missing_before'] = int(n_categ_missing)
+    report['num_missing_before'] = n_num_missing
+    report['categ_missing_before'] = n_categ_missing
 
     if n_total_missing == 0:
         print("✓")
@@ -112,15 +111,20 @@ def handle_missing_values(df: pd.DataFrame,
         method_num = 'false'
         report['method_num'] = 'false'
 
-    # Track missing positions before numerical imputation (for report)
-    missing_before_num = df[i_num_cols].isna().copy() if i_num_cols else None
-
     # Execute numerical methods (if methode_num == 'false', then execution is skipped)
-    n_rows_before = len(df)
     if method_num != 'false':
+        # Get boolean mask for missing values before numerical imputation (for report)
+        mask_missing_before_num = df[i_num_cols].isna().copy() 
+        
         if method_num == 'delete':
+            # Get # of rows before numerical delete is applied (for report) 
+            n_rows_before = len(df)
+
             df = _handle_numerical_delete(df, i_num_cols)
-            report['rows_deleted'] += n_rows_before - len(df)
+
+            # Update report 
+            report['rows_deleted'] = n_rows_before - len(df)
+
             # Possible that n_categ_missing has changed through deleting rows 
             n_categ_missing = df[i_categ_cols].isna().sum().sum()
 
@@ -133,31 +137,35 @@ def handle_missing_values(df: pd.DataFrame,
         elif method_num == 'missforest':
             df = _handle_numerical_missforest(df, i_num_cols, max_iter, n_estimators)
     
-    # Track what was filled (numerical) - only for non-delete methods
-    if method_num not in ['false', 'delete'] and missing_before_num is not None:
+    # Track for report data imputation (numerical) 
+    if method_num not in ['false', 'delete']:
         for col in i_num_cols:
-            for idx in df.index:
-                if idx < len(missing_before_num) and missing_before_num.at[idx, col] and pd.notna(df.at[idx, col]):
-                    report['imputations'].append({
-                        'row': int(idx),
-                        'column': col,
-                        'new_value': df.at[idx, col],
-                        'method': method_num
-                    })
-      
+            for idx in df.index: # df.index gets row indexes 
+                # Check if cell was missing before (mask_missing_before_num.at[idx, col]) and now has a value, i.e. was imputed (pd.notna(df.at[idx, col]))
+                if mask_missing_before_num.at[idx, col] and pd.notna(df.at[idx, col]):
+                    report['imputations'].append({'row': idx,
+                                                  'column': col,
+                                                  'new_value': df.at[idx, col],
+                                                  'method': method_num})
+                    # Note: Value of key 'imputations' in dict report is a list, in which each value is a dictionary 
+    
     # If no categorical missing values, then set method_categ to false
     if n_categ_missing == 0: 
         method_categ = 'false'
         report['method_categ'] = 'false'
 
-    # Track missing positions before categorical imputation (for report)
-    missing_before_categ = df[i_categ_cols].isna().copy() if i_categ_cols else None
-
     # Execute categorical methods (if methode_categ == 'false', then execution is skipped)
-    n_rows_before = len(df)
     if method_categ != 'false':
+        # Get boolean mask for missing values before categorical imputation (for report)
+        mask_missing_before_categ = df[i_categ_cols].isna().copy()
+
         if method_categ == 'delete':
+            # Get # of rows before categorical delete is applied (for report) 
+            n_rows_before = len(df)
+
             df = _handle_categorical_delete(df, i_categ_cols)
+            
+            # Update report 
             report['rows_deleted'] += n_rows_before - len(df)
             
         elif method_categ == 'mode':
@@ -169,18 +177,18 @@ def handle_missing_values(df: pd.DataFrame,
         elif method_categ == 'missforest':
             df = _handle_categorical_missforest(df, i_categ_cols, max_iter, n_estimators)
     
-    # Track what was filled (categorical) - only for non-delete methods
-    if method_categ not in ['false', 'delete'] and missing_before_categ is not None:
+    # Track for report data imputation (categorical)
+    if method_categ not in ['false', 'delete']:
         for col in i_categ_cols:
-            for idx in df.index:
-                if idx < len(missing_before_categ) and missing_before_categ.at[idx, col] and pd.notna(df.at[idx, col]):
-                    report['imputations'].append({
-                        'row': int(idx),
-                        'column': col,
-                        'new_value': df.at[idx, col],
-                        'method': method_categ
-                    })
-    
+            for idx in df.index: # df.index gets row indexes 
+                # Check if cell was missing before (mask_missing_before_categ.at[idx, col]) and now has a value, i.e. was imputed (pd.notna(df.at[idx, col]))
+                if mask_missing_before_categ.at[idx, col] and pd.notna(df.at[idx, col]):
+                    report['imputations'].append({'row': idx,
+                                                  'column': col,
+                                                  'new_value': df.at[idx, col],
+                                                  'method': method_categ})
+                    # Note: Value of key 'imputations' in dict report is a list, in which each value is a dictionary
+
     # Terminal output: end
     print("✓")
     return df, report
@@ -193,8 +201,6 @@ def _handle_numerical_delete(df: pd.DataFrame, i_num_cols: list) -> pd.DataFrame
     """
     Delete rows that have missing values in (selected) numerical columns 
     """
-    
-    n_original_rows = len(df)
     
     # Get boolean mask (type: Series) with True if row has missing values in (selected) numerical columns & otherwise False
     mask = df[i_num_cols].isna().any(axis = 1)
@@ -276,8 +282,8 @@ def _handle_numerical_knn(df: pd.DataFrame, i_num_cols: list, n_neighbors: int) 
     # Work with copy of df to impute only (selected) numerical columns  
     df_work = df.copy()
     
-    # Get indexes of all categorical columns
-    i_categ_cols = list(df_work.select_dtypes(exclude = np.number).columns)
+    # Get indexes of all categorical columns 
+    i_categ_cols = list(df_work.select_dtypes(include = ['object', 'category', 'bool']).columns)
     
     # Encode all categorical columns (if they exist), such that df_work is only numerical
     if len(i_categ_cols) > 0:
@@ -307,7 +313,7 @@ def _handle_numerical_missforest(df: pd.DataFrame, i_num_cols: list, max_iter: i
     df_work = df.copy()
     
     # Get indexes of all categorical columns
-    i_categ_cols = list(df_work.select_dtypes(exclude = np.number).columns)
+    i_categ_cols = list(df_work.select_dtypes(include = ['object', 'category', 'bool']).columns)
     
     # Encode categorical columns (if they exist), such that df_work is only numerical
     if len(i_categ_cols) > 0:
@@ -335,8 +341,6 @@ def _handle_categorical_delete(df: pd.DataFrame, i_categ_cols: list) -> pd.DataF
     """
     Delete rows that have missing values in (selected) categorical columns 
     """
-    
-    n_original_rows = len(df)
     
     # Get boolean mask (type: Series) with True if row has missing values in (selected) categorical columns & otherwise False
     mask = df[i_categ_cols].isna().any(axis=1)
@@ -370,8 +374,8 @@ def _handle_categorical_knn(df: pd.DataFrame, i_categ_cols: list, n_neighbors: i
     # Work with copy of df to impute only (selected) categorical columns
     df_work = df.copy()
     
-    # Get indexes of all categorical columns
-    i_all_categ_cols = list(df_work.select_dtypes(exclude = np.number).columns)
+    # Get indexes of all categorical columns 
+    i_all_categ_cols = list(df_work.select_dtypes(include = ['object', 'category', 'bool']).columns)
     
     # Encode all categorical columns, such that df_work is only numerical
     df_work, encoder = _encode_categorical_columns(df_work, i_all_categ_cols)
@@ -403,7 +407,7 @@ def _handle_categorical_missforest(df: pd.DataFrame, i_categ_cols: list, max_ite
     df_work = df.copy()
     
     # Get indexes of all categorical columns
-    i_all_categ_cols = list(df_work.select_dtypes(exclude = np.number).columns)
+    i_all_categ_cols = list(df_work.select_dtypes(include = ['object', 'category', 'bool']).columns)
     
     # Encode all categorical columns, such that df_work is only numerical
     df_work, encoder = _encode_categorical_columns(df_work, i_all_categ_cols)
