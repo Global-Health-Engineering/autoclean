@@ -190,7 +190,7 @@ def _parse_and_validate(value_str: str, dayfirst: bool) -> tuple:
         if parsed.year < 1500 or parsed.year > 2100:
             return pd.NaT, False
         
-        return parsed, True
+        return parsed.date(), True
     
     except (ValueError, TypeError, parser.ParserError):
         # Could not parse at all
