@@ -1,7 +1,7 @@
 # AutoClean Report
 
 **Dataset:** Drilling Data
-**Generated:** 2026-01-06 14:47:49
+**Generated:** 2026-01-07 00:17:17
 
 ---
 
@@ -9,7 +9,7 @@
 
 - **Original shape:** 157 rows × 136 columns
 - **After preprocessing:** 157 rows × 70 columns
-- **Total structural errors fixed:** 112
+- **Total structural errors fixed:** 115
 
 ---
 
@@ -34,141 +34,90 @@
 
 ## Structural Errors
 
-- **Columns processed:** 1
-- **Total values changed:** 112
+- **Columns processed:** 2
+- **Total values changed:** 115
 
-### drilling_rig_model
+### drilling_contractor
+
+- **Similarity method:** rapidfuzz
+- **Clustering method:** hierarchical
+- **Canonical selection:** llm
+- **Threshold:** 0.8
+- **Unique values before:** 55
+- **Unique values after:** 38
+- **Values changed:** 28
+
+#### Clustering Results
+
+| Original Values | Canonical |
+|-----------------|-----------|
+| Blue Water Drilling Ltd; Blue Water Drilling  Ltd | Blue Water Drilling Ltd |
+| Saifro Ltd; Saifro Limited | Saifro Limited |
+| Rymech | Rymech |
+| OG Madzi | OG Madzi |
+| Nditha Drilling and Civil Contractor; Nditha  Drilling and Civil Contractors; Nditha Drilling  and Civil Contractors; Nditha Civil and Drilling Contractors; Nditha Drilling and Civil Contractors | Nditha Drilling and Civil Contractors |
+| China Gansu | China Gansu |
+| OG Madzi Drilling Company; OG MADZI Drilling Company | OG Madzi Drilling Company |
+| Saifro Limited Malawi; Saifro Malawi Limited | Saifro Malawi Limited |
+| Water Way Malawi; Water Way  Malawi; Way Water Malawi | Water Way Malawi |
+| Nditha Drilling and Civil contractors; Nditha Drilling  and Civil contrators | Nditha Drilling and Civil contractors |
+| GIMM water experts and drilling; GIMM Water experts and drilling | GIMM Water experts and drilling |
+| Dec Construction | Dec Construction |
+| OG Madzi Drilling; OG Madzi Drillers | OG Madzi Drilling |
+| Saifro Malawi | Saifro Malawi |
+| Blue Water Drilling Company; Blue water Drilling Company | Blue Water Drilling Company |
+| Blue water drilling Ltd | Blue water drilling Ltd |
+| Dec construction; Dec construction Limited | Dec construction Limited |
+| Blue water | Blue water |
+| Eazy borehole drillers | Eazy borehole drillers |
+| GIMM; GIMME | GIMME |
+| China Gansu Engineering Co. | China Gansu Engineering Co. |
+| Patel and Ghodaniya; Patel and Godhaniya | Patel and Ghodaniya |
+| Blue water Drilling company | Blue water Drilling company |
+| Mushtaq
+Of OG Madzi Drillinv | Mushtaq
+Of OG Madzi Drillinv |
+| OG MADZI drilling comopany | OG MADZI drilling comopany |
+| OG Madzi Construction | OG Madzi Construction |
+| OG MADZI | OG MADZI |
+| EAZY Drilling Copmany | EAZY Drilling Copmany |
+| Eazy borehole drilling Company | Eazy borehole drilling Company |
+| EASY BOREHOLE DRILLING COMPANY | EASY BOREHOLE DRILLING COMPANY |
+| Eazy borehole Drilling company | Eazy borehole Drilling company |
+| Saifro Limited Company | Saifro Limited Company |
+| Saifro | Saifro |
+| Saifro Drilling Company | Saifro Drilling Company |
+| Nditha drilling and civil contractors | Nditha drilling and civil contractors |
+| GIMM water experts and Drilling | GIMM water experts and Drilling |
+| Nyaungano Drilling company | Nyaungano Drilling company |
+| Mthunzi Wa Kachere | Mthunzi Wa Kachere |
+
+### drilling_contractor
 
 - **Similarity method:** embeddings
 - **Clustering method:** affinity_propagation
 - **Canonical selection:** llm
 - **Embedding model:** text-embedding-3-large
-- **Unique values before:** 90
-- **Unique values after:** 12
-- **Values changed:** 112
+- **Unique values before:** 38
+- **Unique values after:** 11
+- **Values changed:** 87
+
+#### Clustering Results
 
 | Original Values | Canonical |
 |-----------------|-----------|
-| PRD 12 tonne, PRD, PRF 12 tonne, PRD 500, PRD 650, PRD, 650, PRD 650
-48/21-22 | PRD 650 |
-| KRD, Honda, KRD Honda | KRD Honda |
-| KRD, 3875958-02 India HES, KRD,3875958,India,HES | KRD,3875958,India,HES |
-| Ashokeleyland PHI 2012 model, Ashokeleland PHI 2012. Model, Ashokeland PHI 2012, Ashokeleland PHI, Ashokeleyland PHI2012 model, Ashokeleland PHI 2012, Ashokeleland PHI 2012 model, PHI,Ashokeleland 2012 model, Ashokeleland, Ashokeleland PHI2012 model, Ashokeleland PHI 2012 Model | Ashokeleland PHI 2012 model |
-| AshokelandPHI 2012, AshokelandPHI,2012, Ashokeleland,PHI2012, AshokelelandPHI 2012, Ashokeleyland PHI, Ashokeleyland PHI 2012, Ashokeleyland,PHI,2012, AshokeleylandPHI2012, Ashokeleyland PH1 | AshokelandPHI 2012 |
-| PHL Ashok Leyland, Ashok Leyland, Ashok Leyland
-PRD 2518 il, Ashok Leyland
-PRD Rig | Ashok Leyland |
-| Ashokeleyland LG11000300, Ashokeleyland PRD,DZ 6337, Ashokeleyland,PRD,DZ 6337, Ashokeleyland,PRD,Dz 6337, Ashokeleyland,PRD ,DZ6337, Ashokeleyland,PRD,Dz6337, Ashoykeleyland PRD,DZ6337, Ashokeleyland PRD 6337, Ashok Reyland
-PRD 650
-48/21-22, Ashok Reyland
-PRD | Ashokeleyland,PRD,DZ 6337 |
-| Mounting car:Ashokeleyland NN9461,model PDR650,SL No:07/19/20, mounting car:Ashokeleyland NN9461,model PRD650,SLNo:07/19/20, Mounting Car Ashke Reland, NN 9461, Model PRD 650 | Mounting Car Ashke Reland, NN 9461, Model PRD 650 |
-| ZA 6188,
-Rig model:JCRDT600
-Capacity-200mtr4"-12"
-Top head rotary Drive-400kg-MTR,torque-120RPM, PRD Model;JCRDT 600,capacity-200mtr4"-12
-Top head Rotary Drive-@400kg MTR,torque-120 RPM
-
-Plate number ZA 6188, JCR DT609
-Capacity_200mtr 4"-12" diameter hole
-Top head rotery drive 400kg-MTR
-Torque 120kpm
-ZA6188, JCR DT-600
-Drilling capacity 200 more,  4"-12" hole diameter
-Pull up force 7,900kg, pull down force 5,400kg
-Top head rotary drive  400kg- mtr torque 
-0- 120 rpm
-Plate Number ZA 6188, JCR DT -600
-Drilling capacity -200 mtr,  4", 12"hole diameter 
-7,900kg pull up force, 5,400 pull down force
-400kg top head rotary drive
-MTRD torque 0-120 rpm
-Number plate ZA 6188, JCR DT-600
-Drilling capacity -200 mtr, 4"-12" hole diameter 
-7,900kg pull up force, 5,400kg pull down force
-400g top head rotary drive- MTR torque, 0-200RPM, JCR DT-600
-Drilling capacity -200 mtr, 4-12"hole diameter 
-7900kg pull up force,  5,400kg pull down force 
-400kg top head rotary drive-MTR torque,  
-0-120RPM, JCR DT-600
-Drilling capacity -200 mtr, 4"-12" hole diameter 
-7,900kg pull up force, 5,400kg pull down force
-400kg top head rotary drive -MTR torque, 0-120 RPM, JCR D-600
-Drilling capacity 200 mtr, 4"-12" hole diameter
-7,900kg pull up force,5,400kg pull down force
-400kg top head rotary drive
-MTR torque, 0-120RPM
-Number Plate ZA 6188, JCR DT -600
-Drilling capacity -200 mtr, 4"-12" hole diameter 
-7,900kg pull up force, 5,400keep pull down force 
-400kg top head rotary drive-MTR torque,  0-120 RPM, JCR DT -600
-Drilling capacity -200 mtr, 4"-12" hole diameter 
-7,900kg pull up force, 5 ,400kg pull down force 
-400kg top head rotary drive-MTR torque, 0-120 RPM, JCR DT -600
-Drilling capacity -200 mtr,  4"-12" hole diameter 
-7,900kg pull down force,5,400kg pull up force
-400kg top head rotary drive-MTR torque,  0-120RPM, JCR DT -600
-Drilling capacity -200 mtr,  4"-12" hole diameter 
-7,900kg pull up force, 5,400kg pull down force 
-400kg top head rotary drive-MTR torque,  120 RPM, JCR DT-600
-Drilling capacity -,200mtr4-12"hole diameter 
-7,500kg pull up force,  5,400kg pull down force 
-400kg Top head rotary drive-MTR torque ,120 RPM, JCR DT -600
-Drilling capacity 200 mtr, 4"-12" hole diameter 
-7, 900kg pull up force, 5 400kg pull down force  
-400kg Top head rotary drive-MTR torque,  0-120 RPM, JCR DT -600
- Drilling capacity 200 mtr, 4"-12" hole diameter 
-7,900kg pull up force, 5,400kg pull down 
-400kg top head rotary drive-MTR torque, 0-120RPM, JCR DT -600
-Drilling capacity 200 mtr, 4"-12" hole diameter 
-7,900kg pull up force, 5,400kg pull down force 
-400kg top head rotary drive-MTR torque, 0-120 RPM, JCR DT -600
-Drilling capacity -200 mtr, 4"-12 hole diameter 
-7,900kg pull up force, 5,400kg pull down force 
-400kg Top head rotary drive-MTR torque,  0-120 RPM, JCR DT -600
-Drilling capacity -200mtr, 4"-12" hole diameter 
-7,900kg pull up force, 5,400kg pull down force 
-400kg  top head rotary drive-MTR torque, 0-120 RPM, JCR DT -600
-Drilling capacity 200mtr, 4"-12" hole diameter 
-7,900kg pull up force, 5,400kg pull down force 
-400kg top head rotary drive-MTR torque,  0-120 RPM, JCR DT -600
-Drilling capacity 200mtr, 4"-12" hole diameter 
-7,900kg pull up force,  5,400kg pull down force 
-400kg top head rotary drive-MTR torque, 0 -120 rpm, JCR DT - 600
-Drilling capacity 200mtr, 4"-12" hole diameter 
-7,900kg pull up force, 5,400kg pull down force 
-400kg top head rotary drive-MTR torque, 0-120 RPM, JCR DT -600
-Drilling capacity  200mtr, 4"-12" hole diameter 
-7,900kg pull up force,  5,400kg pull down force 
-400kg Top head rotary drive-MTR torque,  0-120 RPM, JCR DT- 600 Drilling Capacity- 200mtr, 4"-12" hole diameter
-700kg pull up force, 5,400kg pull down Force 400kg top head rotary drive. MTR torque, 0-200RPM, JCR DT-600, Drilling Capacity-200mtr, 4"-12" hole diameter
-7,900kg pull up force, 5,400kg pull down Force.  400g top head rotary drive. MTR torque, 0-200 RPM, JCR DT-600 Drilling Capacity - 300mtr, 4"-12" hole diameter7,900kg pull up force, 5,400kg pull down Force.  400g top head rotary drive-MTR torque, 0-200RPM, JCR DT-600, Drilling Capacity 200mtr, 4"-12" hole diameter
-700kg pull up force, 5400kg pull down force
-400g top head rotary drive
-MTR Torque, 0-200RPM, JCR DT-600 Drilling Capacity-200mtr, 4"-12" hole diameter, 
-7900kg pull up force 5 400kg pull down force 400kg top head rotary drive MTR torque 0-200 RPM, JCR DT-600 Drilling Capacity -200mtr,  4"-12" hole diameter 
-700kg pull up force ,  5 400kg pull down force  400g top head rotary drive 
-MTR torque  200 rpm, JCR Dt 600 drilling capacity - 300mtr
-4"-12" hole diameter
-7900kg pull up force
-5400kg pull down force
-400gtoo head rotary drive
-Matt Torque 0-200RPM, Prominent Drilling Rig,mounted on Reyland DAF.
-Registration Number-BV6551
-Pulling capacity 1000, Drilling rig type
-Model no- LETO 350
-Dril hole- 350meter depth
-Drill dia-150-350mm
-Year of make 2012
-Truck mounted | JCR DT-600
-Drilling capacity 200 more,  4"-12" hole diameter
-Pull up force 7,900kg, pull down force 5,400kg
-Top head rotary drive  400kg- mtr torque 
-0- 120 rpm
-Plate Number ZA 6188 |
-| PDR, PDI | PDR |
-| SC 400S, SC400s, SC400S, SC400S/PDI | SC400S |
-| ELGI PG 1100s-300 (24 bar), ELGI PG 1100s - 300, ELGI PG 1100s-300, ELGI PG 600s 230 | ELGI PG 1100s-300 |
+| Blue Water Drilling Company; Blue Water Drilling Ltd; Blue water drilling Ltd; Nyaungano Drilling company; Blue water; Blue water Drilling company | Blue Water Drilling Ltd |
+| Saifro Limited; Saifro Limited Company; Saifro Malawi; Saifro Malawi Limited; Saifro; Saifro Drilling Company | Saifro Malawi Limited |
+| OG Madzi; OG Madzi Drilling Company; Mushtaq
+Of OG Madzi Drillinv; OG Madzi Drilling; OG MADZI drilling comopany; OG Madzi Construction; OG MADZI | OG Madzi Drilling |
+| Nditha Drilling and Civil Contractors; Nditha Drilling and Civil contractors; Nditha drilling and civil contractors | Nditha Drilling and Civil Contractors |
+| Rymech | Rymech |
+| China Gansu; China Gansu Engineering Co. | China Gansu Engineering Co. |
+| Dec Construction; Dec construction Limited | Dec Construction |
+| GIMM Water experts and drilling; GIMME; GIMM water experts and Drilling | GIMM Water experts and drilling |
+| EAZY Drilling Copmany; Eazy borehole drillers; Eazy borehole drilling Company; EASY BOREHOLE DRILLING COMPANY; Eazy borehole Drilling company | Eazy borehole drilling Company |
+| Water Way Malawi; Mthunzi Wa Kachere | Mthunzi Wa Kachere |
+| Patel and Ghodaniya | Patel and Ghodaniya |
 
 ---
 

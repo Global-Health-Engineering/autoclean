@@ -59,16 +59,26 @@ df, report_out = handle_outliers(df,
 # List to collect all structural error reports
 structural_reports = []
 
-# Country column: "United States", "USA", "US", "usa", "U.S.", etc.
-# Using embeddings because we need semantic understanding (USA = United States)
-df, report = handle_structural_errors(df,
-                                      column='what_country_do_you_work_in_',
-                                      similarity='embeddings',
-                                      clustering='hierarchical',
-                                      canonical='most_frequent',
-                                      threshold_h=0.80,
-                                      embedding_model='text-embedding-3-small')
-structural_reports.append(report)
+# Pass 1: 
+df, report1 = handle_structural_errors(df,
+                                       column='what_country_do_you_work_in_',
+                                       similarity='rapidfuzz',
+                                       clustering='hierarchical',
+                                       canonical='most_frequent',
+                                       threshold_cc=0.88, 
+                                       threshold_h=0.82)
+structural_reports.append(report1)
+
+# Pass 2: 
+df, report2 = handle_structural_errors(df,
+                                       column='what_country_do_you_work_in_',
+                                       similarity='embeddings',
+                                       clustering='hierarchical',
+                                       canonical='most_frequent',
+                                       threshold_cc=0.73,
+                                       threshold_h=0.70,
+                                       embedding_model='text-embedding-3-large')
+structural_reports.append(report2)
 
 
 # =============================================================================

@@ -388,10 +388,11 @@ def _generate_structural_errors_section(reports_input) -> list:
                                     reverse=True)
             
             for canonical, originals in sorted_clusters:
-                originals_str = ", ".join(originals)
+                originals_str = "; ".join(originals)
                 lines.append(f"| {originals_str} | {canonical} |")
         
         # Table 2: Value counts (from original data)
+        '''
         if value_counts:
             lines.append("")
             lines.append("#### Value Counts (Original Data)")
@@ -404,9 +405,9 @@ def _generate_structural_errors_section(reports_input) -> list:
             
             for value, count in sorted_counts:
                 lines.append(f"| {value} | {count} |")
-        
+        '''
         lines.append("")
-    
+
     return lines
 
 

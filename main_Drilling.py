@@ -57,16 +57,28 @@ df, report_out = handle_outliers(df,
 # STRUCTURAL ERRORS 
 # =============================================================================
 
+structural_reports = []
 
-df, report_struct = handle_structural_errors(df,
-                                             column='drilling_rig_model',  
+df, report1 = handle_structural_errors(df,
+                                             column='drilling_contractor',  
+                                             similarity='rapidfuzz',
+                                             clustering='hierarchical',
+                                             canonical='llm',
+                                             threshold_cc=0.85,
+                                             threshold_h=0.8,
+                                             embedding_model='text-embedding-3-large')
+
+structural_reports.append(report1)
+
+df, report2 = handle_structural_errors(df,
+                                             column='drilling_contractor',  
                                              similarity='embeddings',
                                              clustering='affinity_propagation',
                                              canonical='llm',
-                                             threshold_cc=0.85,
-                                             threshold_h=0.85,
+                                             threshold_cc=0.58,
+                                             threshold_h=0.7,
                                              embedding_model='text-embedding-3-large')
-
+structural_reports.append(report2)
 
 # =============================================================================
 # MISSING VALUES
@@ -103,7 +115,7 @@ reports = {'preprocessing': report_pre,
           #'missing_values': report_miss,
           #'datetime': report_date,          
           #'outliers': report_out,
-           'structural_errors': report_struct,  
+           'structural_errors': structural_reports,  
            'postprocessing': report_post}
 
 generate_cleaning_report(reports, REPORT_FILE, dataset_name = DATASET_NAME)
