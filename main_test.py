@@ -61,8 +61,7 @@ df, report_struct = handle_structural_errors(df,
                                              canonical='llm',
                                              threshold_cc=0.85,
                                              threshold_h=0.85,
-                                             embedding_model='text-embedding-3-large')
-print(report_struct['mapping'])
+                                             embedding_model='text-embedding-3-small')
 
 # =============================================================================
 # MISSING VALUES
