@@ -4,7 +4,7 @@ import re
 from dateutil import parser
 
 """
-Standardize datetime columns to pandas datetime64 format
+Standardize datetime columns to consistent date format
 
 To standardize datetime columns with DateTime_Standardization.py, there are three important parameters. 
 One is column which specifies which column to standardize. The second is american which determines 
@@ -21,15 +21,6 @@ Date Format (american):
 Invalid Date Handling (handle_invalid):
     - 'nat': Set invalid dates to NaT (default)
     - 'delete': Delete entire row containing invalid date
-    - 'interactive': Ask user for each invalid date (options: NaT, delete row, Autocorrect by dateutil, manual entry)
-
-Autocorrect by dateutil (available in interactive mode):
-    - When a date is invalid for the chosen format, dateutil internally tries the opposite format.
-    - Example: User selects European, input is "01/25/2024"
-      European: Day=01, Month=25 → Invalid (25 > 12)
-      Dateutil tries American: Month=01, Day=25 → January 25, 2024 → Valid
-    - In interactive mode, user can choose to accept this autocorrected result.
-    - If both formats fail (e.g., "31/04/2024"), autocorrect is not available → NaT or delete.
 
 Validation Rules (applied to all formats):
     - Month must be between 1 and 12
@@ -44,7 +35,6 @@ Invalid Detection Examples:
     - Both modes: 31/04/2024 is invalid (April has only 30 days)
     - Both modes: 29/02/2023 is invalid (2023 is not a leap year)
 """
-
 
 # =============================================================================
 # Main Function (Public)
@@ -81,7 +71,7 @@ def standardize_datetime(df: pd.DataFrame,
         return df, report
     
     # Validate handle_invalid parameter
-    valid_options = ['nat', 'delete', 'interactive']
+    valid_options = ['nat', 'delete']
     if handle_invalid not in valid_options:
         print(f"Standardizing datetime... ERROR: Invalid option '{handle_invalid}'")
         return df, report
@@ -99,9 +89,6 @@ def standardize_datetime(df: pd.DataFrame,
     
     i_rows_to_delete = []
     # Note: i_ prefix indicates internal variable (list of row indices to delete)
-    
-    had_interactive = False
-    # Track if we had interactive prompts (to reprint step name at end)
     
     # Terminal output: start
     print("Standardizing datetime... ", end="", flush=True)
@@ -123,7 +110,7 @@ def standardize_datetime(df: pd.DataFrame,
             continue
         
         # Parse and validate the date
-        parsed_result, is_valid, needs_autocorrect, autocorrect_result = _parse_and_validate(value_str, dayfirst)
+        parsed_result, is_valid = _parse_and_validate(value_str, dayfirst)
         
         if is_valid:
             # Date is valid for chosen format
@@ -134,25 +121,23 @@ def standardize_datetime(df: pd.DataFrame,
             # Date is invalid - handle according to handle_invalid parameter
             report['invalid'] += 1
             
-            # If interactive, print newline before first prompt
-            if handle_invalid == 'interactive' and not had_interactive:
-                print()  # Newline after "Standardizing datetime... "
-                had_interactive = True
+            if handle_invalid == 'nat':
+                df.at[idx, column] = pd.NaT
+                report['issues'].append({
+                    'row': idx,
+                    'original': value_str,
+                    'action': 'set to NaT',
+                    'result': 'NaT'
+                })
             
-            action, final_value = _handle_invalid_date(
-                idx, value_str, autocorrect_result, american, 
-                handle_invalid, i_rows_to_delete, needs_autocorrect
-            )
-            df.at[idx, column] = final_value
-            
-            # Add to report
-            result_str = final_value.strftime('%Y-%m-%d') if pd.notna(final_value) else "NaT"
-            report['issues'].append({
-                'row': idx,
-                'original': value_str,
-                'action': action,
-                'result': result_str
-            })
+            elif handle_invalid == 'delete':
+                i_rows_to_delete.append(idx)
+                report['issues'].append({
+                    'row': idx,
+                    'original': value_str,
+                    'action': 'row deleted',
+                    'result': 'NaT'
+                })
     
     # Delete rows if needed
     if i_rows_to_delete:
@@ -162,13 +147,9 @@ def standardize_datetime(df: pd.DataFrame,
         report['rows_deleted'] = i_rows_to_delete
     
     # Terminal output: end
-    if had_interactive:
-        print("Standardizing datetime... ✓")  # Reprint with checkmark
-    else:
-        print("✓")  # Just checkmark on same line
+    print("✓")
     
     return df, report
-
 
 # =============================================================================
 # Helper Functions (Private)
@@ -179,11 +160,9 @@ def _parse_and_validate(value_str: str, dayfirst: bool) -> tuple:
     Parse date string and validate against chosen format and year range.
     
     Returns:
-        (parsed_result, is_valid, needs_autocorrect, autocorrect_result)
+        (parsed_result, is_valid)
         - parsed_result: Correctly parsed datetime or NaT
         - is_valid: True if date is valid for chosen format AND year in range
-        - needs_autocorrect: True if dateutil had to swap day/month
-        - autocorrect_result: The auto-corrected datetime (if swap happened)
     """
     try:
         # Determine parsing settings based on format detection
@@ -197,35 +176,30 @@ def _parse_and_validate(value_str: str, dayfirst: bool) -> tuple:
             use_dayfirst = False
         else:
             # Year-last (15/01/2024): use dayfirst parameter
-            yearfirst = True
+            yearfirst = False
             use_dayfirst = dayfirst
         
-        # Check if dateutil would need to autocorrect (swap day/month)
-        needs_autocorrect = _would_need_autocorrect(value_str, dayfirst)
+        # Check if date would need autocorrect (= invalid for chosen format)
+        if _would_need_autocorrect(value_str, dayfirst):
+            return pd.NaT, False
         
         # Parse the date with dateutil
         parsed = parser.parse(value_str, dayfirst=use_dayfirst, yearfirst=yearfirst)
         
         # Validate year range (1500-2100)
         if parsed.year < 1500 or parsed.year > 2100:
-            return pd.NaT, False, False, pd.NaT
+            return pd.NaT, False
         
-        if needs_autocorrect:
-            # Date was auto-corrected by dateutil
-            # Return: invalid for chosen format, but autocorrect available
-            return pd.NaT, False, True, parsed
-        else:
-            # Date is valid for chosen format
-            return parsed, True, False, pd.NaT
+        return parsed, True
     
     except (ValueError, TypeError, parser.ParserError):
         # Could not parse at all
-        return pd.NaT, False, False, pd.NaT
-
+        return pd.NaT, False
 
 def _would_need_autocorrect(value_str: str, dayfirst: bool) -> bool:
     """
     Check if dateutil would need to autocorrect (swap day/month).
+    If autocorrect needed, the date is invalid for the chosen format.
     
     This happens when the format doesn't match:
     - European (dayfirst=True): expects DD/MM, but second value > 12
@@ -267,108 +241,6 @@ def _would_need_autocorrect(value_str: str, dayfirst: bool) -> bool:
             return True
     
     return False
-
-
-def _handle_invalid_date(row_idx: int, 
-                         original: str, 
-                         autocorrect_result,
-                         american: bool,
-                         handle_invalid: str,
-                         rows_to_delete: list,
-                         autocorrect_available: bool) -> tuple:
-    """
-    Handle an invalid date based on handle_invalid setting.
-    
-    Returns:
-        (action_taken, final_value)
-    """
-    if handle_invalid == 'nat':
-        return "set to NaT", pd.NaT
-    
-    elif handle_invalid == 'delete':
-        rows_to_delete.append(row_idx)
-        return "row deleted", pd.NaT
-    
-    elif handle_invalid == 'interactive':
-        return _interactive_prompt(row_idx, original, autocorrect_result, 
-                                   american, rows_to_delete, autocorrect_available)
-    
-    return "unknown", pd.NaT
-
-
-def _interactive_prompt(row_idx: int,
-                        original: str,
-                        autocorrect_result,
-                        american: bool,
-                        rows_to_delete: list,
-                        autocorrect_available: bool) -> tuple:
-    """
-    Ask user how to handle invalid date.
-    
-    Returns:
-        (action_taken, final_value)
-    """
-    current_format = "American (MM/DD)" if american else "European (DD/MM)"
-    other_format = "European (DD/MM)" if american else "American (MM/DD)"
-    
-    print(f"\n  Row {row_idx}: \"{original}\" is invalid for {current_format} format.")
-    print(f"    [1] Set to NaT (missing value)")
-    print(f"    [2] Delete entire row")
-    
-    # Only show autocorrect option if available
-    if autocorrect_available and pd.notna(autocorrect_result):
-        autocorrect_str = autocorrect_result.strftime('%B %d, %Y')
-        print(f"    [3] Autocorrect to {other_format} → {autocorrect_str}")
-        print(f"    [4] Enter date manually")
-        max_option = 4
-    else:
-        print(f"    [3] Enter date manually")
-        max_option = 3
-    
-    while True:
-        choice = input(f"    Your choice (1-{max_option}): ").strip()
-        
-        if choice == '1':
-            return "set to NaT (user)", pd.NaT
-        
-        elif choice == '2':
-            rows_to_delete.append(row_idx)
-            return "row deleted (user)", pd.NaT
-        
-        elif choice == '3':
-            if autocorrect_available and pd.notna(autocorrect_result):
-                # Option 3 is autocorrect
-                return f"autocorrect to {other_format} (user)", autocorrect_result
-            else:
-                # Option 3 is manual entry
-                return _manual_entry()
-        
-        elif choice == '4' and max_option == 4:
-            return _manual_entry()
-        
-        else:
-            print(f"    Invalid choice. Enter 1-{max_option}.")
-
-
-def _manual_entry() -> tuple:
-    """
-    Prompt user to enter date manually.
-    
-    Returns:
-        (action_taken, final_value)
-    """
-    while True:
-        manual_input = input("    Enter correct date: ").strip()
-        try:
-            manual_parsed = parser.parse(manual_input)
-            # Validate year range
-            if manual_parsed.year < 1500 or manual_parsed.year > 2100:
-                print("    Year must be between 1500 and 2100. Try again.")
-                continue
-            return "manual entry (user)", manual_parsed
-        except:
-            print("    Could not parse date. Try again (e.g., '2024-01-15' or 'Jan 15, 2024').")
-
 
 def _is_two_digit_format(value_str: str) -> bool:
     """
