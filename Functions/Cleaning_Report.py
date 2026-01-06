@@ -358,13 +358,8 @@ def _generate_structural_errors_section(report: dict) -> list:
             lines.append("| Original Values | Canonical |")
             lines.append("|-----------------|-----------|")
             for canonical, originals in clusters_with_changes.items():
-                # Show originals that are different from canonical
-                changed = [o for o in originals if o != canonical]
-                if changed:
-                    originals_str = ", ".join(changed[:5])  # Max 5 shown
-                    if len(changed) > 5:
-                        originals_str += f" (+{len(changed) - 5} more)"
-                    lines.append(f"| {originals_str} | {canonical} |")
+                originals_str = ", ".join(originals)
+                lines.append(f"| {originals_str} | {canonical} |")
         else:
             lines.append("")
             lines.append("No structural errors found (all values are unique).")

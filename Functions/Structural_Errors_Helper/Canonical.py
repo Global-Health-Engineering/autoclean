@@ -93,8 +93,7 @@ Reply only with the corresponding number from the list above. Only one integer n
 
     # Get response from LLM 
     response_total = client.chat.completions.create(model = "gpt-5-nano",
-                                              messages=[{"role": "user", "content": prompt}],
-                                              temperature = 0)
+                                              messages=[{"role": "user", "content": prompt}])
     response = response_total.choices[0].message.content.strip() # Remove possible leading and trailing whitespaces from response with .strip() 
     # Note: response is still a string
 
