@@ -1,74 +1,74 @@
 city,facility_type,water_source,funding_organization,date_installed,population_served,users_count,water_quality_score,depth_meters,distance_km,daily_usage,is_functional,maintenance_frequency,number_of_staff
-New York City,Hospital,Borehole,WHO,2024-01-15 00:00:00,2500.0,2500.0,85.0,45.0,12.0,500L,Yes,Monthly,25
-New York City,hospital,bore hole,World Health Organization,2024-01-15 00:00:00,2400.0,2400.0,82.0,42.0,11.0,480 liters,Y,monthly,24
-New York City,HOSPITAL,Borehole well,W.H.O.,2024-01-15 00:00:00,2600.0,2600.0,88.0,48.0,13.0,520000ml,1,MONTHLY,twenty-six
-New York City,Hosptial,borehole,WHO,2024-01-20 00:00:00,2450.0,2450.0,84.0,44.0,12.0,490L,true,Mothly,25
-New York City,hosptial,BOREHOLE,World Health Organization,2024-01-20 00:00:00,2550.0,2550.0,86.0,46.0,12.0,510 liters,TRUE,monthly,26
-Boston,Clinic,Hand pump,UNICEF,2024-02-10 00:00:00,1200.0,1200.0,72.0,25.0,8.0,240L,Yes,Quarterly,12
-Boston,clinic,hand pump,United Nations Children's Fund,2024-02-10 00:00:00,1150.0,1150.0,70.0,23.0,7.0,230 liters,Y,quarterly,11
-Boston,CLINIC,Hand Pump,UNICEF,2024-02-10 00:00:00,1250.0,1250.0,74.0,27.0,9.0,250000ml,1,QUARTERLY,twelve
-Boston,Clnic,handpump,United Nations Childrens Fund,2024-02-15 00:00:00,1180.0,1180.0,71.0,24.0,8.0,236L,true,Quartely,12
-Los Angeles,Health Center,Piped water,Scottish Government,2024-03-01 00:00:00,3200.0,3200.0,90.0,0.0,2.0,640L,No,Monthly,32
-Los Angeles,health center,Piped Water,The Scottish Government,2024-03-01 00:00:00,3100.0,3100.0,88.0,0.0,2.0,620 liters,N,monthly,31
-Los Angeles,Health centre,piped water,Scottish Gov,2024-03-01 00:00:00,3300.0,3300.0,92.0,0.0,3.0,660000ml,0,MONTHLY,thirty-three
-Los Angeles,Helth Center,Tap water,Scottish Government,2024-03-05 00:00:00,3150.0,3150.0,89.0,0.0,2.0,630L,false,Montly,32
-Chicago,Hospital,Borehole,UNICEF,2024-03-15 00:00:00,1800.0,1800.0,78.0,35.0,15.0,360L,Yes,Quarterly,18
-Chicago,hospital,bore hole,United Nations Children's Fund,2024-03-15 00:00:00,1750.0,1750.0,76.0,33.0,14.0,350 liters,Y,quarterly,17
-Chicago,HOSPITAL,Borehole well,UNICEF,2024-03-15 00:00:00,1850.0,1850.0,80.0,37.0,16.0,370000ml,1,QUARTERLY,eighteen
-Seattle,Clinic,Hand pump,WHO,2024-04-01 00:00:00,950.0,950.0,68.0,20.0,6.0,190L,Yes,Monthly,10
-Seattle,clinic,hand pump,World Health Organization,2024-04-01 00:00:00,920.0,920.0,66.0,18.0,5.0,184 liters,Y,monthly,9
-Seattle,CLINIC,Hand Pump,W.H.O.,2024-04-01 00:00:00,980.0,980.0,70.0,22.0,7.0,196000ml,1,MONTHLY,ten
-Denver,Health Center,Piped water,Scottish Government,2024-04-15 00:00:00,2800.0,2800.0,88.0,0.0,3.0,560L,Yes,Quarterly,28
-Denver,health center,Piped Water,The Scottish Government,2024-04-15 00:00:00,2750.0,2750.0,86.0,0.0,3.0,550 liters,Y,quarterly,28
-Denver,Health centre,piped water,Scottish Gov,2024-04-15 00:00:00,2850.0,2850.0,90.0,0.0,4.0,570000ml,1,QUARTERLY,twenty-nine
-New York City,Clinic,Borehole,UNICEF,2024-05-01 00:00:00,,2100.0,82.0,40.0,10.0,420L,Yes,Monthly,21
-New York City,clinic,bore hole,United Nations Children's Fund,2024-05-01 00:00:00,2100.0,,38.0,9.0,10.0,420 liters,Y,monthly,21
-New York City,CLINIC,Borehole well,UNICEF,2024-05-01 00:00:00,2150.0,2150.0,,11.0,10.0,430000ml,1,MONTHLY,22
-New York City,Clnic,borehole,United Nations Childrens Fund,2024-05-05 00:00:00,2050.0,2050.0,80.0,39.0,,410L,true,Quartely,twenty
-Boston,Hospital,Hand pump,WHO,2024-05-15 00:00:00,1500.0,1500.0,75.0,28.0,9.0,,Yes,Quarterly,15
-Boston,hospital,hand pump,World Health Organization,2024-05-15 00:00:00,1450.0,1450.0,,26.0,8.0,290 liters,Y,quarterly,14
-Boston,HOSPITAL,Hand Pump,W.H.O.,2024-05-15 00:00:00,,1400.0,73.0,30.0,10.0,280000ml,1,QUARTERLY,14
-Los Angeles,Clinic,Piped water,Scottish Government,2024-06-01 00:00:00,2900.0,2900.0,91.0,0.0,2.0,580L,No,Monthly,29
-Los Angeles,clinic,Piped Water,The Scottish Government,2024-06-01 00:00:00,2850.0,2850.0,89.0,0.0,2.0,570 liters,N,monthly,29
-Los Angeles,CLINIC,piped water,Scottish Gov,2024-06-01 00:00:00,2950.0,2950.0,93.0,0.0,3.0,590000ml,0,MONTHLY,thirty
-Chicago,Health Center,Borehole,UNICEF,2024-06-15 00:00:00,2200.0,2200.0,81.0,38.0,14.0,440L,Yes,Quarterly,22
-Chicago,health center,bore hole,United Nations Children's Fund,2024-06-15 00:00:00,2150.0,2150.0,79.0,36.0,13.0,430 liters,Y,quarterly,22
-Chicago,Health centre,Borehole well,UNICEF,2024-06-15 00:00:00,2250.0,2250.0,83.0,40.0,15.0,450000ml,1,QUARTERLY,twenty-two
-Seattle,Hospital,Hand pump,WHO,2024-07-01 00:00:00,1100.0,1100.0,69.0,22.0,7.0,220L,Yes,Monthly,11
-Seattle,hospital,hand pump,World Health Organization,2024-07-01 00:00:00,1050.0,1050.0,67.0,20.0,6.0,210 liters,Y,monthly,10
-Seattle,HOSPITAL,Hand Pump,W.H.O.,2024-07-01 00:00:00,1150.0,1150.0,71.0,24.0,8.0,230000ml,1,MONTHLY,eleven
-Denver,Clinic,Piped water,Scottish Government,2024-07-15 00:00:00,2600.0,2600.0,87.0,0.0,3.0,520L,Yes,Quarterly,26
-Denver,clinic,Piped Water,The Scottish Government,2024-07-15 00:00:00,2550.0,2550.0,85.0,0.0,3.0,510 liters,Y,quarterly,26
-Denver,CLINIC,piped water,Scottish Gov,2024-07-15 00:00:00,2650.0,2650.0,89.0,0.0,4.0,530000ml,1,QUARTERLY,twenty-seven
-New York City,Health Center,Borehole,WHO,2024-08-01 00:00:00,2700.0,2700.0,86.0,42.0,11.0,540L,No,Monthly,27
-New York City,health center,bore hole,World Health Organization,2024-08-01 00:00:00,2650.0,2650.0,84.0,40.0,10.0,530 liters,N,monthly,27
-New York City,Health centre,Borehole well,W.H.O.,2024-08-01 00:00:00,2750.0,2750.0,88.0,44.0,12.0,550000ml,0,MONTHLY,twenty-eight
-Boston,Clinic,Hand pump,UNICEF,2024-08-15 00:00:00,1300.0,1300.0,73.0,26.0,8.0,260L,Yes,Quarterly,13
-Boston,clinic,hand pump,United Nations Children's Fund,2024-08-15 00:00:00,1250.0,1250.0,71.0,24.0,7.0,250 liters,Y,quarterly,12
-Boston,CLINIC,Hand Pump,UNICEF,2024-08-15 00:00:00,1350.0,1350.0,75.0,28.0,9.0,270000ml,1,QUARTERLY,thirteen
-Los Angeles,Hospital,Piped water,Scottish Government,2024-09-01 00:00:00,3500.0,3500.0,94.0,0.0,2.0,700L,Yes,Monthly,35
-Los Angeles,hospital,Piped Water,The Scottish Government,2024-09-01 00:00:00,3450.0,3450.0,92.0,0.0,2.0,690 liters,Y,monthly,35
-Los Angeles,HOSPITAL,piped water,Scottish Gov,2024-09-01 00:00:00,3550.0,3550.0,96.0,0.0,3.0,710000ml,1,MONTHLY,thirty-six
-Chicago,Clinic,Borehole,WHO,2024-09-15 00:00:00,1900.0,1900.0,79.0,36.0,14.0,380L,Yes,Quarterly,19
-Chicago,clinic,bore hole,World Health Organization,2024-09-15 00:00:00,1850.0,1850.0,77.0,34.0,13.0,370 liters,Y,quarterly,18
-Chicago,CLINIC,Borehole well,W.H.O.,2024-09-15 00:00:00,1950.0,1950.0,81.0,38.0,15.0,390000ml,1,QUARTERLY,nineteen
-Seattle,Health Center,Hand pump,UNICEF,2024-10-01 00:00:00,1000.0,1000.0,68.0,21.0,6.0,200L,No,Monthly,10
-Seattle,health center,hand pump,United Nations Children's Fund,2024-10-01 00:00:00,950.0,950.0,66.0,19.0,5.0,190 liters,N,monthly,9
-Seattle,Health centre,Hand Pump,UNICEF,2024-10-01 00:00:00,1050.0,1050.0,70.0,23.0,7.0,210000ml,0,MONTHLY,ten
-Denver,Hospital,Piped water,Scottish Government,2024-10-15 00:00:00,2900.0,2900.0,89.0,0.0,3.0,580L,Yes,Quarterly,29
-Denver,hospital,Piped Water,The Scottish Government,2024-10-15 00:00:00,2850.0,2850.0,87.0,0.0,3.0,570 liters,Y,quarterly,29
-Denver,HOSPITAL,piped water,Scottish Gov,2024-10-15 00:00:00,2950.0,2950.0,91.0,0.0,4.0,590000ml,1,QUARTERLY,thirty
-New York City,Clinic,bore hole,UNICEF,2024-11-01 00:00:00,2000.0,2000.0,80.0,38.0,,430L,Yes,Monthly,20
-New York City,clinic,Borehole well,United Nations Children's Fund,2024-11-01 00:00:00,,1950.0,78.0,36.0,9.0,390 liters,Y,monthly,19
-New York City,CLINIC,borehole,UNICEF,2024-11-01 00:00:00,2100.0,2100.0,82.0,,10.0,420000ml,1,MONTHLY,twenty-one
-Boston,Health Center,Hand pump,WHO,2024-11-15 00:00:00,1400.0,1400.0,,27.0,8.0,280L,Yes,Quarterly,14
-Boston,health center,hand pump,World Health Organization,2024-11-15 00:00:00,1350.0,1350.0,72.0,,7.0,270 liters,Y,quarterly,13
-Boston,Health centre,Hand Pump,W.H.O.,2024-11-15 00:00:00,,1400.0,74.0,29.0,9.0,280000ml,1,QUARTERLY,fourteen
-Los Angeles,Clinic,Piped water,Scottish Government,2024-12-01 00:00:00,25000.0,25000.0,88.0,0.0,2.0,5000L,Yes,Monthly,250
-Los Angeles,clinic,Piped Water,The Scottish Government,2024-12-01 00:00:00,3000.0,3000.0,-15.0,0.0,2.0,600 liters,Y,monthly,30
-Los Angeles,CLINIC,piped water,Scottish Gov,2024-12-01 00:00:00,3100.0,3100.0,250.0,0.0,3.0,620000ml,1,MONTHLY,31
-Chicago,Hospital,Borehole,UNICEF,2024-12-15 00:00:00,-500.0,-500.0,78.0,500.0,14.0,360L,Yes,Quarterly,-5
-Chicago,hospital,bore hole,United Nations Children's Fund,2024-12-15 00:00:00,1800.0,1800.0,76.0,35.0,150.0,360 liters,Y,quarterly,18
-Seattle,Clinic,Hand pump,WHO,2024-12-20 00:00:00,1000.0,1000.0,70.0,22.0,7.0,200L,Yes,Monthly,10
-Seattle,clinic,hand pump,World Health Organization,2024-12-20 00:00:00,980.0,980.0,68.0,20.0,6.0,196 liters,Y,monthly,10
-Denver,Health Center,Piped water,Scottish Government,2024-12-25 00:00:00,2750.0,2750.0,88.0,0.0,3.0,550000ml,No,Quarterly,28
+New York City,Hospital,Borehole,WHO,2024-01-15,2500.0,2500.0,85.0,45.0,12.0,500L,Yes,Monthly,25
+New York City,hospital,bore hole,World Health Organization,2024-01-15,2400.0,2400.0,82.0,42.0,11.0,480 liters,Y,monthly,24
+New York City,HOSPITAL,Borehole well,W.H.O.,2024-01-15,2600.0,2600.0,88.0,48.0,13.0,520000ml,1,MONTHLY,twenty-six
+New York City,Hosptial,borehole,WHO,2024-01-20,2450.0,2450.0,84.0,44.0,12.0,490L,true,Mothly,25
+New York City,hosptial,BOREHOLE,World Health Organization,2024-01-20,2550.0,2550.0,86.0,46.0,12.0,510 liters,TRUE,monthly,26
+Boston,Clinic,Hand pump,UNICEF,2024-02-10,1200.0,1200.0,72.0,25.0,8.0,240L,Yes,Quarterly,12
+Boston,clinic,hand pump,United Nations Children's Fund,2024-02-10,1150.0,1150.0,70.0,23.0,7.0,230 liters,Y,quarterly,11
+Boston,CLINIC,Hand Pump,UNICEF,2024-02-10,1250.0,1250.0,74.0,27.0,9.0,250000ml,1,QUARTERLY,twelve
+Boston,Clnic,handpump,United Nations Childrens Fund,2024-02-15,1180.0,1180.0,71.0,24.0,8.0,236L,true,Quartely,12
+Los Angeles,Health Center,Piped water,Scottish Government,2024-03-01,3200.0,3200.0,90.0,0.0,2.0,640L,No,Monthly,32
+Los Angeles,health center,Piped Water,The Scottish Government,2024-03-01,3100.0,3100.0,88.0,0.0,2.0,620 liters,N,monthly,31
+Los Angeles,Health centre,piped water,Scottish Gov,2024-03-01,3300.0,3300.0,92.0,0.0,3.0,660000ml,0,MONTHLY,thirty-three
+Los Angeles,Helth Center,Tap water,Scottish Government,2024-03-05,3150.0,3150.0,89.0,0.0,2.0,630L,false,Montly,32
+Chicago,Hospital,Borehole,UNICEF,2024-03-15,1800.0,1800.0,78.0,35.0,15.0,360L,Yes,Quarterly,18
+Chicago,hospital,bore hole,United Nations Children's Fund,2024-03-15,1750.0,1750.0,76.0,33.0,14.0,350 liters,Y,quarterly,17
+Chicago,HOSPITAL,Borehole well,UNICEF,2024-03-15,1850.0,1850.0,80.0,37.0,16.0,370000ml,1,QUARTERLY,eighteen
+Seattle,Clinic,Hand pump,WHO,2024-04-01,950.0,950.0,68.0,20.0,6.0,190L,Yes,Monthly,10
+Seattle,clinic,hand pump,World Health Organization,2024-04-01,920.0,920.0,66.0,18.0,5.0,184 liters,Y,monthly,9
+Seattle,CLINIC,Hand Pump,W.H.O.,2024-04-01,980.0,980.0,70.0,22.0,7.0,196000ml,1,MONTHLY,ten
+Denver,Health Center,Piped water,Scottish Government,2024-04-15,2800.0,2800.0,88.0,0.0,3.0,560L,Yes,Quarterly,28
+Denver,health center,Piped Water,The Scottish Government,2024-04-15,2750.0,2750.0,86.0,0.0,3.0,550 liters,Y,quarterly,28
+Denver,Health centre,piped water,Scottish Gov,2024-04-15,2850.0,2850.0,90.0,0.0,4.0,570000ml,1,QUARTERLY,twenty-nine
+New York City,Clinic,Borehole,UNICEF,2024-05-01,,2100.0,82.0,40.0,10.0,420L,Yes,Monthly,21
+New York City,clinic,bore hole,United Nations Children's Fund,2024-05-01,2100.0,,38.0,9.0,10.0,420 liters,Y,monthly,21
+New York City,CLINIC,Borehole well,UNICEF,2024-05-01,2150.0,2150.0,,11.0,10.0,430000ml,1,MONTHLY,22
+New York City,Clnic,borehole,United Nations Childrens Fund,2024-05-05,2050.0,2050.0,80.0,39.0,,410L,true,Quartely,twenty
+Boston,Hospital,Hand pump,WHO,2024-05-15,1500.0,1500.0,75.0,28.0,9.0,,Yes,Quarterly,15
+Boston,hospital,hand pump,World Health Organization,2024-05-15,1450.0,1450.0,,26.0,8.0,290 liters,Y,quarterly,14
+Boston,HOSPITAL,Hand Pump,W.H.O.,2024-05-15,,1400.0,73.0,30.0,10.0,280000ml,1,QUARTERLY,14
+Los Angeles,Clinic,Piped water,Scottish Government,2024-06-01,2900.0,2900.0,91.0,0.0,2.0,580L,No,Monthly,29
+Los Angeles,clinic,Piped Water,The Scottish Government,2024-06-01,2850.0,2850.0,89.0,0.0,2.0,570 liters,N,monthly,29
+Los Angeles,CLINIC,piped water,Scottish Gov,2024-06-01,2950.0,2950.0,93.0,0.0,3.0,590000ml,0,MONTHLY,thirty
+Chicago,Health Center,Borehole,UNICEF,2024-06-15,2200.0,2200.0,81.0,38.0,14.0,440L,Yes,Quarterly,22
+Chicago,health center,bore hole,United Nations Children's Fund,2024-06-15,2150.0,2150.0,79.0,36.0,13.0,430 liters,Y,quarterly,22
+Chicago,Health centre,Borehole well,UNICEF,2024-06-15,2250.0,2250.0,83.0,40.0,15.0,450000ml,1,QUARTERLY,twenty-two
+Seattle,Hospital,Hand pump,WHO,2024-07-01,1100.0,1100.0,69.0,22.0,7.0,220L,Yes,Monthly,11
+Seattle,hospital,hand pump,World Health Organization,2024-07-01,1050.0,1050.0,67.0,20.0,6.0,210 liters,Y,monthly,10
+Seattle,HOSPITAL,Hand Pump,W.H.O.,2024-07-01,1150.0,1150.0,71.0,24.0,8.0,230000ml,1,MONTHLY,eleven
+Denver,Clinic,Piped water,Scottish Government,2024-07-15,2600.0,2600.0,87.0,0.0,3.0,520L,Yes,Quarterly,26
+Denver,clinic,Piped Water,The Scottish Government,2024-07-15,2550.0,2550.0,85.0,0.0,3.0,510 liters,Y,quarterly,26
+Denver,CLINIC,piped water,Scottish Gov,2024-07-15,2650.0,2650.0,89.0,0.0,4.0,530000ml,1,QUARTERLY,twenty-seven
+New York City,Health Center,Borehole,WHO,2024-08-01,2700.0,2700.0,86.0,42.0,11.0,540L,No,Monthly,27
+New York City,health center,bore hole,World Health Organization,2024-08-01,2650.0,2650.0,84.0,40.0,10.0,530 liters,N,monthly,27
+New York City,Health centre,Borehole well,W.H.O.,2024-08-01,2750.0,2750.0,88.0,44.0,12.0,550000ml,0,MONTHLY,twenty-eight
+Boston,Clinic,Hand pump,UNICEF,2024-08-15,1300.0,1300.0,73.0,26.0,8.0,260L,Yes,Quarterly,13
+Boston,clinic,hand pump,United Nations Children's Fund,2024-08-15,1250.0,1250.0,71.0,24.0,7.0,250 liters,Y,quarterly,12
+Boston,CLINIC,Hand Pump,UNICEF,2024-08-15,1350.0,1350.0,75.0,28.0,9.0,270000ml,1,QUARTERLY,thirteen
+Los Angeles,Hospital,Piped water,Scottish Government,2024-09-01,3500.0,3500.0,94.0,0.0,2.0,700L,Yes,Monthly,35
+Los Angeles,hospital,Piped Water,The Scottish Government,2024-09-01,3450.0,3450.0,92.0,0.0,2.0,690 liters,Y,monthly,35
+Los Angeles,HOSPITAL,piped water,Scottish Gov,2024-09-01,3550.0,3550.0,96.0,0.0,3.0,710000ml,1,MONTHLY,thirty-six
+Chicago,Clinic,Borehole,WHO,2024-09-15,1900.0,1900.0,79.0,36.0,14.0,380L,Yes,Quarterly,19
+Chicago,clinic,bore hole,World Health Organization,2024-09-15,1850.0,1850.0,77.0,34.0,13.0,370 liters,Y,quarterly,18
+Chicago,CLINIC,Borehole well,W.H.O.,2024-09-15,1950.0,1950.0,81.0,38.0,15.0,390000ml,1,QUARTERLY,nineteen
+Seattle,Health Center,Hand pump,UNICEF,2024-10-01,1000.0,1000.0,68.0,21.0,6.0,200L,No,Monthly,10
+Seattle,health center,hand pump,United Nations Children's Fund,2024-10-01,950.0,950.0,66.0,19.0,5.0,190 liters,N,monthly,9
+Seattle,Health centre,Hand Pump,UNICEF,2024-10-01,1050.0,1050.0,70.0,23.0,7.0,210000ml,0,MONTHLY,ten
+Denver,Hospital,Piped water,Scottish Government,2024-10-15,2900.0,2900.0,89.0,0.0,3.0,580L,Yes,Quarterly,29
+Denver,hospital,Piped Water,The Scottish Government,2024-10-15,2850.0,2850.0,87.0,0.0,3.0,570 liters,Y,quarterly,29
+Denver,HOSPITAL,piped water,Scottish Gov,2024-10-15,2950.0,2950.0,91.0,0.0,4.0,590000ml,1,QUARTERLY,thirty
+New York City,Clinic,bore hole,UNICEF,2024-11-01,2000.0,2000.0,80.0,38.0,,430L,Yes,Monthly,20
+New York City,clinic,Borehole well,United Nations Children's Fund,2024-11-01,,1950.0,78.0,36.0,9.0,390 liters,Y,monthly,19
+New York City,CLINIC,borehole,UNICEF,2024-11-01,2100.0,2100.0,82.0,,10.0,420000ml,1,MONTHLY,twenty-one
+Boston,Health Center,Hand pump,WHO,2024-11-15,1400.0,1400.0,,27.0,8.0,280L,Yes,Quarterly,14
+Boston,health center,hand pump,World Health Organization,2024-11-15,1350.0,1350.0,72.0,,7.0,270 liters,Y,quarterly,13
+Boston,Health centre,Hand Pump,W.H.O.,2024-11-15,,1400.0,74.0,29.0,9.0,280000ml,1,QUARTERLY,fourteen
+Los Angeles,Clinic,Piped water,Scottish Government,2024-12-01,25000.0,25000.0,88.0,0.0,2.0,5000L,Yes,Monthly,250
+Los Angeles,clinic,Piped Water,The Scottish Government,2024-12-01,3000.0,3000.0,-15.0,0.0,2.0,600 liters,Y,monthly,30
+Los Angeles,CLINIC,piped water,Scottish Gov,2024-12-01,3100.0,3100.0,250.0,0.0,3.0,620000ml,1,MONTHLY,31
+Chicago,Hospital,Borehole,UNICEF,2024-12-15,-500.0,-500.0,78.0,500.0,14.0,360L,Yes,Quarterly,-5
+Chicago,hospital,bore hole,United Nations Children's Fund,2024-12-15,1800.0,1800.0,76.0,35.0,150.0,360 liters,Y,quarterly,18
+Seattle,Clinic,Hand pump,WHO,2024-12-20,1000.0,1000.0,70.0,22.0,7.0,200L,Yes,Monthly,10
+Seattle,clinic,hand pump,World Health Organization,2024-12-20,980.0,980.0,68.0,20.0,6.0,196 liters,Y,monthly,10
+Denver,Health Center,Piped water,Scottish Government,2024-12-25,2750.0,2750.0,88.0,0.0,3.0,550000ml,No,Quarterly,28
