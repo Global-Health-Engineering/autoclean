@@ -61,7 +61,8 @@ def handle_structural_errors(df: pd.DataFrame,
               'unique_values_before': df[column].nunique(), # .nunique() returns number of unique values (excluding missing values)
               'unique_values_after': None,
               'mapping': {},
-              'values_changed': 0}
+              'values_changed': 0,
+              'value_counts': {}}
     
     # Get unique values (excluding missing values)
     unique_values = list(df[column].dropna().unique())
@@ -80,6 +81,8 @@ def handle_structural_errors(df: pd.DataFrame,
     # Note: .value_counts() returns a pd series with index = unique values & data = count of the unique values
     #       dict() converts pd series to dict, where index -> key, data -> value
 
+    # Update report
+    report['value_counts'] = value_counts
     # =========================================================================
     # Step 1: Compute similarity matrix
     # =========================================================================

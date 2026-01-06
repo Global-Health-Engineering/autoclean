@@ -365,6 +365,8 @@ def _generate_structural_errors_section(reports_input) -> list:
         
         # Show mapping
         mapping = report.get('mapping', {})
+        value_counts = report.get('value_counts', {})
+        
         if mapping:
             # Group by canonical value to show clusters
             clusters = {}
@@ -373,19 +375,35 @@ def _generate_structural_errors_section(reports_input) -> list:
                     clusters[canonical] = []
                 clusters[canonical].append(original)
             
-            # Only show clusters with multiple values (actual corrections)
-            clusters_with_changes = {k: v for k, v in clusters.items() if len(v) > 1}
+            # Table 1: Clustering results
+            lines.append("")
+            lines.append("#### Clustering Results")
+            lines.append("")
+            lines.append("| Original Values | Canonical |")
+            lines.append("|-----------------|-----------|")
             
-            if clusters_with_changes:
-                lines.append("")
-                lines.append("| Original Values | Canonical |")
-                lines.append("|-----------------|-----------|")
-                for canonical, originals in clusters_with_changes.items():
-                    originals_str = ", ".join(originals)
-                    lines.append(f"| {originals_str} | {canonical} |")
-            else:
-                lines.append("")
-                lines.append("*No structural errors found (all values are unique).*")
+            # Sort clusters by total count (descending)
+            sorted_clusters = sorted(clusters.items(), 
+                                    key=lambda x: sum(value_counts.get(orig, 0) for orig in x[1]), 
+                                    reverse=True)
+            
+            for canonical, originals in sorted_clusters:
+                originals_str = ", ".join(originals)
+                lines.append(f"| {originals_str} | {canonical} |")
+        
+        # Table 2: Value counts (from original data)
+        if value_counts:
+            lines.append("")
+            lines.append("#### Value Counts (Original Data)")
+            lines.append("")
+            lines.append("| Value | Count |")
+            lines.append("|-------|-------|")
+            
+            # Sort by count descending
+            sorted_counts = sorted(value_counts.items(), key=lambda x: x[1], reverse=True)
+            
+            for value, count in sorted_counts:
+                lines.append(f"| {value} | {count} |")
         
         lines.append("")
     
