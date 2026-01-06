@@ -54,23 +54,97 @@ df, report_out = handle_outliers(df,
 # STRUCTURAL ERRORS 
 # =============================================================================
 
-df, report_struct = handle_structural_errors(df,
-                                             column='city',  
-                                             similarity='embeddings',
-                                             clustering='affinity_propagation',
-                                             canonical='llm',
-                                             threshold_cc=0.85,
-                                             threshold_h=0.85,
-                                             embedding_model='text-embedding-3-small')
+# List to collect all structural error reports
+structural_reports = []
+
+# city: NYC, NY, New York, etc. → semantic variations, use embeddings + affinity propagation
+df, report = handle_structural_errors(df,
+                                      column='city',  
+                                      similarity='embeddings',
+                                      clustering='affinity_propagation',
+                                      canonical='llm',
+                                      embedding_model='text-embedding-3-small')
+structural_reports.append(report)
+
+# facility_type: Hospital, hospital, HOSPITAL, Hosptial (typos) → use rapidfuzz + low threshold
+df, report = handle_structural_errors(df,
+                                      column='facility_type',  
+                                      similarity='rapidfuzz',
+                                      clustering='connected_components',
+                                      canonical='most_frequent',
+                                      threshold_h=0.75)
+structural_reports.append(report)
+
+# water_source: Borehole, bore hole, Borehole well, Hand pump → rapidfuzz + low threshold
+df, report = handle_structural_errors(df,
+                                      column='water_source',  
+                                      similarity='rapidfuzz',
+                                      clustering='connected_components',
+                                      canonical='most_frequent',
+                                      threshold_h=0.75)
+structural_reports.append(report)
+
+# funding_organization: WHO, W.H.O., World Health Organization → semantic, needs embeddings + low threshold
+df, report = handle_structural_errors(df,
+                                      column='funding_organization',  
+                                      similarity='embeddings',
+                                      clustering='hierarchical',
+                                      canonical='llm',
+                                      threshold_h=0.60,
+                                      embedding_model='text-embedding-3-large')
+structural_reports.append(report)
+
+# daily_usage: 500L, 480 liters, 520000ml → very different strings but same concept
+# Using embeddings with very low threshold to try grouping similar units
+df, report = handle_structural_errors(df,
+                                      column='daily_usage',  
+                                      similarity='embeddings',
+                                      clustering='affinity_propagation',
+                                      canonical='llm',
+                                      threshold_h=0.70,
+                                      embedding_model='text-embedding-3-large')
+structural_reports.append(report)
+
+# is_functional: Yes, Y, 1, true, TRUE → semantic similarity with low threshold
+df, report = handle_structural_errors(df,
+                                      column='is_functional',  
+                                      similarity='embeddings',
+                                      clustering='hierarchical',
+                                      canonical='llm',
+                                      threshold_h=0.70,
+                                      embedding_model='text-embedding-3-large')
+structural_reports.append(report)
+
+# maintenance_frequency: Monthly, monthly, MONTHLY, Mothly (typos) → rapidfuzz for typos
+df, report = handle_structural_errors(df,
+                                      column='maintenance_frequency',  
+                                      similarity='rapidfuzz',
+                                      clustering='hierarchical',
+                                      canonical='most_frequent',
+                                      threshold_h=0.70)
+structural_reports.append(report)
+
+# number_of_staff: 25, twenty-six, twelve → very different (numbers vs words)
+# Using embeddings with low threshold to try semantic grouping
+df, report = handle_structural_errors(df,
+                                      column='number_of_staff',  
+                                      similarity='embeddings',
+                                      clustering='affinity_propagation',
+                                      canonical='llm',
+                                      threshold_h=0.50,
+                                      embedding_model='text-embedding-3-large')
+structural_reports.append(report)
 
 # =============================================================================
 # MISSING VALUES
 # =============================================================================
 
+df['water_quality_score'] = pd.to_numeric(df['water_quality_score'], errors='coerce')
+
 df, report_miss = handle_missing_values(df,
                                         method_num='missforest',
                                         method_categ='false',
-                                        columns='water_quality_score',
+                                        columns=['water_quality_score'],
                                         n_neighbors=5,
                                         max_iter=10,
                                         n_estimators=10)
@@ -96,7 +170,7 @@ reports = {'preprocessing': report_pre,
            'missing_values': report_miss,
            'datetime': report_date,          
            'outliers': report_out,
-           'structural_errors': report_struct,  
+           'structural_errors': structural_reports,  # Now a LIST of reports
            'postprocessing': report_post}
 
-generate_cleaning_report(reports, REPORT_FILE, dataset_name = DATASET_NAME)
+generate_cleaning_report(reports, REPORT_FILE, dataset_name=DATASET_NAME)

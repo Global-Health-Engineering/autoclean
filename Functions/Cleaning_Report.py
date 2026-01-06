@@ -125,7 +125,13 @@ def _generate_summary(reports: dict) -> list:
         total_outliers = reports['outliers'].get('total_outliers', 0)
     
     if 'structural_errors' in reports:
-        total_values_changed += reports['structural_errors'].get('values_changed', 0)
+        # Handle both single report (dict) and multiple reports (list)
+        struct_reports = reports['structural_errors']
+        if isinstance(struct_reports, list):
+            for r in struct_reports:
+                total_values_changed += r.get('values_changed', 0)
+        else:
+            total_values_changed += struct_reports.get('values_changed', 0)
     
     if total_rows_deleted > 0:
         lines.append(f"- **Total rows deleted:** {total_rows_deleted}")
@@ -309,62 +315,80 @@ def _generate_outliers_section(report: dict) -> list:
     return lines
 
 
-def _generate_structural_errors_section(report: dict) -> list:
-    """Generate structural errors section."""
+def _generate_structural_errors_section(reports_input) -> list:
+    """Generate structural errors section. Handles both single report (dict) and multiple reports (list)."""
     lines = []
     lines.append("---")
     lines.append("")
     lines.append("## Structural Errors")
     lines.append("")
     
-    lines.append(f"- **Column:** {report.get('column', 'N/A')}")
-    lines.append(f"- **Similarity method:** {report.get('similarity', 'N/A')}")
-    lines.append(f"- **Clustering method:** {report.get('clustering', 'N/A')}")
-    lines.append(f"- **Canonical selection:** {report.get('canonical', 'N/A')}")
+    # Convert single report to list for uniform handling
+    if isinstance(reports_input, dict):
+        reports_list = [reports_input]
+    else:
+        reports_list = reports_input
     
-    # Show relevant threshold based on clustering method
-    clustering = report.get('clustering', '')
-    if clustering == 'hierarchical':
-        lines.append(f"- **Threshold:** {report.get('threshold_h', 0.85)}")
-    elif clustering == 'connected_components':
-        lines.append(f"- **Threshold:** {report.get('threshold_cc', 0.85)}")
-    # affinity_propagation has no threshold
+    # Calculate totals across all reports
+    total_values_changed = sum(r.get('values_changed', 0) for r in reports_list)
+    total_columns = len(reports_list)
     
-    # Show embedding model if embeddings were used
-    if report.get('similarity') == 'embeddings':
-        lines.append(f"- **Embedding model:** {report.get('embedding_model', 'N/A')}")
-    
-    lines.append(f"- **Unique values before:** {report.get('unique_values_before', 'N/A')}")
-    lines.append(f"- **Unique values after:** {report.get('unique_values_after', 'N/A')}")
-    lines.append(f"- **Values changed:** {report.get('values_changed', 0)}")
-    
-    # Show mapping
-    mapping = report.get('mapping', {})
-    if mapping:
-        # Group by canonical value to show clusters
-        clusters = {}
-        for original, canonical in mapping.items():
-            if canonical not in clusters:
-                clusters[canonical] = []
-            clusters[canonical].append(original)
-        
-        # Only show clusters with multiple values (actual corrections)
-        clusters_with_changes = {k: v for k, v in clusters.items() if len(v) > 1}
-        
-        if clusters_with_changes:
-            lines.append("")
-            lines.append("### Mappings")
-            lines.append("")
-            lines.append("| Original Values | Canonical |")
-            lines.append("|-----------------|-----------|")
-            for canonical, originals in clusters_with_changes.items():
-                originals_str = ", ".join(originals)
-                lines.append(f"| {originals_str} | {canonical} |")
-        else:
-            lines.append("")
-            lines.append("No structural errors found (all values are unique).")
-    
+    lines.append(f"- **Columns processed:** {total_columns}")
+    lines.append(f"- **Total values changed:** {total_values_changed}")
     lines.append("")
+    
+    # Generate section for each column
+    for i, report in enumerate(reports_list):
+        column_name = report.get('column', f'Column {i+1}')
+        lines.append(f"### {column_name}")
+        lines.append("")
+        
+        lines.append(f"- **Similarity method:** {report.get('similarity', 'N/A')}")
+        lines.append(f"- **Clustering method:** {report.get('clustering', 'N/A')}")
+        lines.append(f"- **Canonical selection:** {report.get('canonical', 'N/A')}")
+        
+        # Show relevant threshold based on clustering method
+        clustering = report.get('clustering', '')
+        if clustering == 'hierarchical':
+            lines.append(f"- **Threshold:** {report.get('threshold_h', 0.85)}")
+        elif clustering == 'connected_components':
+            lines.append(f"- **Threshold:** {report.get('threshold_cc', 0.85)}")
+        # affinity_propagation has no threshold
+        
+        # Show embedding model if embeddings were used
+        if report.get('similarity') == 'embeddings':
+            lines.append(f"- **Embedding model:** {report.get('embedding_model', 'N/A')}")
+        
+        lines.append(f"- **Unique values before:** {report.get('unique_values_before', 'N/A')}")
+        lines.append(f"- **Unique values after:** {report.get('unique_values_after', 'N/A')}")
+        lines.append(f"- **Values changed:** {report.get('values_changed', 0)}")
+        
+        # Show mapping
+        mapping = report.get('mapping', {})
+        if mapping:
+            # Group by canonical value to show clusters
+            clusters = {}
+            for original, canonical in mapping.items():
+                if canonical not in clusters:
+                    clusters[canonical] = []
+                clusters[canonical].append(original)
+            
+            # Only show clusters with multiple values (actual corrections)
+            clusters_with_changes = {k: v for k, v in clusters.items() if len(v) > 1}
+            
+            if clusters_with_changes:
+                lines.append("")
+                lines.append("| Original Values | Canonical |")
+                lines.append("|-----------------|-----------|")
+                for canonical, originals in clusters_with_changes.items():
+                    originals_str = ", ".join(originals)
+                    lines.append(f"| {originals_str} | {canonical} |")
+            else:
+                lines.append("")
+                lines.append("*No structural errors found (all values are unique).*")
+        
+        lines.append("")
+    
     return lines
 
 
