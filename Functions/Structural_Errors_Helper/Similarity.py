@@ -42,7 +42,7 @@ def rapidfuzz_similarity(values: list) -> np.ndarray:
                 similarity_matrix[i, j] = 1.0 # Diagonal is always 1
             else:
                 # token_sort_ratio returns score between 0-100, normalize to 0-1 by /100.0
-                score = fuzz.token_sort_ratio(str(values[i]), str(values[j])) / 100.0 
+                score = fuzz.token_sort_ratio(str(values[i]).lower(), str(values[j]).lower()) / 100.0 
                 # Note: str() is for safety, in case not already string
 
                 similarity_matrix[i, j] = score

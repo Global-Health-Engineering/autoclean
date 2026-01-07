@@ -1,7 +1,7 @@
 # AutoClean Report
 
 **Dataset:** Test Data
-**Generated:** 2026-01-06 14:18:05
+**Generated:** 2026-01-07 01:48:21
 
 ---
 
@@ -10,8 +10,8 @@
 - **Original shape:** 75 rows × 14 columns
 - **After preprocessing:** 75 rows × 14 columns
 - **Total rows deleted:** 2
-- **Total values imputed:** 3
-- **Total structural errors fixed:** 306
+- **Total values imputed:** 8
+- **Total structural errors fixed:** 249
 
 ---
 
@@ -43,7 +43,7 @@
 
 ## Missing Values
 
-- **Numerical missing:** 3
+- **Numerical missing:** 8
 - **Categorical missing:** 0.0
 - **Method (numerical):** missforest
 - **Method (categorical):** false
@@ -52,9 +52,14 @@
 
 | Row | Column | New Value | Method |
 |-----|--------|-----------|--------|
-| 24 | water_quality_score | 81.9 | missforest |
-| 27 | water_quality_score | 73.1 | missforest |
-| 62 | water_quality_score | 73.4 | missforest |
+| 22 | population_served | 2170 | missforest |
+| 28 | population_served | 1425 | missforest |
+| 60 | population_served | 1920 | missforest |
+| 64 | population_served | 1410 | missforest |
+| 23 | users_count | 2095 | missforest |
+| 24 | water_quality_score | 76.7 | missforest |
+| 27 | water_quality_score | 73.3 | missforest |
+| 62 | water_quality_score | 73.7 | missforest |
 
 ---
 
@@ -77,145 +82,120 @@ No outliers found.
 
 ## Structural Errors
 
-- **Columns processed:** 8
-- **Total values changed:** 306
+- **Columns processed:** 6
+- **Total values changed:** 249
 
 ### city
 
 - **Similarity method:** embeddings
 - **Clustering method:** affinity_propagation
-- **Canonical selection:** llm
-- **Embedding model:** text-embedding-3-small
+- **Canonical selection:** most_frequent
+- **Embedding model:** text-embedding-3-large
 - **Unique values before:** 21
 - **Unique values after:** 6
-- **Values changed:** 50
+- **Values changed:** 48
+
+#### Clustering Results
 
 | Original Values | Canonical |
 |-----------------|-----------|
-| New York, new york, NYC, NY, New York City | New York City |
-| Boston, boston, BOSTON | Boston |
-| Los Angeles, LA, L.A., los angeles | Los Angeles |
-| Chicago, chicago, CHICAGO | Chicago |
-| Seattle, seattle, SEATTLE | Seattle |
-| Denver, denver, DENVER | Denver |
+| New York; new york; NYC; NY; New York City | NYC |
+| Boston; boston; BOSTON | boston |
+| Los Angeles; LA; L.A.; los angeles | Los Angeles |
+| Chicago; chicago; CHICAGO | Chicago |
+| Seattle; seattle; SEATTLE | Seattle |
+| Denver; denver; DENVER | Denver |
 
 ### facility_type
 
 - **Similarity method:** rapidfuzz
-- **Clustering method:** connected_components
+- **Clustering method:** hierarchical
 - **Canonical selection:** most_frequent
-- **Threshold:** 0.85
+- **Threshold:** 0.75
 - **Unique values before:** 13
-- **Unique values after:** 8
-- **Values changed:** 12
+- **Unique values after:** 3
+- **Values changed:** 49
+
+#### Clustering Results
 
 | Original Values | Canonical |
 |-----------------|-----------|
-| Hospital, hospital, Hosptial, hosptial | Hospital |
-| Clinic, Clnic | Clinic |
-| Health Center, Helth Center | Health Center |
+| Clinic; clinic; CLINIC; Clnic | Clinic |
+| Hospital; hospital; HOSPITAL; Hosptial; hosptial | Hospital |
+| Health Center; health center; Health centre; Helth Center | Health Center |
 
 ### water_source
 
 - **Similarity method:** rapidfuzz
-- **Clustering method:** connected_components
+- **Clustering method:** hierarchical
 - **Canonical selection:** most_frequent
-- **Threshold:** 0.85
+- **Threshold:** 0.7
 - **Unique values before:** 13
-- **Unique values after:** 6
-- **Values changed:** 40
+- **Unique values after:** 3
+- **Values changed:** 49
+
+#### Clustering Results
 
 | Original Values | Canonical |
 |-----------------|-----------|
-| Borehole, bore hole, borehole | bore hole |
-| Hand pump, hand pump, Hand Pump, handpump | Hand pump |
-| Piped water, Piped Water, piped water | Piped water |
+| Borehole; bore hole; Borehole well; borehole; BOREHOLE | bore hole |
+| Hand pump; hand pump; Hand Pump; handpump | Hand pump |
+| Piped water; Piped Water; piped water; Tap water | Piped water |
 
 ### funding_organization
 
 - **Similarity method:** embeddings
 - **Clustering method:** hierarchical
-- **Canonical selection:** llm
-- **Threshold:** 0.6
+- **Canonical selection:** most_frequent
+- **Threshold:** 0.65
 - **Embedding model:** text-embedding-3-large
 - **Unique values before:** 9
 - **Unique values after:** 3
-- **Values changed:** 49
+- **Values changed:** 40
+
+#### Clustering Results
 
 | Original Values | Canonical |
 |-----------------|-----------|
-| WHO, World Health Organization, W.H.O. | World Health Organization |
-| UNICEF, United Nations Children's Fund, United Nations Childrens Fund | United Nations Children's Fund |
-| Scottish Government, The Scottish Government, Scottish Gov | The Scottish Government |
-
-### daily_usage
-
-- **Similarity method:** embeddings
-- **Clustering method:** affinity_propagation
-- **Canonical selection:** llm
-- **Embedding model:** text-embedding-3-large
-- **Unique values before:** 64
-- **Unique values after:** 5
-- **Values changed:** 67
-
-| Original Values | Canonical |
-|-----------------|-----------|
-| 500L, 490L, 640L, 560L, 580L, 520L, 540L, 700L, 5000L | 540L |
-| 480 liters, 510 liters, 230 liters, 620 liters, 350 liters, 184 liters, 550 liters, 420 liters, 290 liters, 570 liters, 430 liters, 210 liters, 530 liters, 250 liters, 690 liters, 370 liters, 190 liters, 390 liters, 270 liters, 600 liters, 360 liters, 196 liters | 480 liters |
-| 520000ml, 250000ml, 660000ml, 370000ml, 196000ml, 570000ml, 430000ml, 280000ml, 590000ml, 450000ml, 230000ml, 530000ml, 550000ml, 270000ml, 710000ml, 390000ml, 210000ml, 420000ml, 620000ml | 530000ml |
-| 240L, 236L, 190L, 220L, 260L, 200L, 280L | 240L |
-| 630L, 360L, 420L, 410L, 440L, 380L, 430L | 630L |
+| WHO; World Health Organization; W.H.O. | WHO |
+| UNICEF; United Nations Children's Fund; United Nations Childrens Fund | UNICEF |
+| Scottish Government; The Scottish Government; Scottish Gov | Scottish Government |
 
 ### is_functional
 
 - **Similarity method:** embeddings
-- **Clustering method:** hierarchical
-- **Canonical selection:** llm
-- **Threshold:** 0.7
+- **Clustering method:** affinity_propagation
+- **Canonical selection:** most_frequent
 - **Embedding model:** text-embedding-3-large
 - **Unique values before:** 9
-- **Unique values after:** 7
-- **Values changed:** 4
+- **Unique values after:** 4
+- **Values changed:** 15
+
+#### Clustering Results
 
 | Original Values | Canonical |
 |-----------------|-----------|
-| true, TRUE, false | TRUE |
+| Yes; No | Yes |
+| Y; N | Y |
+| 1; 0 | 1 |
+| true; TRUE; false | true |
 
 ### maintenance_frequency
 
 - **Similarity method:** rapidfuzz
 - **Clustering method:** hierarchical
 - **Canonical selection:** most_frequent
-- **Threshold:** 0.7
+- **Threshold:** 0.75
 - **Unique values before:** 9
-- **Unique values after:** 4
-- **Values changed:** 27
+- **Unique values after:** 2
+- **Values changed:** 48
+
+#### Clustering Results
 
 | Original Values | Canonical |
 |-----------------|-----------|
-| Monthly, monthly, Mothly, Montly | monthly |
-| Quarterly, quarterly, Quartely | Quarterly |
-
-### number_of_staff
-
-- **Similarity method:** embeddings
-- **Clustering method:** affinity_propagation
-- **Canonical selection:** llm
-- **Embedding model:** text-embedding-3-large
-- **Unique values before:** 42
-- **Unique values after:** 10
-- **Values changed:** 57
-
-| Original Values | Canonical |
-|-----------------|-----------|
-| 25, 24, 26, 21, 22, twenty-two | 22 |
-| twenty-six, twelve, eighteen, twenty-nine, twenty-seven, twenty-eight, thirteen, twenty-one | twenty-one |
-| 12, 11, 10, 9, eleven | 12 |
-| 32, 31, 28, 29, 27, 35, 30 | 30 |
-| thirty-three, thirty, thirty-six | thirty |
-| 18, 17, 19, nineteen | 19 |
-| ten, twenty, 20 | 20 |
-| 15, 14, 13, fourteen | 15 |
+| Monthly; monthly; MONTHLY; Mothly; Montly | monthly |
+| Quarterly; quarterly; QUARTERLY; Quartely | Quarterly |
 
 ---
 
@@ -223,4 +203,6 @@ No outliers found.
 
 | Column | Action |
 |--------|--------|
+| population_served | Restored to integer |
+| users_count | Restored to integer |
 | water_quality_score | Restored to integer |

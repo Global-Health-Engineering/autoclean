@@ -76,7 +76,7 @@ df, report2 = handle_structural_errors(df,
                                        clustering='hierarchical',
                                        canonical='most_frequent',
                                        threshold_cc=0.73,
-                                       threshold_h=0.70,
+                                       threshold_h=0.65,
                                        embedding_model='text-embedding-3-large')
 structural_reports.append(report2)
 
