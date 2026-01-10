@@ -13,7 +13,7 @@ It returns three items (as tuple):
     - report: Dict with preprocessing details
 
 Parameters:
-    filepath: Path to CSV or Excel file
+    filepath: Path to CSV file
     clean_names: If True, standardize column names (default: True)
     
 Steps applied:
@@ -33,16 +33,16 @@ def preprocess_data(filepath: str, clean_names: bool = True) -> tuple:
     print("Preprocessing... ", end = "", flush = True)
     # Note: With flush = True, print is immediately
 
-    # Load data (either CSV file or Excel file otherwise error)
+    # Load data (only CSV file otherwise error)
     if filepath.endswith('.csv'):
-        df = pd.read_csv(filepath)
-
-    elif filepath.endswith(('.xlsx', '.xls')):
-        df = pd.read_excel(filepath)
+        df = pd.read_csv(filepath, na_values=[' ','  ', '   ', 'none', '-', '--', '.', 'na'])
+    
+    # Note: pd.read_csv converts by default values like: ““, “#N/A”, “#N/A N/A”, “#NA”, “-1.#IND”, “-1.#QNAN”, “-NaN”, “-nan”, “1.#IND”, “1.#QNAN”, “<NA>”, “N/A”, “NA”, “NULL”, “NaN”, “None”, “n/a”, “nan”, “null“ 
+    # by default to np.nan. Additionally also the values from the list na_values. 
 
     else:
-        raise ValueError(f"{filepath} = unsupported file type (only CSV or Excel)")
-    
+        raise ValueError(f"{filepath} = unsupported file type (only CSV)")
+
     # Store original dataframe
     df_original = df.copy()
     
@@ -64,11 +64,6 @@ def preprocess_data(filepath: str, clean_names: bool = True) -> tuple:
     #       Lambda function: strips whitespace if value is string, otherwise returns input 
     #       x.strip() removes leading/trailing whitespace
     #       isinstance(x, str) checks if x is a string
- 
-    # Standardize missing values (Common representations of missing data → np.nan)
-    missing_values = ['', ' ', 'NULL', 'null', 'None', 'none', '-', '--', '.']
-    df = df.replace(missing_values, np.nan)
-    # Note: df.replace(list, value) replaces any item in list with value
 
     # Remove empty rows and columns (using remove_empty() from PyJanitor)
     df = df.remove_empty()
