@@ -264,10 +264,10 @@ def _generate_datetime_section(report: dict) -> list:
         lines.append("")
         lines.append("### Issues Handled")
         lines.append("")
-        lines.append("| Row | Original | Action | Result |")
-        lines.append("|-----|----------|--------|--------|")
+        lines.append("| Row | Original | Action |")
+        lines.append("|-----|----------|--------|")
         for issue in issues[:20]:  # Show max 20
-            lines.append(f"| {issue['row']} | {issue['original']} | {issue['action']} | {issue['result']} |")
+            lines.append(f"| {issue['row']} | {issue['original']} | {issue['action']} |")
         if len(issues) > 20:
             lines.append(f"| ... | ... | ... | ({len(issues) - 20} more) |")
     

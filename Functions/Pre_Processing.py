@@ -35,8 +35,7 @@ def preprocess_data(filepath: str, clean_names: bool = True) -> tuple:
 
     # Load data (only CSV file otherwise error)
     if filepath.endswith('.csv'):
-        df = pd.read_csv(filepath, na_values=[' ','  ', '   ', 'none', '-', '--', '.', 'na'])
-    
+        df = pd.read_csv(filepath, na_values = [' ', '  ', '   ', '    ', '     ', 'none', '-', '--', '.', 'na'])
     # Note: pd.read_csv converts by default values like: ““, “#N/A”, “#N/A N/A”, “#NA”, “-1.#IND”, “-1.#QNAN”, “-NaN”, “-nan”, “1.#IND”, “1.#QNAN”, “<NA>”, “N/A”, “NA”, “NULL”, “NaN”, “None”, “n/a”, “nan”, “null“ 
     # by default to np.nan. Additionally also the values from the list na_values. 
 

@@ -16,7 +16,7 @@ Returns:
 
 def handle_duplicates(df: pd.DataFrame) -> tuple:
     # Terminal output: start
-    print("Handling duplicates... ", end="", flush=True)
+    print("Handling duplicates... ", end="", flush = True)
     # Note: With flush = True, print is immediately
 
     # Get # of rows & columns from original dataframe 
@@ -24,7 +24,7 @@ def handle_duplicates(df: pd.DataFrame) -> tuple:
     n_original_cols = len(df.columns)
     
     # Remove duplicate rows and reset index
-    df = df.drop_duplicates().reset_index(drop=True)
+    df = df.drop_duplicates().reset_index(drop = True)
     rows_removed = n_original_rows - len(df)
     
     # Remove duplicate columns 

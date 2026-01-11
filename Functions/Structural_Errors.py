@@ -44,7 +44,7 @@ def handle_structural_errors(df: pd.DataFrame,
                              threshold_h: float = 0.85, 
                              embedding_model: str = "text-embedding-3-small") -> tuple:
     # Terminal output: start
-    print(f"Fixing structural errors ({column})... ", end="", flush=True)
+    print(f"Fixing structural errors ({column})... ", end = "", flush = True)
     # Note: With flush = True, print is immediately
 
     # Work with copy, to not modify input df 
