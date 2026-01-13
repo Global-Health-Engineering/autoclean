@@ -2,431 +2,620 @@
 from datetime import datetime
 
 """
-Generate Markdown cleaning report from all report dicts
+Generate cleaning report as markdown file
 
-This function takes the report dicts from each cleaning function
-and generates a comprehensive Markdown report file.
+This function gets as an input a dictionary, consisting of every single report of each cleaning function, 
+which was applied in the pipeline. Note each single report is again a dictionary. With this input a comprehensive 
+report file (md file) is generated. 
 
-Usage:
-    reports = {
-        'preprocessing': preprocess_report,
-        'duplicates': duplicates_report,
-        'missing_values': missing_report,
-        'datetime': datetime_report,
-        'outliers': outliers_report,
-        'structural_errors': structural_errors_report,
-        'postprocessing': postprocess_report
-    }
-    generate_cleaning_report(reports, 'cleaning_report.md')
+Input (needs to have this structure):
+    reports = {'preprocessing': report_pre,
+               'duplicates': report_dup,
+               'missing_values': report_miss,
+               'datetime': report_date,          
+               'outliers': report_out,
+               'structural_errors': report_str,  
+               'postprocessing': report_post}
 
-Note: Only include reports for steps that were actually performed.
-      Missing keys will be skipped in the report.
+Note: 
+    - Only include reports for cleaning functions that were actually performed (missing keys will be skipped in the report)
+    - Value of key 'structural_errors' can be a list of dictionaries, if Structural_Errors.py is applied multiple times
+
+Principle of Markdown generation:
+    1. Each line of the Markdown file is stored as a string in list 'lines'
+    2. At the end, list 'lines' is converted into one long string with \n (newline character) between each element
+
+Markdown syntax used:
+    # Text          → Heading 1
+    ## Text         → Heading 2
+    ### Text        → Heading 3
+    **Text**        → Bold
+    - Item          → Bullet point
+    ---             → Horizontal line
+    | A | B |       → Table row
+    |---|---|       → Table header separator (required after header row) 
 """
 
-
-def generate_cleaning_report(reports: dict, 
-                              filepath: str = 'cleaning_report.md',
-                              dataset_name: str = None) -> None:
+def generate_cleaning_report(reports: dict, filepath: str = 'cleaning_report.md', dataset_name: str = None) -> None:
     """
     Generate Markdown cleaning report from report dicts.
     
     Parameters:
-        reports: Dict containing report dicts from each cleaning function
-        filepath: Output path for Markdown file (default: 'cleaning_report.md')
-        dataset_name: Optional name of dataset for report title
+        filepath: Output path for Markdown file (default = 'cleaning_report.md')
+        dataset_name: Optional name of dataset for report (default = None)
+    
+    Returns:
+        Function returns nothing (None), directly saves md file in desired location (filepath)
     """
     
+    # Terminal output: start
+    print("Generate cleaning report... ", end = "", flush = True)
+    # Note: With flush = True, print is immediately
+
+    # Initialize list of lines
     lines = []
     
-    # Header
+    # Create Header
     lines.append("# AutoClean Report")
-    lines.append("")
-    if dataset_name:
+    lines.append("") # empty line 
+    if dataset_name is not None:
         lines.append(f"**Dataset:** {dataset_name}")
-    lines.append(f"**Generated:** {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
-    lines.append("")
+    lines.append(f"**Generated:** {datetime.now().strftime('%d.%m.%Y %H:%M:%S')}") # Append line with current date & time
+    lines.append("") # empty line
     
-    # Summary section
-    lines.extend(_generate_summary(reports))
+    # Create summary section
+    lines.extend(_generate_summary(reports)) # Add returned list of _generate_summary() to lines
+    # Note: list1.extend(list2) appends every element of list2 to list1  
     
-    # Preprocessing section
+    # Create preprocessing section (if key is not missing)
     if 'preprocessing' in reports:
-        lines.extend(_generate_preprocessing_section(reports['preprocessing']))
+        lines.extend(_generate_preprocessing_section(reports['preprocessing'])) # Add returned list of _generate_preprocessing_section() to lines
     
-    # Duplicates section
+    # Create duplicates section (if key is not missing)
     if 'duplicates' in reports:
-        lines.extend(_generate_duplicates_section(reports['duplicates']))
+        lines.extend(_generate_duplicates_section(reports['duplicates'])) # Add returned list of _generate_duplicates_section() to lines
     
-    # Missing Values section
+    # Create missing values section (if key is not missing)
     if 'missing_values' in reports:
-        lines.extend(_generate_missing_values_section(reports['missing_values']))
+        lines.extend(_generate_missing_values_section(reports['missing_values'])) # Add returned list of _generate_missing_values_section() to lines
     
-    # DateTime section
+    # Create datetime section (if key is not missing)
     if 'datetime' in reports:
-        lines.extend(_generate_datetime_section(reports['datetime']))
+        lines.extend(_generate_datetime_section(reports['datetime'])) # Add returned list of _generate_datetime_section() to lines
     
-    # Outliers section
+    # Create outliers section (if key is not missing)
     if 'outliers' in reports:
-        lines.extend(_generate_outliers_section(reports['outliers']))
+        lines.extend(_generate_outliers_section(reports['outliers'])) # Add returned list of _generate_outliers_section() to lines
     
-    # Structural Errors section
+    # Create structural errors section (if key is not missing)
     if 'structural_errors' in reports:
-        lines.extend(_generate_structural_errors_section(reports['structural_errors']))
+        lines.extend(_generate_structural_errors_section(reports['structural_errors'])) # Add returned list of _generate_structural_errors_section() to lines
     
-    # Postprocessing section
+    # Create postprocessing section (if key is not missing)
     if 'postprocessing' in reports:
-        lines.extend(_generate_postprocessing_section(reports['postprocessing']))
+        lines.extend(_generate_postprocessing_section(reports['postprocessing'])) # Add returned list of _generate_postprocessing_section() to lines
     
-    # Write to file
-    with open(filepath, 'w') as f:
-        f.write('\n'.join(lines))
-    
-    print(f"Report saved: {filepath}")
+    # Write md file and save it to filepath
+    file = open(filepath, 'w') # Create file @filepath (if already exists -> gets cleared)
+    file.write('\n'.join(lines)) # Write the joined string into file 
+    # Note: '\n'.join(lines) joins all elements of lines to a string with each element seperated by \n
+    file.close() # Close and save the file 
 
+    # Terminal output: end
+    print("✓")
 
 # ============================================================================
 # Section Generators (Private)
 # ============================================================================
 
 def _generate_summary(reports: dict) -> list:
-    """Generate summary section."""
+    """Generate summary section"""
+    
+    # Initialize list of lines
     lines = []
-    lines.append("---")
-    lines.append("")
+
+    # Create title
+    lines.append("---") # divider line 
+    lines.append("") # empty line 
     lines.append("## Summary")
-    lines.append("")
+    lines.append("") # empty line
     
-    # Get shape info from preprocessing if available
+    # Get shape info from preprocessing (if available)
     if 'preprocessing' in reports:
-        r = reports['preprocessing']
-        if 'original_shape' in r and r['original_shape']:
-            lines.append(f"- **Original shape:** {r['original_shape'][0]} rows × {r['original_shape'][1]} columns")
-        if 'final_shape' in r and r['final_shape']:
-            lines.append(f"- **After preprocessing:** {r['final_shape'][0]} rows × {r['final_shape'][1]} columns")
+        report_pre = reports['preprocessing']
+        lines.append(f"- **Original shape:** {report_pre['original_shape'][0]} rows × {report_pre['original_shape'][1]} columns")
+        lines.append(f"- **Shape after preprocessing:** {report_pre['final_shape'][0]} rows × {report_pre['final_shape'][1]} columns")
     
-    # Count total changes
+    # Get values of key changes (if available)
     total_rows_deleted = 0
     total_imputations = 0
     total_outliers = 0
     total_values_changed = 0
-    
+
     if 'duplicates' in reports:
-        total_rows_deleted += reports['duplicates'].get('rows_removed', 0)
-    
+        total_rows_deleted += reports['duplicates']['rows_removed']
+
     if 'missing_values' in reports:
-        total_rows_deleted += reports['missing_values'].get('rows_deleted', 0)
-        total_imputations += len(reports['missing_values'].get('imputations', []))
+        total_rows_deleted += reports['missing_values']['rows_deleted']
+        total_imputations = len(reports['missing_values']['imputations'])
     
     if 'datetime' in reports:
-        total_rows_deleted += len(reports['datetime'].get('rows_deleted', []))
+        total_rows_deleted += len(reports['datetime']['rows_deleted'])
     
     if 'outliers' in reports:
-        total_rows_deleted += reports['outliers'].get('rows_deleted', 0)
-        total_outliers = reports['outliers'].get('total_outliers', 0)
+        total_rows_deleted += reports['outliers']['rows_deleted']
+        total_outliers = reports['outliers']['total_outliers']
     
     if 'structural_errors' in reports:
-        # Handle both single report (dict) and multiple reports (list)
-        struct_reports = reports['structural_errors']
-        if isinstance(struct_reports, list):
-            for r in struct_reports:
-                total_values_changed += r.get('values_changed', 0)
+        report_str = reports['structural_errors']
+        total_values_changed = 0
+
+        # Distinguish if Structural_Error.py was applied multiple times or just once
+        # Multiple times if report_str = list (of dict), otherwise single time
+        if isinstance(report_str, list):
+            # Note isinstance(x, y) returns true if object x corresponds to type y 
+            for single_report_str in report_str:
+                total_values_changed += single_report_str['values_changed']
+
         else:
-            total_values_changed += struct_reports.get('values_changed', 0)
+            total_values_changed = report_str['values_changed']
     
     if total_rows_deleted > 0:
         lines.append(f"- **Total rows deleted:** {total_rows_deleted}")
+
     if total_imputations > 0:
         lines.append(f"- **Total values imputed:** {total_imputations}")
+
     if total_outliers > 0:
         lines.append(f"- **Total outliers handled:** {total_outliers}")
+        
     if total_values_changed > 0:
         lines.append(f"- **Total structural errors fixed:** {total_values_changed}")
     
-    lines.append("")
-    return lines
+    lines.append("") # empty line
 
+    return lines
 
 def _generate_preprocessing_section(report: dict) -> list:
-    """Generate preprocessing section."""
-    lines = []
-    lines.append("---")
-    lines.append("")
-    lines.append("## Preprocessing")
-    lines.append("")
-    
-    if report.get('rows_removed', 0) > 0:
-        lines.append(f"- **Empty rows removed:** {report['rows_removed']}")
-    if report.get('cols_removed', 0) > 0:
-        lines.append(f"- **Empty columns removed:** {report['cols_removed']}")
-    
-    renamed = report.get('columns_renamed', [])
-    if renamed:
-        lines.append(f"- **Columns renamed:** {len(renamed)}")
-        lines.append("")
-        lines.append("| Original | New |")
-        lines.append("|----------|-----|")
-        for item in renamed[:10]:  # Show max 10
-            lines.append(f"| {item['old']} | {item['new']} |")
-        if len(renamed) > 10:
-            lines.append(f"| ... | ({len(renamed) - 10} more) |")
-    
-    lines.append("")
-    return lines
+    """Generate preprocessing section"""
 
+    # Initialize list of lines
+    lines = []
+
+    # Create title 
+    lines.append("---") # divider line 
+    lines.append("") # empty line 
+    lines.append("## Preprocessing")
+    lines.append("") # empty line 
+    
+    # Get info about removed rows / columns (if available)
+    if report['rows_removed'] > 0:
+        lines.append(f"- **Completely empty rows removed:** {report['rows_removed']}")
+    if report['cols_removed'] > 0:
+        lines.append(f"- **Completely empty columns removed:** {report['cols_removed']}")
+    
+    # Get info about renamed columns (if available)
+    columns_renamed = report['columns_renamed']
+    if len(columns_renamed) > 0:
+        lines.append(f"- **Number of columns renamed:** {len(columns_renamed)}")
+        lines.append("") # empty line
+
+        # Create table with original & new column names 
+        lines.append("| Original Column Name | New Column Name |")
+        lines.append("|----------------------|-----------------|")
+        for column_renamed in columns_renamed:
+            lines.append(f"| {column_renamed['old']} | {column_renamed['new']} |")
+    
+    lines.append("") # empty line 
+
+    return lines
 
 def _generate_duplicates_section(report: dict) -> list:
-    """Generate duplicates section."""
+    """Generate duplicates section"""
+    
+    # Initialize list of lines
     lines = []
-    lines.append("---")
-    lines.append("")
-    lines.append("## Duplicates")
-    lines.append("")
-    
-    rows = report.get('rows_removed', 0)
-    cols = report.get('cols_removed', 0)
-    
-    if rows == 0 and cols == 0:
-        lines.append("No duplicates found.")
-    else:
-        if rows > 0:
-            lines.append(f"- **Duplicate rows removed:** {rows}")
-        if cols > 0:
-            lines.append(f"- **Duplicate columns removed:** {cols}")
-    
-    lines.append("")
-    return lines
 
+    # Create title
+    lines.append("---") # divider line 
+    lines.append("") # empty line
+    lines.append("## Duplicates")
+    lines.append("") # empty line 
+    
+    # Get info about duplicates 
+    rows_removed = report['rows_removed']
+    cols_removed = report['cols_removed']
+    
+    if rows_removed == 0 and cols_removed == 0:
+        lines.append("No duplicate rows or duplicate columns found.")
+
+    else:
+        if rows_removed > 0:
+            lines.append(f"- **Duplicate rows removed:** {rows_removed}")
+
+        if cols_removed > 0:
+            lines.append(f"- **Duplicate columns removed:** {cols_removed}")
+    
+    lines.append("") # empty line
+
+    return lines
 
 def _generate_missing_values_section(report: dict) -> list:
-    """Generate missing values section."""
+    """Generate missing values section"""
+    
+    # Initialize list of lines
     lines = []
-    lines.append("---")
-    lines.append("")
+
+    # Create title
+    lines.append("---") # divider line
+    lines.append("") # empty line
     lines.append("## Missing Values")
-    lines.append("")
+    lines.append("") # empty line 
     
-    num_before = report.get('num_missing_before', 0)
-    categ_before = report.get('categ_missing_before', 0)
+    # Create section about selected columns for which missing values were handled
+    if 'columns' in report: 
+        lines.append(f"### Column Selection")
+        lines.append("") # empty line
+        lines.append(f"**Selected columns**: ")
+
+        for column in report['columns']: 
+            lines.append(f"- {column}")
+
+        lines.append("") # empty line 
+        lines.append("**Note:** Only these columns were selected to handle missing values.")
+        lines.append("") # empty line 
     
-    if num_before == 0 and categ_before == 0:
+    else:
+        lines.append("### Column Selection")
+        lines.append("") # empty line
+        lines.append("All columns were selected to handle missing values.")
+        lines.append("") # empty line
+
+    # Create section with most important facts (Overwiev)
+    lines.append("### Overview")
+    lines.append("") # empty line
+
+    num_missing_before = report['num_missing_before']
+    categ_missing_before = report['categ_missing_before']
+
+    if num_missing_before == 0 and categ_missing_before == 0:
         lines.append("No missing values found.")
-        lines.append("")
+        lines.append("") # empty line
         return lines
-    
-    lines.append(f"- **Numerical missing:** {num_before}")
-    lines.append(f"- **Categorical missing:** {categ_before}")
-    lines.append(f"- **Method (numerical):** {report.get('method_num', 'N/A')}")
-    lines.append(f"- **Method (categorical):** {report.get('method_categ', 'N/A')}")
-    
-    if report.get('rows_deleted', 0) > 0:
+
+    lines.append(f"- **Numerical missing values:** {num_missing_before}")
+    lines.append(f"- **Categorical missing values:** {categ_missing_before}")
+    lines.append(f"- **Chosen method for numerical missing values:** {report['method_num']}")
+    lines.append(f"- **Chosen method for categorical missing values:** {report['method_categ']}")
+
+    if report['rows_deleted'] > 0:
         lines.append(f"- **Rows deleted:** {report['rows_deleted']}")
     
-    imputations = report.get('imputations', [])
-    if imputations:
-        lines.append("")
-        lines.append("### Imputations")
-        lines.append("")
-        lines.append("| Row | Column | New Value | Method |")
-        lines.append("|-----|--------|-----------|--------|")
-        for imp in imputations[:20]:  # Show max 20
-            val = imp['new_value']
-            if isinstance(val, float):
-                val = f"{val:.4g}"  # Compact float formatting
-            lines.append(f"| {imp['row']} | {imp['column']} | {val} | {imp['method']} |")
-        if len(imputations) > 20:
-            lines.append(f"| ... | ... | ... | ({len(imputations) - 20} more) |")
-    
-    lines.append("")
-    return lines
+    # Create section with table of imputations 
+    imputations_num = report['imputations_num']
+    imputations_categ = report['imputations_categ']
 
+    if len(imputations_num) > 0 or len(imputations_categ) > 0:
+        lines.append("") # empty line
+        lines.append("### Imputations")
+        lines.append("") # empty line
+
+        if len(imputations_num) > 0:
+            lines.append("**Numerical:**")
+            lines.append("| Row | Column | New Value | Method |")
+            lines.append("|-----|--------|-----------|--------|")
+            for imp in imputations_num:
+                lines.append(f"| {imp['row']} | {imp['column']} | {imp['new_value']} | {imp['method']} |")
+        
+        lines.append("") # empty line
+
+        if len(imputations_categ) > 0:
+            lines.append("**Categorical:**")
+            lines.append("| Row | Column | New Value | Method |")
+            lines.append("|-----|--------|-----------|--------|")
+            for imp in imputations_categ:
+                lines.append(f"| {imp['row']} | {imp['column']} | {imp['new_value']} | {imp['method']} |")
+                
+    lines.append("") # empty line
+
+    return lines
 
 def _generate_datetime_section(report: dict) -> list:
-    """Generate datetime standardization section."""
+    """Generate datetime standardization section"""
+    
+    # Initialize list of lines
     lines = []
-    lines.append("---")
-    lines.append("")
+
+    # Create title
+    lines.append("---") # divider line
+    lines.append("") # empty line
     lines.append("## DateTime Standardization")
-    lines.append("")
+    lines.append("") # empty line
     
-    lines.append(f"- **Column:** {report.get('column', 'N/A')}")
-    lines.append(f"- **Format:** {report.get('format', 'N/A')}")
-    lines.append(f"- **Invalid handling:** {report.get('handle_invalid', 'N/A')}")
-    lines.append(f"- **Total values:** {report.get('total', 0)}")
-    lines.append(f"- **Successfully converted:** {report.get('converted', 0)}")
-    lines.append(f"- **Invalid:** {report.get('invalid', 0)}")
+    # Get most important facts (if available)
+    lines.append(f"- **Column:** {report['column']}")
+    lines.append(f"- **Format:** {report['format']}")
+    lines.append(f"- **Invalid handling:** {report['handle_invalid']}")
+    lines.append(f"- **Total values:** {report['total_values']}")
+    lines.append(f"- **Successfully converted / standardized:** {report['n_standardized_dates']}")
+    lines.append(f"- **Invalid values:** {report['invalid']}")
     
-    rows_deleted = report.get('rows_deleted', [])
-    if rows_deleted:
-        lines.append(f"- **Rows deleted:** {len(rows_deleted)}")
-    
-    issues = report.get('issues', [])
-    if issues:
-        lines.append("")
-        lines.append("### Issues Handled")
-        lines.append("")
-        lines.append("| Row | Original | Action |")
-        lines.append("|-----|----------|--------|")
-        for issue in issues[:20]:  # Show max 20
-            lines.append(f"| {issue['row']} | {issue['original']} | {issue['action']} |")
-        if len(issues) > 20:
-            lines.append(f"| ... | ... | ... | ({len(issues) - 20} more) |")
-    
-    lines.append("")
-    return lines
-
-
-def _generate_outliers_section(report: dict) -> list:
-    """Generate outliers section."""
-    lines = []
-    lines.append("---")
-    lines.append("")
-    lines.append("## Outliers")
-    lines.append("")
-    
-    total = report.get('total_outliers', 0)
-    
-    if total == 0:
-        lines.append("No outliers found.")
-        lines.append("")
-        return lines
-    
-    lines.append(f"- **Method:** {report.get('method', 'N/A')}")
-    lines.append(f"- **Multiplier:** {report.get('multiplier', 1.5)}")
-    lines.append(f"- **Total outliers:** {total}")
-    
-    if report.get('rows_deleted', 0) > 0:
+    if report['rows_deleted'] > 0:
         lines.append(f"- **Rows deleted:** {report['rows_deleted']}")
     
-    outliers = report.get('outliers', [])
-    if outliers:
-        lines.append("")
-        lines.append("### Outliers Handled")
-        lines.append("")
-        lines.append("| Row | Column | Original | New Value | Bound |")
-        lines.append("|-----|--------|----------|-----------|-------|")
-        for o in outliers[:20]:  # Show max 20
-            orig = f"{o['original_value']:.4g}" if isinstance(o['original_value'], float) else o['original_value']
-            new = f"{o['new_value']:.4g}" if isinstance(o['new_value'], float) else o['new_value']
-            lines.append(f"| {o['row']} | {o['column']} | {orig} | {new} | {o['bound']} |")
-        if len(outliers) > 20:
-            lines.append(f"| ... | ... | ... | ... | ({len(outliers) - 20} more) |")
+    # Create table, to show how invalid values were handled
+    if report['invalid'] > 0:
+        details_invalid = report['details_invalid']
+
+        lines.append("") # empty line
+        lines.append("### Invalid values handled")
+        lines.append("") # empty line
+
+        lines.append("| Row | Original | Action |")
+        lines.append("|-----|----------|--------|")
+
+        for detail_invalid in details_invalid: 
+            lines.append(f"| {detail_invalid['row']} | {detail_invalid['original']} | {detail_invalid['action']} |")
     
-    lines.append("")
+    lines.append("") # empty line
+
     return lines
 
-
-def _generate_structural_errors_section(reports_input) -> list:
-    """Generate structural errors section. Handles both single report (dict) and multiple reports (list)."""
+def _generate_outliers_section(report: dict) -> list:
+    """Generate outliers section"""
+    
+    # Initialize list of lines
     lines = []
-    lines.append("---")
-    lines.append("")
+
+    # Create title
+    lines.append("---") # divider line
+    lines.append("") # empty line
+    lines.append("## Outliers")
+    lines.append("") # empty line
+
+    # End outlier section, if no numerical columns found
+    if len(report['column_bounds']) == 0: 
+        lines.append("No numerical columns found in dataset.")
+        lines.append("") # empty line 
+        return lines
+
+    # Create table with lower & upper bounds for each numerical column 
+    lines.append("### Lower & Upper Bounds")
+    lines.append("") # empty line
+
+    lines.append("| Column | Lower Bound | Upper Bound |")
+    lines.append("|--------|-------------|-------------|")
+
+    for column_bound in report['column_bounds']:
+        # Round the bounds to same precision in decimal digits
+        lower_bound = round(column_bound['lower_bound'], 4)
+        upper_bound = round(column_bound['upper_bound'], 4)
+        lines.append(f"| {column_bound['column']} | {lower_bound} | {upper_bound} |")
+
+    # Create overwiev for outliers (if available)
+    lines.append("") # empty line
+    lines.append("### Overview")
+    lines.append("") # empty line
+    
+    if report['total_outliers'] == 0:
+        lines.append(f"No outliers found with multiplier {report['multiplier']}.")
+        lines.append("") # empty line
+        return lines
+    
+    lines.append(f"- **Multiplier:** {report['multiplier']}")
+    lines.append(f"- **Total outliers:** {report['total_outliers']}")
+    lines.append(f"- **Method:** {report['method']}")
+    
+    if report['rows_deleted'] > 0:
+        lines.append(f"- **Rows deleted:** {report['rows_deleted']}")
+    
+    # Create table which shows how outliers were handled 
+    lines.append("") # empty line
+    lines.append("### Outliers Handled")
+    lines.append("") # empty line
+
+    lines.append("| Row | Column | Original | New Value | Bound |")
+    lines.append("|-----|--------|----------|-----------|-------|")
+
+    if report['method'] == 'winsorize': 
+        for outlier in report['outliers']:
+            # Round original & new value to same precision in decimal digits (Note: In pipeline rounding is applied to df in post-processing)
+            original_value = round(outlier['original_value'], 4)
+            new_value = round(outlier['new_value'], 4)
+
+            lines.append(f"| {outlier['row']} | {outlier['column']} | {original_value} | {new_value} | {outlier['bound']} |")
+    
+    if report['method'] == 'delete': 
+        for outlier in report['outliers']:
+            # Round original value
+            original_value = round(outlier['original_value'], 4)
+
+            lines.append(f"| {outlier['row']} | {outlier['column']} | {original_value} | {outlier['new_value']} | {outlier['bound']} |")
+    
+    lines.append("") # empty line
+
+    return lines
+
+def _generate_structural_errors_section(report) -> list:
+    """Generate structural errors section"""
+    
+    # Initialize list of lines
+    lines = []
+
+    lines.append("---") # divider line
+    lines.append("") # empty line
     lines.append("## Structural Errors")
-    lines.append("")
+    lines.append("") # empty line
     
-    # Convert single report to list for uniform handling
-    if isinstance(reports_input, dict):
-        reports_list = [reports_input]
-    else:
-        reports_list = reports_input
-    
-    # Calculate totals across all reports
-    total_values_changed = sum(r.get('values_changed', 0) for r in reports_list)
-    total_columns = len(reports_list)
-    
-    lines.append(f"- **Columns processed:** {total_columns}")
-    lines.append(f"- **Total values changed:** {total_values_changed}")
-    lines.append("")
-    
-    # Generate section for each column
-    for i, report in enumerate(reports_list):
-        column_name = report.get('column', f'Column {i+1}')
-        lines.append(f"### {column_name}")
-        lines.append("")
+    # Distinguish if structural errors was applied once or multiple times
+    if isinstance(report, dict):
+        # Note isinstance(x, y) returns true if object x corresponds to type y
         
-        lines.append(f"- **Similarity method:** {report.get('similarity', 'N/A')}")
-        lines.append(f"- **Clustering method:** {report.get('clustering', 'N/A')}")
-        lines.append(f"- **Canonical selection:** {report.get('canonical', 'N/A')}")
-        
-        # Show relevant threshold based on clustering method
-        clustering = report.get('clustering', '')
-        if clustering == 'hierarchical':
-            lines.append(f"- **Threshold:** {report.get('threshold_h', 0.85)}")
-        elif clustering == 'connected_components':
-            lines.append(f"- **Threshold:** {report.get('threshold_cc', 0.85)}")
-        # affinity_propagation has no threshold
-        
+        # Create overview for structural errors 
+        lines.append("") # empty line
+        lines.append("## Overview")
+        lines.append("") # empty line 
+
+        lines.append(f"- **Column processed:** {report['column']}")
+
+        lines.append(f"- **Similarity method:** {report['similarity']}")
         # Show embedding model if embeddings were used
-        if report.get('similarity') == 'embeddings':
-            lines.append(f"- **Embedding model:** {report.get('embedding_model', 'N/A')}")
+        if report['similarity'] == 'embeddings':
+            lines.append(f"- **Embedding model:** {report['embedding_model']}")
+
+        lines.append(f"- **Clustering method:** {report['clustering']}")
+        # Show relevant parameter based on clustering method
+        if report['clustering'] == 'hierarchical':
+            lines.append(f"- **Threshold (hierarchical):** {report['threshold_h']}")
+        elif report['clustering'] == 'connected_components':
+            lines.append(f"- **Threshold (connected components):** {report['threshold_cc']}")
+
+        lines.append(f"- **Canonical selection:** {report['canonical']}")
         
-        lines.append(f"- **Unique values before:** {report.get('unique_values_before', 'N/A')}")
-        lines.append(f"- **Unique values after:** {report.get('unique_values_after', 'N/A')}")
-        lines.append(f"- **Values changed:** {report.get('values_changed', 0)}")
-        
-        # Show mapping
-        mapping = report.get('mapping', {})
-        value_counts = report.get('value_counts', {})
-        
-        if mapping:
-            # Group by canonical value to show clusters
+        lines.append(f"- **Values changed:** {report['values_changed']}")
+        lines.append(f"- **Unique values before:** {report['unique_values_before']}")
+        lines.append(f"- **Unique values after:** {report['unique_values_after']}")
+        change_unique_values = round((report['unique_values_after'] / report['unique_values_before']) * 100, 2)
+        lines.append(f"- **Change in unique values:** {change_unique_values}%")
+
+        if report['unique_values_before'] == report['unique_values_after']: 
+            lines.append("") # empty line
+            lines.append(f"No clustering was applied, as only one unique value exists.")
+            lines.append("") # empty line
+
+            return lines
+        else:
+            # Create section with table which shows clustering results 
+            lines.append("") # empty line
+            lines.append("#### Clustering Results")
+            lines.append("") # empty line 
+
+            mapping = report['mapping']
             clusters = {}
+
+            # Get dict of clusters (key: canonical name, value: list of unique values corresponding to canonical name)
             for original, canonical in mapping.items():
                 if canonical not in clusters:
                     clusters[canonical] = []
                 clusters[canonical].append(original)
-            
-            # Table 1: Clustering results
-            lines.append("")
-            lines.append("#### Clustering Results")
-            lines.append("")
-            lines.append("| Original Values | Canonical |")
-            lines.append("|-----------------|-----------|")
-            
-            # Sort clusters by total count (descending)
-            sorted_clusters = sorted(clusters.items(), 
-                                    key=lambda x: sum(value_counts.get(orig, 0) for orig in x[1]), 
-                                    reverse=True)
-            
-            for canonical, originals in sorted_clusters:
+    
+            lines.append("| Original Values | Clustered to Canonical |")
+            lines.append("|-----------------|------------------------|")
+
+            for canonical, originals in clusters.items():
                 originals_str = "; ".join(originals)
+                # Note: '; '.join(originals) joins all elements of originals to a string with each element seperated by ;
                 lines.append(f"| {originals_str} | {canonical} |")
+
+            lines.append("") # empty line 
+
+            return lines
         
-        # Table 2: Value counts (from original data)
-        '''
-        if value_counts:
-            lines.append("")
-            lines.append("#### Value Counts (Original Data)")
-            lines.append("")
-            lines.append("| Value | Count |")
-            lines.append("|-------|-------|")
-            
-            # Sort by count descending
-            sorted_counts = sorted(value_counts.items(), key=lambda x: x[1], reverse=True)
-            
-            for value, count in sorted_counts:
-                lines.append(f"| {value} | {count} |")
-        '''
+    else:
+        # Create overview for structural errors 
+        lines.append("") # empty line
+        lines.append("## Overview")
+        lines.append("") # empty line
+
+        # Calculate totals across all single reports
+        total_values_changed = 0
+        total_unique_values_before = 0
+        total_unique_values_after = 0 
+        for single_report in report:
+            total_values_changed += single_report['values_changed']
+            total_unique_values_before += single_report['unique_values_before']
+            total_unique_values_after += single_report['unique_values_after']
+
+        total_columns = len(report)
+
+        lines.append(f"- **Columns processed:** {total_columns}")
+        lines.append(f"- **Total values changed:** {total_values_changed}")
+        lines.append(f"- **Total unique values before:** {total_unique_values_before}")
+        lines.append(f"- **Total unique values after:** {total_unique_values_after}")
+        total_change_unique_values = round((total_unique_values_after / total_unique_values_before) * 100, 2)
+        lines.append(f"- **Total change in unique values:** {total_change_unique_values}%")
         lines.append("")
 
-    return lines
+        # Generate section for each column processed
+        for single_report in report:
+            lines.append(f"### Column: {single_report['column']}")
+            lines.append("")
+            
+            lines.append(f"- **Similarity method:** {single_report['similarity']}")
+            # Show embedding model if embeddings were used
+            if single_report['similarity'] == 'embeddings':
+                lines.append(f"- **Embedding model:** {single_report['embedding_model']}")
 
+            lines.append(f"- **Clustering method:** {single_report['clustering']}")
+            # Show relevant parameter based on clustering method
+            if single_report['clustering'] == 'hierarchical':
+                lines.append(f"- **Threshold (hierarchical):** {single_report['threshold_h']}")
+            elif single_report['clustering'] == 'connected_components':
+                lines.append(f"- **Threshold (connected components):** {single_report['threshold_cc']}")
+
+            lines.append(f"- **Canonical selection:** {single_report['canonical']}")
+            
+            lines.append(f"- **Values changed:** {single_report['values_changed']}")
+            lines.append(f"- **Unique values before:** {single_report['unique_values_before']}")
+            lines.append(f"- **Unique values after:** {single_report['unique_values_after']}")
+            change_unique_values = round((single_report['unique_values_after'] / single_report['unique_values_before']) * 100, 2)
+            lines.append(f"- **Change in unique values:** {change_unique_values}%")
+
+            if single_report['unique_values_before'] == single_report['unique_values_after']: 
+                lines.append("") # empty line
+                lines.append(f"No clustering was applied, as only one unique value in column '{single_report['column']}' exists.")
+                lines.append("") # empty line
+            
+            else:
+                # Create section with table which shows clustering results 
+                lines.append("") # empty line
+                lines.append("#### Clustering Results")
+                lines.append("") # empty line 
+
+                mapping = single_report['mapping']
+                clusters = {}
+
+                # Get dict of clusters (key: canonical name, value: list of unique values corresponding to canonical name)
+                for original, canonical in mapping.items():
+                    if canonical not in clusters:
+                        clusters[canonical] = []
+                    clusters[canonical].append(original)
+        
+                lines.append("| Original Values | Clustered to Canonical |")
+                lines.append("|-----------------|------------------------|")
+
+                for canonical, originals in clusters.items():
+                    originals_str = "; ".join(originals)
+                    # Note: '; '.join(originals) joins all elements of originals to a string with each element seperated by ;
+                    lines.append(f"| {originals_str} | {canonical} |")
+
+                lines.append("") # empty line 
+
+        return lines
 
 def _generate_postprocessing_section(report: dict) -> list:
-    """Generate postprocessing section."""
+    """Generate postprocessing section"""
+    # Initialize list of lines
     lines = []
-    lines.append("---")
-    lines.append("")
+
+    lines.append("---") # divider line
+    lines.append("") # empty line
     lines.append("## Postprocessing")
-    lines.append("")
+    lines.append("") # empty line 
     
-    changes = report.get('changes', [])
-    if changes:
+    # Get table of changes applied in post-processing (if available)
+    changes = report['changes']
+
+    if len(changes) > 0:
         lines.append("| Column | Action |")
         lines.append("|--------|--------|")
-        for c in changes:
-            lines.append(f"| {c['column']} | {c['action']} |")
+
+        for change in changes:
+            lines.append(f"| {change['column']} | {change['action']} |")
+
     else:
         lines.append("No postprocessing changes applied.")
     
-    lines.append("")
+    lines.append("") # empty line 
+    
     return lines

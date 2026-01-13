@@ -56,62 +56,71 @@ df, report_out = handle_outliers(df,
 structural_reports = []
 
 # city: NYC, NY, New York → semantic variations, needs embeddings
-df, report = handle_structural_errors(df,
+df, report1 = handle_structural_errors(df,
                                       column='city',  
                                       similarity='embeddings',
                                       clustering='affinity_propagation',
                                       canonical='most_frequent',
                                       embedding_model='text-embedding-3-large')
-structural_reports.append(report)
+structural_reports.append(report1)
 
 # facility_type: Hospital, HOSPITAL, Hosptial → case + typos, embeddings for semantic match
-df, report = handle_structural_errors(df,
+df, report2 = handle_structural_errors(df,
                                       column='facility_type',  
                                       similarity='rapidfuzz',
                                       clustering='hierarchical',
                                       canonical='most_frequent',
                                       threshold_h=0.75,
                                       embedding_model='text-embedding-3-large')
-structural_reports.append(report)
+structural_reports.append(report2)
 
 # water_source: Borehole, BOREHOLE, bore hole → case + spacing, embeddings for semantic match
-df, report = handle_structural_errors(df,
+df, report3 = handle_structural_errors(df,
                                       column='water_source',  
                                       similarity='rapidfuzz',
                                       clustering='hierarchical',
                                       canonical='most_frequent',
                                       threshold_h=0.70,
                                       embedding_model='text-embedding-3-large')
-structural_reports.append(report)
+structural_reports.append(report3)
 
 # funding_organization: WHO, W.H.O., World Health Organization → abbreviations
-df, report = handle_structural_errors(df,
+df, report4 = handle_structural_errors(df,
                                       column='funding_organization',  
                                       similarity='embeddings',
                                       clustering='hierarchical',
                                       canonical='most_frequent',
                                       threshold_h=0.65,
                                       embedding_model='text-embedding-3-large')
-structural_reports.append(report)
+structural_reports.append(report4)
 
 # is_functional: Yes, Y, 1, true → need auto-clustering to find Yes-group and No-group
-df, report = handle_structural_errors(df,
+df, report5 = handle_structural_errors(df,
                                       column='is_functional',  
                                       similarity='embeddings',
                                       clustering='affinity_propagation',
                                       canonical='most_frequent',
                                       embedding_model='text-embedding-3-large')
-structural_reports.append(report)
+structural_reports.append(report5)
+
+df, report6 = handle_structural_errors(df,
+                                      column='number_of_staff',  
+                                      similarity='embeddings',
+                                      clustering='hierarchical',
+                                      canonical='most_frequent',
+                                      threshold_h = 0.8,
+                                      embedding_model='text-embedding-3-large')
+structural_reports.append(report6)
 
 # maintenance_frequency: Monthly, monthly, MONTHLY, Quartely → case + typos
-df, report = handle_structural_errors(df,
+df, report7 = handle_structural_errors(df,
                                       column='maintenance_frequency',  
                                       similarity='rapidfuzz',
                                       clustering='hierarchical',
                                       canonical='most_frequent',
                                       threshold_h=0.75,
                                       embedding_model='text-embedding-3-large')
-structural_reports.append(report)
+structural_reports.append(report7)
 
 # =============================================================================
 # MISSING VALUES

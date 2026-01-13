@@ -65,8 +65,13 @@ def handle_missing_values(df: pd.DataFrame,
               'num_missing_before': 0,
               'categ_missing_before': 0,
               'rows_deleted': 0,
-              'imputations': []}
+              'imputations_num': [],
+              'imputations_categ': []}
     
+    # If specific columns are chosen, add to report 
+    if columns != None: 
+        report['columns'] = columns
+
     # Get indexes of numerical & categorical columns
     i_num_cols = list(df.select_dtypes(include = np.number).columns)
     # Note: .select_dtypes(include = np.number) returns a dataframe with numerical columns 
@@ -109,7 +114,6 @@ def handle_missing_values(df: pd.DataFrame,
     # If no numerical missing values, then set method_num to false
     if n_num_missing == 0: 
         method_num = 'false'
-        report['method_num'] = 'false'
 
     # Execute numerical methods (if methode_num == 'false', then execution is skipped)
     if method_num != 'false':
@@ -143,16 +147,15 @@ def handle_missing_values(df: pd.DataFrame,
             for idx in df.index: # df.index gets row indexes 
                 # Check if cell was missing before (mask_missing_before_num.at[idx, col]) and now has a value, i.e. was imputed (pd.notna(df.at[idx, col]))
                 if mask_missing_before_num.at[idx, col] and pd.notna(df.at[idx, col]):
-                    report['imputations'].append({'row': idx,
-                                                  'column': col,
-                                                  'new_value': df.at[idx, col],
-                                                  'method': method_num})
+                    report['imputations_num'].append({'row': idx,
+                                                      'column': col,
+                                                      'new_value': df.at[idx, col],
+                                                      'method': method_num})
                     # Note: Value of key 'imputations' in dict report is a list, in which each value is a dictionary 
     
     # If no categorical missing values, then set method_categ to false
     if n_categ_missing == 0: 
         method_categ = 'false'
-        report['method_categ'] = 'false'
 
     # Execute categorical methods (if methode_categ == 'false', then execution is skipped)
     if method_categ != 'false':
@@ -183,10 +186,10 @@ def handle_missing_values(df: pd.DataFrame,
             for idx in df.index: # df.index gets row indexes 
                 # Check if cell was missing before (mask_missing_before_categ.at[idx, col]) and now has a value, i.e. was imputed (pd.notna(df.at[idx, col]))
                 if mask_missing_before_categ.at[idx, col] and pd.notna(df.at[idx, col]):
-                    report['imputations'].append({'row': idx,
-                                                  'column': col,
-                                                  'new_value': df.at[idx, col],
-                                                  'method': method_categ})
+                    report['imputations_categ'].append({'row': idx,
+                                                        'column': col,
+                                                        'new_value': df.at[idx, col],
+                                                        'method': method_categ})
                     # Note: Value of key 'imputations' in dict report is a list, in which each value is a dictionary
 
     # Terminal output: end
@@ -246,7 +249,6 @@ def _handle_numerical_statistical(df: pd.DataFrame, i_num_cols: list, method: st
                 df[idx] = df[idx].fillna(fill_value)
     
     return df
-
 
 def _encode_categorical_columns(df: pd.DataFrame, i_categ_cols: list) -> tuple:
     """

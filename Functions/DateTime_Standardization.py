@@ -82,8 +82,8 @@ def standardize_datetime(df: pd.DataFrame,
         'total_values': 0,
         'n_standardized_dates': 0,
         'invalid': 0,
-        'rows_deleted': [],
-        'detail_invalid': []
+        'rows_deleted': 0,
+        'details_invalid': []
     }
     
     # Validate column parameter
@@ -143,7 +143,7 @@ def standardize_datetime(df: pd.DataFrame,
                 df_work.at[idx, column] = pd.NaT
 
                 # Update report 
-                report['detail_invalid'].append({'row': idx,
+                report['details_invalid'].append({'row': idx,
                                                  'original': value_str,
                                                  'action': 'set to NaT'})
             
@@ -152,7 +152,7 @@ def standardize_datetime(df: pd.DataFrame,
                 i_rows_to_delete.append(idx)
 
                 # Update report 
-                report['detail_invalid'].append({'row': idx,
+                report['details_invalid'].append({'row': idx,
                                                  'original': value_str,
                                                  'action': 'row deleted'})
     
@@ -163,7 +163,7 @@ def standardize_datetime(df: pd.DataFrame,
         #       .reset_index(drop = True) resets row indexes
 
         # Update report 
-        report['rows_deleted'] = i_rows_to_delete
+        report['rows_deleted'] = len(i_rows_to_delete)
     
     # Terminal output: end
     print("✓")
@@ -339,7 +339,6 @@ def _was_autocorrected(value_str: str, parsed, dayfirst: bool) -> bool:
         # American: expected first = month
         return parsed.month != first 
 
-
 def _is_year_in_middle(value_str: str) -> bool:
     """
     Check if nummeric date (value_str) has 4-digit year in middle position (e.g. 01/2024/15)
@@ -365,7 +364,6 @@ def _is_year_in_middle(value_str: str) -> bool:
         return True
     
     return False
-
 
 def _is_year_first(value_str: str) -> bool:
     """
