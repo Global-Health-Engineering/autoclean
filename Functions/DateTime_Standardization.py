@@ -83,8 +83,7 @@ def standardize_datetime(df: pd.DataFrame,
         'n_standardized_dates': 0,
         'invalid': 0,
         'rows_deleted': 0,
-        'details_invalid': []
-    }
+        'details_invalid': []}
     
     # Validate column parameter
     if column not in list(df.columns):

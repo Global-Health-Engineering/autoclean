@@ -137,10 +137,10 @@ def _generate_summary(reports: dict) -> list:
 
     if 'missing_values' in reports:
         total_rows_deleted += reports['missing_values']['rows_deleted']
-        total_imputations = len(reports['missing_values']['imputations'])
-    
+        total_imputations = len(reports['missing_values']['imputations_num']) + len(reports['missing_values']['imputations_categ'])
+
     if 'datetime' in reports:
-        total_rows_deleted += len(reports['datetime']['rows_deleted'])
+        total_rows_deleted += reports['datetime']['rows_deleted']
     
     if 'outliers' in reports:
         total_rows_deleted += reports['outliers']['rows_deleted']
@@ -271,7 +271,7 @@ def _generate_missing_values_section(report: dict) -> list:
         lines.append("All columns were selected to handle missing values.")
         lines.append("") # empty line
 
-    # Create section with most important facts (Overwiev)
+    # Create section with most important facts (Overview)
     lines.append("### Overview")
     lines.append("") # empty line
 
@@ -392,7 +392,7 @@ def _generate_outliers_section(report: dict) -> list:
         upper_bound = round(column_bound['upper_bound'], 4)
         lines.append(f"| {column_bound['column']} | {lower_bound} | {upper_bound} |")
 
-    # Create overwiev for outliers (if available)
+    # Create overview for outliers (if available)
     lines.append("") # empty line
     lines.append("### Overview")
     lines.append("") # empty line
