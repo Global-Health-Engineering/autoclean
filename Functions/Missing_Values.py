@@ -52,9 +52,9 @@ def handle_missing_values(df: pd.DataFrame,
                           method_num: str = 'mean', 
                           method_categ: str = 'mode',
                           columns: list = None,
-                          n_neighbors: int = 5, 
-                          max_iter: int = 10,
-                          n_estimators: int = 10) -> tuple:
+                          n_neighbors: int = 15, 
+                          max_iter: int = 15,
+                          n_estimators: int = 50) -> tuple:
     # Terminal output: start
     print("Handling missing values... ", end="", flush=True)
     # Note: With flush = True, print is immediately
@@ -322,7 +322,7 @@ def _handle_numerical_missforest(df: pd.DataFrame, i_num_cols: list, max_iter: i
         df_work, encoder = _encode_categorical_columns(df_work, i_categ_cols)
     
     # Apply MissForest (fills all missing values, inlcuding orginially categorical columns)
-    imputer = IterativeImputer(estimator = RandomForestRegressor(n_estimators = n_estimators, random_state = 0),
+    imputer = IterativeImputer(estimator = RandomForestRegressor(n_estimators = n_estimators, max_depth = 5, min_samples_leaf = 2, random_state = 0),
                                max_iter = max_iter, 
                                random_state = 0)
     # Note: random_state = 0 ensures reproducibility

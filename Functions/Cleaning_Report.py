@@ -60,7 +60,7 @@ def generate_cleaning_report(reports: dict, filepath: str = 'cleaning_report.md'
     lines.append("") # empty line 
     if dataset_name is not None:
         lines.append(f"**Dataset:** {dataset_name}")
-    lines.append(f"**Generated:** {datetime.now().strftime('%d.%m.%Y %H:%M:%S')}") # Append line with current date & time
+    lines.append(f"**Generated:** {datetime.now().strftime('%d.%m.%Y, %H:%M:%S')}") # Append line with current date & time
     lines.append("") # empty line
     
     # Create summary section
@@ -283,8 +283,8 @@ def _generate_missing_values_section(report: dict) -> list:
         lines.append("") # empty line
         return lines
 
-    lines.append(f"- **Numerical missing values:** {num_missing_before}")
-    lines.append(f"- **Categorical missing values:** {categ_missing_before}")
+    lines.append(f"- **Numerical missing values:** {int(num_missing_before)}")
+    lines.append(f"- **Categorical missing values:** {int(categ_missing_before)}")
     lines.append(f"- **Chosen method for numerical missing values:** {report['method_num']}")
     lines.append(f"- **Chosen method for categorical missing values:** {report['method_categ']}")
 

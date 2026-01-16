@@ -1,15 +1,12 @@
-"""
-Extended Parameter Selection Test
-Now includes: similarity_method, clustering_method, threshold
-"""
-
+# Imported libraries 
 import instructor
 from openai import OpenAI
 from pydantic import BaseModel, Field
 from typing import Literal
+
+# Needed to load API Key from .env 
 import os
 from dotenv import load_dotenv
-
 
 class CleaningParams(BaseModel):
     """Constrained parameters for structural error cleaning"""

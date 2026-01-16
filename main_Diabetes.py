@@ -30,7 +30,7 @@ df_original, df, report_pre = preprocess_data(INPUT_FILE, clean_names=True)
 # DUPLICATES
 # =============================================================================
 
-df, report_dup = handle_duplicates(df)
+#df, report_dup = handle_duplicates(df)
 
 # =============================================================================
 # DATETIME STANDARDIZATION 
@@ -73,10 +73,10 @@ df, report_struct = handle_structural_errors(df,
 
 
 df, report_miss = handle_missing_values(df,
-                                        method_num='knn',
+                                        method_num='missforest',
                                         method_categ='false',
-                                        columns=None,
-                                        n_neighbors=5,
+                                        columns=['skinthickness'],
+                                        n_neighbors=3,
                                         max_iter=10,
                                         n_estimators=10)
 
@@ -96,7 +96,7 @@ df.to_csv(OUTPUT_FILE, index=False) # index = false removes column with row numb
 # =============================================================================
 # GENERATE REPORT
 # =============================================================================
-
+'''
 reports = {'preprocessing': report_pre,
            'duplicates': report_dup,
            'missing_values': report_miss,
@@ -106,3 +106,4 @@ reports = {'preprocessing': report_pre,
            'postprocessing': report_post}
 
 generate_cleaning_report(reports, REPORT_FILE, dataset_name = DATASET_NAME)
+'''
