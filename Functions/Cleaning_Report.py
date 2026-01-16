@@ -283,8 +283,8 @@ def _generate_missing_values_section(report: dict) -> list:
         lines.append("") # empty line
         return lines
 
-    lines.append(f"- **Numerical missing values:** {int(num_missing_before)}")
-    lines.append(f"- **Categorical missing values:** {int(categ_missing_before)}")
+    lines.append(f"- **Numerical missing values:** {num_missing_before}")
+    lines.append(f"- **Categorical missing values:** {categ_missing_before}")
     lines.append(f"- **Chosen method for numerical missing values:** {report['method_num']}")
     lines.append(f"- **Chosen method for categorical missing values:** {report['method_categ']}")
 
@@ -469,7 +469,9 @@ def _generate_structural_errors_section(report) -> list:
             lines.append(f"- **Threshold (hierarchical):** {report['threshold_h']}")
         elif report['clustering'] == 'connected_components':
             lines.append(f"- **Threshold (connected components):** {report['threshold_cc']}")
-
+        else: 
+            lines.append(f"- **Damping (affinity propagation):** {report['damping']}")
+        
         lines.append(f"- **Canonical selection:** {report['canonical']}")
         
         lines.append(f"- **Values changed:** {report['values_changed']}")
@@ -552,6 +554,9 @@ def _generate_structural_errors_section(report) -> list:
                 lines.append(f"- **Threshold (hierarchical):** {single_report['threshold_h']}")
             elif single_report['clustering'] == 'connected_components':
                 lines.append(f"- **Threshold (connected components):** {single_report['threshold_cc']}")
+            else: 
+                lines.append(f"- **Damping (affinity propagation):** {single_report['damping']}")
+        
 
             lines.append(f"- **Canonical selection:** {single_report['canonical']}")
             

@@ -59,6 +59,7 @@ def handle_structural_errors(df: pd.DataFrame,
               'canonical': canonical,
               'threshold_cc': threshold_cc,
               'threshold_h': threshold_h,
+              'damping': damping,
               'embedding_model': embedding_model,
               'unique_values_before': df[column].nunique(), # .nunique() returns number of unique values (excluding missing values)
               'unique_values_after': None,
