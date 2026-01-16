@@ -7,16 +7,17 @@ import janitor  # Python library PyJanitor
 Post-Processing: Polish data after cleaning pipeline
 
 This function is the last step after all cleaning.
-It rounds numeric columns to match original precision.
+It rounds numeric columns to match original precision and optionally cleans column names.
 
 Steps applied:
     1. Round numeric columns to match original decimal places
-    2. Restore integers (1.0 → 1), if the original column had integers 
+    2. Restore integers (1.0 → 1), if the original column had integers
+    3. Clean column names (optional, lowercase with underscores)
 
 Parameters:
     df_cleaned: Dataframe after cleaning pipeline
     df_original: Original dataframe (from Pre_Processing.py)
-    clean_names: Must match the clean_names parameter used in Pre_Processing.py (default: True)
+    clean_names: If True, standardize column names at the end (default: False)
 
 Returns:
     Final (polished) dataframe and report (as tuple)
@@ -28,21 +29,18 @@ Returns:
 
 def postprocess_data(df_cleaned: pd.DataFrame, 
                      df_original: pd.DataFrame,
-                     clean_names: bool = True) -> tuple:
+                     clean_names: bool = False) -> tuple:
     # Terminal output: start
     print("Postprocessing... ", end="", flush=True)
     # Note: With flush = True, print is immediately
 
     # Work with copy of df_cleaned, s.t. df_cleaned stayes unchanged 
     df = df_cleaned.copy()
-    
-    # Clean column names in original dataframe (if clean_names = true in Pre_Processing.py)
-    if clean_names:
-        df_original = df_original.clean_names()
-    # Note: clean_names() (from Pyjanitor) converts to lowercase, replaces spaces with underscores
-    
+ 
     # Initialize report (as dictionary)
-    report = {'changes': []}
+    report = {'changes': [],
+              'columns_renamed': [], 
+              'final_shape': None}
     
     # Loop through numeric columns
     for col in list(df.select_dtypes(include = np.number).columns):
@@ -67,6 +65,26 @@ def postprocess_data(df_cleaned: pd.DataFrame,
             decimals = _get_decimals(original_data)
             df[col] = df[col].round(decimals)
             report['changes'].append({'column': col, 'action': f'Rounded to {decimals} decimals'})
+    
+    # Clean column names (if clean_names = True)
+    if clean_names:
+        # Get original column names
+        original_col_names = df.columns
+        
+        df = df.clean_names()
+        # Note: clean_names() (from Pyjanitor) converts to lowercase, replaces spaces with underscores
+        
+        # Get cleaned column names
+        cleaned_col_names = df.columns
+        
+        # Track renamed columns for report
+        for old, new in zip(original_col_names, cleaned_col_names):
+            if old != new:
+                report['columns_renamed'].append({'old': old, 'new': new})
+        # Note: In the dict report the value of 'columns_renamed' is a list of dict
+    
+    # Update report
+    report['final_shape'] = df.shape
     
     # Terminal output: end
     print("✓")

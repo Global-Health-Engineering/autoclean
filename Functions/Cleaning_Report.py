@@ -123,17 +123,23 @@ def _generate_summary(reports: dict) -> list:
     # Get shape info from preprocessing (if available)
     if 'preprocessing' in reports:
         report_pre = reports['preprocessing']
+        report_post = reports['postprocessing']
         lines.append(f"- **Original shape:** {report_pre['original_shape'][0]} rows × {report_pre['original_shape'][1]} columns")
-        lines.append(f"- **Shape after preprocessing:** {report_pre['final_shape'][0]} rows × {report_pre['final_shape'][1]} columns")
+        lines.append(f"- **Final shape:** {report_post['final_shape'][0]} rows × {report_post['final_shape'][1]} columns")
     
     # Get values of key changes (if available)
     total_rows_deleted = 0
+    total_cols_deleted = 0 
     total_imputations = 0
     total_outliers = 0
     total_values_changed = 0
 
+    total_rows_deleted += report_pre['rows_removed']
+    total_cols_deleted += report_pre['cols_removed']
+
     if 'duplicates' in reports:
         total_rows_deleted += reports['duplicates']['rows_removed']
+        total_cols_deleted += reports['duplicates']['cols_removed']
 
     if 'missing_values' in reports:
         total_rows_deleted += reports['missing_values']['rows_deleted']
@@ -160,17 +166,11 @@ def _generate_summary(reports: dict) -> list:
         else:
             total_values_changed = report_str['values_changed']
     
-    if total_rows_deleted > 0:
-        lines.append(f"- **Total rows deleted:** {total_rows_deleted}")
-
-    if total_imputations > 0:
-        lines.append(f"- **Total values imputed:** {total_imputations}")
-
-    if total_outliers > 0:
-        lines.append(f"- **Total outliers handled:** {total_outliers}")
-        
-    if total_values_changed > 0:
-        lines.append(f"- **Total structural errors fixed:** {total_values_changed}")
+    lines.append(f"- **Total rows deleted:** {total_rows_deleted}")
+    lines.append(f"- **Total columns deleted:** {total_cols_deleted}")    
+    lines.append(f"- **Total values imputed:** {total_imputations}")
+    lines.append(f"- **Total outliers handled:** {total_outliers}")
+    lines.append(f"- **Total structural errors fixed:** {total_values_changed}")
     
     lines.append("") # empty line
 
@@ -188,24 +188,14 @@ def _generate_preprocessing_section(report: dict) -> list:
     lines.append("## Preprocessing")
     lines.append("") # empty line 
     
-    # Get info about removed rows / columns (if available)
+    # Get info about removed rows / columns
     if report['rows_removed'] > 0:
         lines.append(f"- **Completely empty rows removed:** {report['rows_removed']}")
     if report['cols_removed'] > 0:
         lines.append(f"- **Completely empty columns removed:** {report['cols_removed']}")
-    
-    # Get info about renamed columns (if available)
-    columns_renamed = report['columns_renamed']
-    if len(columns_renamed) > 0:
-        lines.append(f"- **Number of columns renamed:** {len(columns_renamed)}")
-        lines.append("") # empty line
+    else: 
+        lines.append("No completely empty rows or columns found respectfully removed.")
 
-        # Create table with original & new column names 
-        lines.append("| Original Column Name | New Column Name |")
-        lines.append("|----------------------|-----------------|")
-        for column_renamed in columns_renamed:
-            lines.append(f"| {column_renamed['old']} | {column_renamed['new']} |")
-    
     lines.append("") # empty line 
 
     return lines
@@ -614,8 +604,11 @@ def _generate_postprocessing_section(report: dict) -> list:
     lines.append("## Postprocessing")
     lines.append("") # empty line 
     
-    # Get table of changes applied in post-processing (if available)
+    # Get table of precision restoration (rounding) applied in post-processing (if available)
     changes = report['changes']
+
+    lines.append("### Precision Restoration (rounding)")
+    lines.append("") # empty line 
 
     if len(changes) > 0:
         lines.append("| Column | Action |")
@@ -625,8 +618,24 @@ def _generate_postprocessing_section(report: dict) -> list:
             lines.append(f"| {change['column']} | {change['action']} |")
 
     else:
-        lines.append("No postprocessing changes applied.")
-    
+        lines.append("No precision restoration (rounding) was necessary in post-processing.")
+
+    # Create table of renamed columns (if available)
+    lines.append("") # empty line 
+    lines.append("### Renamed Columns")
+    lines.append("") # empty line 
+
+    columns_renamed = report['columns_renamed']
+
+    if len(columns_renamed) > 0:
+        # Create table with original & new column names 
+        lines.append("| Original Column Name | New Column Name |")
+        lines.append("|----------------------|-----------------|")
+        for column_renamed in columns_renamed:
+            lines.append(f"| {column_renamed['old']} | {column_renamed['new']} |")
+    else: 
+        lines.append("Column renaming was not applied.")
+
     lines.append("") # empty line 
     
     return lines

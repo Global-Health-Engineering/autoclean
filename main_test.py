@@ -24,7 +24,7 @@ REPORT_FILE = 'Data/Test/Test_Report.md'
 # PRE-PROCESSING
 # =============================================================================
 
-df_original, df, report_pre = preprocess_data(INPUT_FILE, clean_names=True)
+df_original, df, report_pre = preprocess_data(INPUT_FILE)
 
 # =============================================================================
 # DUPLICATES
@@ -37,7 +37,7 @@ df, report_dup = handle_duplicates(df)
 # =============================================================================
 
 df, report_date = standardize_datetime(df,
-                                       column='date_installed',  
+                                       column='date_Installed',  
                                        american=False,
                                        handle_invalid='nat')
 
@@ -66,7 +66,7 @@ structural_reports.append(report1)
 
 # facility_type: Hospital, HOSPITAL, Hosptial → case + typos, embeddings for semantic match
 df, report2 = handle_structural_errors(df,
-                                      column='facility_type',  
+                                      column='Facility Type',  
                                       similarity='rapidfuzz',
                                       clustering='hierarchical',
                                       canonical='most_frequent',
@@ -76,7 +76,7 @@ structural_reports.append(report2)
 
 # water_source: Borehole, BOREHOLE, bore hole → case + spacing, embeddings for semantic match
 df, report3 = handle_structural_errors(df,
-                                      column='water_source',  
+                                      column='Water source',  
                                       similarity='rapidfuzz',
                                       clustering='hierarchical',
                                       canonical='most_frequent',
@@ -86,7 +86,7 @@ structural_reports.append(report3)
 
 # funding_organization: WHO, W.H.O., World Health Organization → abbreviations
 df, report4 = handle_structural_errors(df,
-                                      column='funding_organization',  
+                                      column='Funding_Organization',  
                                       similarity='embeddings',
                                       clustering='hierarchical',
                                       canonical='most_frequent',
@@ -96,7 +96,7 @@ structural_reports.append(report4)
 
 # is_functional: Yes, Y, 1, true → need auto-clustering to find Yes-group and No-group
 df, report5 = handle_structural_errors(df,
-                                      column='is_functional',  
+                                      column='Is Functional',  
                                       similarity='embeddings',
                                       clustering='affinity_propagation',
                                       canonical='most_frequent',
@@ -104,7 +104,7 @@ df, report5 = handle_structural_errors(df,
 structural_reports.append(report5)
 
 df, report6 = handle_structural_errors(df,
-                                      column='number_of_staff',  
+                                      column='Number of Staff',  
                                       similarity='embeddings',
                                       clustering='hierarchical',
                                       canonical='most_frequent',
@@ -114,7 +114,7 @@ structural_reports.append(report6)
 
 # maintenance_frequency: Monthly, monthly, MONTHLY, Quartely → case + typos
 df, report7 = handle_structural_errors(df,
-                                      column='maintenance_frequency',  
+                                      column='Maintenance_Frequency',  
                                       similarity='rapidfuzz',
                                       clustering='hierarchical',
                                       canonical='most_frequent',
@@ -126,14 +126,14 @@ structural_reports.append(report7)
 # MISSING VALUES
 # =============================================================================
 
-df['water_quality_score'] = pd.to_numeric(df['water_quality_score'], errors='coerce')
-df['population_served'] = pd.to_numeric(df['population_served'], errors='coerce')
-df['users_count'] = pd.to_numeric(df['users_count'], errors='coerce')
+df['Water Quality_Score'] = pd.to_numeric(df['Water Quality_Score'], errors='coerce')
+df['Population_served'] = pd.to_numeric(df['Population_served'], errors='coerce')
+df['users_Count'] = pd.to_numeric(df['users_Count'], errors='coerce')
 
 df, report_miss = handle_missing_values(df,
                                         method_num='missforest',
                                         method_categ='false',
-                                        columns=['water_quality_score', 'population_served', 'users_count'],
+                                        columns=['Water Quality_Score', 'Population_served', 'users_Count'],
                                         n_neighbors=5,
                                         max_iter=10,
                                         n_estimators=10)
@@ -142,7 +142,7 @@ df, report_miss = handle_missing_values(df,
 # POST-PROCESSING
 # =============================================================================
 
-df, report_post = postprocess_data(df, df_original)
+df, report_post = postprocess_data(df, df_original, clean_names=True)
 
 # =============================================================================
 # SAVE OUTPUT

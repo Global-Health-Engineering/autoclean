@@ -14,21 +14,19 @@ It returns three items (as tuple):
 
 Parameters:
     filepath: Path to CSV file
-    clean_names: If True, standardize column names (default: True)
     
 Steps applied:
-    1. Load data from file
+    1. Load data from file & Standardize missing values ("NA", "", "-", "null", etc. → NaN)
     2. Strip whitespace from string columns
-    3. Standardize missing values ("NA", "", "-", "null", etc. → NaN)
     4. Remove completely empty rows
     5. Remove completely empty columns
-    6. Clean column names (lowercase, underscores)
 """
+
 # =============================================================================
 # Main Function (Public)
 # =============================================================================
 
-def preprocess_data(filepath: str, clean_names: bool = True) -> tuple:
+def preprocess_data(filepath: str) -> tuple:
     # Terminal output: start
     print("Preprocessing... ", end = "", flush = True)
     # Note: With flush = True, print is immediately
@@ -44,13 +42,11 @@ def preprocess_data(filepath: str, clean_names: bool = True) -> tuple:
 
     # Store original dataframe
     df_original = df.copy()
-    
+
     # Initialize report (as dictionary)
     report = {'original_shape': df_original.shape,
-              'final_shape': None,
               'rows_removed': 0,
-              'cols_removed': 0,
-              'columns_renamed': []}
+              'cols_removed': 0}
     # Note: .shape = (#rows, #columns)
 
     # Strip whitespace from string columns
@@ -66,26 +62,8 @@ def preprocess_data(filepath: str, clean_names: bool = True) -> tuple:
 
     # Remove empty rows and columns (using remove_empty() from PyJanitor)
     df = df.remove_empty()
-    
-    # Get original column names 
-    original_col_names = df.columns
-    
-    # Clean column names (if clean_names = true) 
-    if clean_names:
-        df = df.clean_names()
-        # Note: clean_names() (from Pyjanitor) converts to lowercase, replaces spaces with underscores
-        
-        # Get cleaned column names
-        cleaned_col_names = df.columns 
-
-        # Track renamed columns for report 
-        for old, new in zip(original_col_names, cleaned_col_names):
-            if old != new:
-                report['columns_renamed'].append({'old': old, 'new': new})
-        # Note: In the dict report the value of 'columns_renamed' is a list of dict
         
     # Update report
-    report['final_shape'] = df.shape
     report['rows_removed'] = len(df_original) - len(df)
     report['cols_removed'] = len(df_original.columns) - len(df.columns)
     
