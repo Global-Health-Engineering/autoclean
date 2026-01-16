@@ -36,7 +36,9 @@ Methods for categorical columns (method_categ):
 Note on remaining parameters for MissForest and KNN: 
     - n_neighbors : Number of neighbors for KNN imputation (default=5)
     - max_iter : Maximum iterations for MissForest imputation (default=10)
-    - n_estimators : Number of trees in Random Forest for MissForest (default=10)
+    - n_estimators : Number of decision trees in Random Forest for MissForest (default=10)
+    - max_depth : Maximum depth of each tree in Random Forest for MissForest (default=None, unlimited)
+    - min_samples_leaf : Minimum samples required at each leaf node of the decision tree from Random Forest for MissForest (default=1)
 
 Returns: 
     Cleaned datafram and report (as tuple)
@@ -52,9 +54,11 @@ def handle_missing_values(df: pd.DataFrame,
                           method_num: str = 'mean', 
                           method_categ: str = 'mode',
                           columns: list = None,
-                          n_neighbors: int = 15, 
-                          max_iter: int = 15,
-                          n_estimators: int = 50) -> tuple:
+                          n_neighbors: int = 5, 
+                          max_iter: int = 10,
+                          n_estimators: int = 10, 
+                          max_depth: int = None,
+                          min_samples_leaf: int = 1) -> tuple:
     # Terminal output: start
     print("Handling missing values... ", end="", flush=True)
     # Note: With flush = True, print is immediately
@@ -62,6 +66,11 @@ def handle_missing_values(df: pd.DataFrame,
     # Initialize report
     report = {'method_num': method_num,
               'method_categ': method_categ,
+              'n_neighbors': n_neighbors, 
+              'max_iter': max_iter,
+              'n_estimators': n_estimators, 
+              'max_depth': max_depth,
+              'min_samples_leaf': min_samples_leaf,
               'num_missing_before': 0,
               'categ_missing_before': 0,
               'rows_deleted': 0,
@@ -137,9 +146,9 @@ def handle_missing_values(df: pd.DataFrame,
             
         elif method_num == 'knn':
             df = _handle_numerical_knn(df, i_num_cols, n_neighbors)
-            
+        
         elif method_num == 'missforest':
-            df = _handle_numerical_missforest(df, i_num_cols, max_iter, n_estimators)
+            df = _handle_numerical_missforest(df, i_num_cols, max_iter, n_estimators, max_depth, min_samples_leaf)
     
     # Track for report data imputation (numerical) 
     if method_num not in ['false', 'delete']:
@@ -178,7 +187,7 @@ def handle_missing_values(df: pd.DataFrame,
             df = _handle_categorical_knn(df, i_categ_cols, n_neighbors)
             
         elif method_categ == 'missforest':
-            df = _handle_categorical_missforest(df, i_categ_cols, max_iter, n_estimators)
+            df = _handle_categorical_missforest(df, i_categ_cols, max_iter, n_estimators, max_depth, min_samples_leaf)
     
     # Track for report data imputation (categorical)
     if method_categ not in ['false', 'delete']:
@@ -306,7 +315,7 @@ def _handle_numerical_knn(df: pd.DataFrame, i_num_cols: list, n_neighbors: int) 
     
     return df
 
-def _handle_numerical_missforest(df: pd.DataFrame, i_num_cols: list, max_iter: int, n_estimators: int) -> pd.DataFrame:
+def _handle_numerical_missforest(df: pd.DataFrame, i_num_cols: list, max_iter: int, n_estimators: int, max_depth: int, min_samples_leaf: int) -> pd.DataFrame:
     """
     Handle (selected) numerical columns with MissForest imputation using all columns as features
     """
@@ -322,7 +331,7 @@ def _handle_numerical_missforest(df: pd.DataFrame, i_num_cols: list, max_iter: i
         df_work, encoder = _encode_categorical_columns(df_work, i_categ_cols)
     
     # Apply MissForest (fills all missing values, inlcuding orginially categorical columns)
-    imputer = IterativeImputer(estimator = RandomForestRegressor(n_estimators = n_estimators, max_depth = 5, min_samples_leaf = 2, random_state = 0),
+    imputer = IterativeImputer(estimator = RandomForestRegressor(n_estimators = n_estimators, max_depth = max_depth, min_samples_leaf = min_samples_leaf, random_state = 0),
                                max_iter = max_iter, 
                                random_state = 0)
     # Note: random_state = 0 ensures reproducibility
@@ -400,7 +409,7 @@ def _handle_categorical_knn(df: pd.DataFrame, i_categ_cols: list, n_neighbors: i
     
     return df
 
-def _handle_categorical_missforest(df: pd.DataFrame, i_categ_cols: list, max_iter: int, n_estimators: int) -> pd.DataFrame:
+def _handle_categorical_missforest(df: pd.DataFrame, i_categ_cols: list, max_iter: int, n_estimators: int, max_depth: int, min_samples_leaf: int) -> pd.DataFrame:
     """
     Handle (selected) categorical columns with MissForest imputation using all columns as features
     """
@@ -415,7 +424,7 @@ def _handle_categorical_missforest(df: pd.DataFrame, i_categ_cols: list, max_ite
     df_work, encoder = _encode_categorical_columns(df_work, i_all_categ_cols)
     
     # Apply MissForest (fills all missing values, including numerical columns)
-    imputer = IterativeImputer(estimator = RandomForestRegressor(n_estimators = n_estimators, random_state = 0),
+    imputer = IterativeImputer(estimator = RandomForestRegressor(n_estimators = n_estimators, max_depth = max_depth, min_samples_leaf = min_samples_leaf, random_state = 0),
                                max_iter = max_iter, 
                                random_state = 0)
     # Note: random_state = 0 ensures reproducibility

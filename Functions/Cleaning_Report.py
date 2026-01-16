@@ -287,6 +287,12 @@ def _generate_missing_values_section(report: dict) -> list:
     lines.append(f"- **Categorical missing values:** {categ_missing_before}")
     lines.append(f"- **Chosen method for numerical missing values:** {report['method_num']}")
     lines.append(f"- **Chosen method for categorical missing values:** {report['method_categ']}")
+    
+    if report['method_num'] == 'knn' or report['method_categ'] == 'knn': 
+        lines.append(f"- **Chosen parameters for KNN:** n_neighbors = {report['n_neighbors']}")
+
+    if report['method_num'] == 'missforest' or report['method_categ'] == 'missforest': 
+        lines.append(f"- **Chosen parameters for MissForest:** n_estimators = {report['n_estimators']}; max_depth = {report['max_depth']}; max_iter = {report['max_iter']} & min_samples_leaf = {report['min_samples_leaf']}")
 
     if report['rows_deleted'] > 0:
         lines.append(f"- **Rows deleted:** {report['rows_deleted']}")
