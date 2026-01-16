@@ -54,12 +54,12 @@ def rapidfuzz_similarity(values: list) -> np.ndarray:
 # Method 2: Embedding Similarity (OpenAI)
 # =============================================================================
 
-def embedding_similarity(values: list, model: str = "text-embedding-3-small") -> np.ndarray:
+def embedding_similarity(values: list, model: str) -> np.ndarray:
     """
     From list values compute similarity matrix using OpenAI embeddings and cosine similarity
     
     Available OpenAI model: 
-    - "text-embedding-3-small" (default, best for Everyday language)
+    - "text-embedding-3-small" (best for Everyday language)
     - "text-embedding-3-large" (best for Specialized/technical vocabulary) 
     """
     # Get API key from .env file

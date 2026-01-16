@@ -24,6 +24,7 @@ Parameters:
     threshold_cc:  Threshold for connected components clustering (default = 0.85)
     threshold_h: Threshold for hierarchical clustering (default = 0.85)
     embedding_model: "text-embedding-3-large" or "text-embedding-3-small" (default)
+    damping: Controls how values update each round. Without damping, the algorithm replaces old values completely with new computed values. This can cause oscillation  where preferences flip back and forth forever. With damping = 0.7, the new value is blended: 70% old value + 30% newly computed value. This gradual change ensures the algorithm converges to a stable solution. (default: 0.7)
 
 Returns: 
     Cleaned dataframe and report (as tuple)
@@ -41,7 +42,8 @@ def handle_structural_errors(df: pd.DataFrame,
                              clustering: str = "hierarchical",
                              canonical: str = "most_frequent",
                              threshold_cc: float = 0.85,
-                             threshold_h: float = 0.85, 
+                             threshold_h: float = 0.85,
+                             damping: float = 0.7, 
                              embedding_model: str = "text-embedding-3-small") -> tuple:
     # Terminal output: start
     print(f"Fixing structural errors ({column})... ", end = "", flush = True)
@@ -100,7 +102,7 @@ def handle_structural_errors(df: pd.DataFrame,
     elif clustering == "connected_components":
         labels = connected_components_clustering(similarity_matrix, threshold_cc)
     elif clustering == "affinity_propagation":
-        labels = affinity_propagation_clustering(similarity_matrix)
+        labels = affinity_propagation_clustering(similarity_matrix, damping)
     else:
         raise ValueError(f"Unknown clustering: {clustering}")
     

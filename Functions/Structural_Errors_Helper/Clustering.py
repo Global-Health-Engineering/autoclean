@@ -24,12 +24,12 @@ For further information, see look at Structural_errors.md in the folder Addition
 # Method 1: Hierarchical Clustering
 # =============================================================================
 
-def hierarchical_clustering(similarity_matrix: np.ndarray, threshold: float = 0.85) -> np.ndarray:
+def hierarchical_clustering(similarity_matrix: np.ndarray, threshold: float) -> np.ndarray:
     """
     Cluster values using hierarchical clustering
     
     Parameter:
-        threshold: Minimum similarity to merge clusters (0-1). Higher = stricter, fewer merges. (default: 0.85)
+        threshold: Minimum similarity to merge clusters (0-1). Higher = stricter, fewer merges.
     """
     # Scipy expects distance (smaller = more similar) instead of similarity (larger = more similar)
     # Hence convert similarity matrix to distance matrix
@@ -62,12 +62,12 @@ def hierarchical_clustering(similarity_matrix: np.ndarray, threshold: float = 0.
 # Method 2: Connected Components Clustering
 # =============================================================================
 
-def connected_components_clustering(similarity_matrix: np.ndarray, threshold: float = 0.85) -> np.ndarray:
+def connected_components_clustering(similarity_matrix: np.ndarray, threshold: float) -> np.ndarray:
     """
     Cluster values using Connected Components Clustering
     
     Parameters:
-        threshold: Minimum similarity to connect values (0-1). Higher = stricter, fewer connections. (default: 0.85)
+        threshold: Minimum similarity to connect values (0-1). Higher = stricter, fewer connections. 
     """
     # Create adjacency matrix (1 if similar enough, 0 otherwise)
     adjacency = (similarity_matrix >= threshold).astype(int)
@@ -86,7 +86,7 @@ def connected_components_clustering(similarity_matrix: np.ndarray, threshold: fl
 # Method 3: Affinity Propagation Clustering
 # =============================================================================
 
-def affinity_propagation_clustering(similarity_matrix: np.ndarray, damping: float = 0.7) -> np.ndarray:
+def affinity_propagation_clustering(similarity_matrix: np.ndarray, damping: float) -> np.ndarray:
     """
     Cluster values using Affinity Propagation
     
@@ -94,7 +94,7 @@ def affinity_propagation_clustering(similarity_matrix: np.ndarray, damping: floa
         damping: Controls how values update each round. Without damping, the algorithm replaces old values completely with new computed values. 
                  This can cause oscillation  where preferences flip back and forth forever. 
                  With damping = 0.7, the new value is blended: 70% old value + 30% newly computed value. 
-                 This gradual change ensures the algorithm converges to a stable solution. (default: 0.7)
+                 This gradual change ensures the algorithm converges to a stable solution.
     """
     # Perform Affinity Propagation
     af = AffinityPropagation(affinity = 'precomputed', damping = damping, random_state = 42)
