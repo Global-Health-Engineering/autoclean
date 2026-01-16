@@ -79,7 +79,7 @@ df, report_miss = handle_missing_values(df,
                                         n_neighbors=3,
                                         max_iter=10,
                                         n_estimators=10)
-
+# max_depth = 5, min_samples_leaf = 2
 
 # =============================================================================
 # POST-PROCESSING
