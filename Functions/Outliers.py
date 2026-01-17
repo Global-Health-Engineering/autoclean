@@ -37,20 +37,22 @@ def handle_outliers(df: pd.DataFrame, method: str = 'winsorize', multiplier: flo
               'rows_deleted': 0,
               'column_bounds': [],
               'outliers': []}
-    
+    # Work with copy, to not modify input df 
+    df_work = df.copy()
+
     # Get indexes of numerical columns
-    i_num_cols = list(df.select_dtypes(include = np.number).columns)
+    i_num_cols = list(df_work.select_dtypes(include = np.number).columns)
     # Note: .select_dtypes(include = np.number) returns a dataframe with numerical columns 
     #       .columns gets the indexes of the numerical columns (as pandas Index object)
     #       list() convert to list
     
     # Get # of rows from original dataframe 
-    n_original_row = len(df)
+    n_original_row = len(df_work)
     
     for idx_col in i_num_cols:
         # Calculate 25th percentile q1, 75th percentile q3 & the interquartile range iqr (of column with index idx_col)
-        q1 = df[idx_col].quantile(0.25)
-        q3 = df[idx_col].quantile(0.75)
+        q1 = df_work[idx_col].quantile(0.25)
+        q3 = df_work[idx_col].quantile(0.75)
         iqr = q3 - q1
 
         # Calculate lower & upper bounds (of column with index idx_col) 
@@ -58,7 +60,7 @@ def handle_outliers(df: pd.DataFrame, method: str = 'winsorize', multiplier: flo
         upper_bound = q3 + (multiplier * iqr)
         
         # Get boolean mask (typ: Series), where for each element (of column with index idx_col) a bool tells if element is outlier 
-        outliers = (df[idx_col] < lower_bound) | (df[idx_col] > upper_bound) 
+        outliers = (df_work[idx_col] < lower_bound) | (df_work[idx_col] > upper_bound) 
         # Note: In pandas logical operators can be applied to rows, columns & dataframes and are executed element wise, 
         #       such that the output is a series or dataframe with booleans.
         #       The element wise operator of 'or' is |.  
@@ -76,63 +78,63 @@ def handle_outliers(df: pd.DataFrame, method: str = 'winsorize', multiplier: flo
         if n_outliers > 0:
             if method == 'winsorize':
                 # Get boolean mask (typ: Series), for the two types of outliers (of column with index idx_col)
-                lower_mask = (df[idx_col] < lower_bound)
-                upper_mask = (df[idx_col] > upper_bound)
+                lower_mask = (df_work[idx_col] < lower_bound)
+                upper_mask = (df_work[idx_col] > upper_bound)
                 
                 # Track outliers (for report)
-                for idx_row in list(df[lower_mask].index):
-                    # Note: list(df[mask].index) gives row indexes, where mask is true (as list)
+                for idx_row in list(df_work[lower_mask].index):
+                    # Note: list(df_work[mask].index) gives row indexes, where mask is true (as list)
 
                     # Add outliers to report
                     report['outliers'].append({'row': idx_row,
                                                'column': idx_col,
-                                               'original_value': df.at[idx_row, idx_col],
+                                               'original_value': df_work.at[idx_row, idx_col],
                                                'new_value': lower_bound,
                                                'bound': 'lower'})
                     # Note: In the dict report the value of 'outliers' is a list of dict
 
-                for idx_row in list(df[upper_mask].index):
-                    # Note: list(df[mask].index) gives row indexes, where mask is true (as list)
+                for idx_row in list(df_work[upper_mask].index):
+                    # Note: list(df_work[mask].index) gives row indexes, where mask is true (as list)
 
                     # Add outliers to report
                     report['outliers'].append({'row': idx_row,
                                                'column': idx_col,
-                                               'original_value': df.at[idx_row, idx_col],
+                                               'original_value': df_work.at[idx_row, idx_col],
                                                'new_value': upper_bound,
                                                'bound': 'upper'})
                     # Note: In the dict report the value of 'outliers' is a list of dict
 
                 # Replace outliers with bound values
-                df.loc[lower_mask, idx_col] = lower_bound 
-                df.loc[upper_mask, idx_col] = upper_bound
-                # Note: df.loc[mask, col] creates a series (w.r.t the original dataframe df) of column col with mask applied
+                df_work.loc[lower_mask, idx_col] = lower_bound 
+                df_work.loc[upper_mask, idx_col] = upper_bound
+                # Note: df_work.loc[mask, col] creates a series (w.r.t the original dataframe df) of column col with mask applied
                 #       The '=' is executed element wise 
  
             elif method == 'delete':
                 # Track outliers (for report)
-                for idx_row in list(df[outliers].index):
-                    # Note: list(df[mask].index) gives row indexes, where mask is true (as list)
+                for idx_row in list(df_work[outliers].index):
+                    # Note: list(df_work[mask].index) gives row indexes, where mask is true (as list)
 
                     # Add outliers to report 
                     report['outliers'].append({
                         'row': idx_row,
                         'column': idx_col,
-                        'original_value': df.at[idx_row, idx_col],
+                        'original_value': df_work.at[idx_row, idx_col],
                         'new_value': 'None, deleted whole row',
-                        'bound': 'lower' if df.at[idx_row, idx_col] < lower_bound else 'upper'}) # = Ternary Operator (One-Line If-Else), structure: ... = value_1 if condition else value_2
+                        'bound': 'lower' if df_work.at[idx_row, idx_col] < lower_bound else 'upper'}) # = Ternary Operator (One-Line If-Else), structure: ... = value_1 if condition else value_2
                     # Note: In the dict report the value of 'outliers' is a list of dict
 
                 # Remove rows with outliers
-                df = df[~outliers]
+                df_work = df_work[~outliers]
                 # Note: '~' flips True & False
-                #       df[mask] gets dataframe with rows for which mask is true
+                #       df_work[mask] gets dataframe with rows for which mask is true
     
     if method == 'delete':
         # Reset index of rows & don't keep the old ones as a new column (drop = true)
-        df = df.reset_index(drop = True)
-        report['rows_deleted'] = n_original_row - len(df)
+        df_work = df_work.reset_index(drop = True)
+        report['rows_deleted'] = n_original_row - len(df_work)
     
     # Terminal output: end
     print("✓")
     
-    return df, report
+    return df_work, report

@@ -4,7 +4,7 @@
 
 K-Nearest Neighbors (KNN) imputation is a method for filling missing values based on the similarity between data samples. For each missing value, KNN finds the K most similar samples (neighbors) and imputes the missing value using the average of the neighbors values.
 
-**Note:** KNN only works with numerical data. Categorical columns must be encoded to numerical values first (using OrdinalEncoder), then decoded back after imputation.
+**Note:** KNN only works with numerical data. Categorical columns must be encoded to numerical values first (using OrdinalEncoder), then decoded back after imputation. Further to improve KNN, the numerical columns are standardized (mean = 0, standard deviation = 1) before applying KNN and obviosly after imputation restored again. 
 
 ## Algorithm Steps
 

@@ -244,10 +244,10 @@ def _generate_missing_values_section(report: dict) -> list:
     lines.append("") # empty line 
     
     # Create section about selected columns for which missing values were handled
-    if 'columns' in report: 
-        lines.append(f"### Column Selection")
+    if report['columns'] != None: 
+        lines.append("### Column Selection")
         lines.append("") # empty line
-        lines.append(f"**Selected columns**: ")
+        lines.append("**Selected columns**: ")
 
         for column in report['columns']: 
             lines.append(f"- {column}")
@@ -262,6 +262,22 @@ def _generate_missing_values_section(report: dict) -> list:
         lines.append("All columns were selected to handle missing values.")
         lines.append("") # empty line
 
+    # Create section about excluded features which were not used for KNN & MissForest
+    if report['exclude_features'] != None: 
+        if report['method_num'] == 'knn' or report['method_num'] == 'missforest' or report['method_categ'] == 'knn' or report['method_categ'] == 'missforest': 
+            lines.append("### Excluded Features")
+            lines.append("") # empty line
+            lines.append("**Columns which were not used as features for KNN / MissForest**: ")
+
+            for column in report['exclude_features']: 
+                lines.append(f"- {column}")
+
+    else: 
+        if report['method_num'] == 'knn' or report['method_num'] == 'missforest' or report['method_categ'] == 'knn' or report['method_categ'] == 'missforest': 
+            lines.append("### Excluded Features")
+            lines.append("") # empty line
+            lines.append("No column was excluded as feature for KNN / MissForest")
+    
     # Create section with most important facts (Overview)
     lines.append("### Overview")
     lines.append("") # empty line
