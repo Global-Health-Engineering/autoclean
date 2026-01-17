@@ -121,7 +121,7 @@ def _generate_summary(reports: dict) -> list:
     lines.append("") # empty line
     
     # Get shape info from preprocessing (if available)
-    if 'preprocessing' in reports:
+    if 'preprocessing' in reports and 'postprocessing' in reports:
         report_pre = reports['preprocessing']
         report_post = reports['postprocessing']
         lines.append(f"- **Original shape:** {report_pre['original_shape'][0]} rows × {report_pre['original_shape'][1]} columns")
@@ -133,9 +133,10 @@ def _generate_summary(reports: dict) -> list:
     total_imputations = 0
     total_outliers = 0
     total_values_changed = 0
-
-    total_rows_deleted += report_pre['rows_removed']
-    total_cols_deleted += report_pre['cols_removed']
+    
+    if 'preprocessing' in reports:
+        total_rows_deleted += reports['preprocessing']['rows_removed']
+        total_cols_deleted += reports['preprocessing']['cols_removed']
 
     if 'duplicates' in reports:
         total_rows_deleted += reports['duplicates']['rows_removed']
@@ -273,8 +274,8 @@ def _generate_missing_values_section(report: dict) -> list:
         lines.append("") # empty line
         return lines
 
-    lines.append(f"- **Numerical missing values:** {num_missing_before}")
-    lines.append(f"- **Categorical missing values:** {categ_missing_before}")
+    lines.append(f"- **Numerical missing values:** {int(num_missing_before)}")
+    lines.append(f"- **Categorical missing values:** {int(categ_missing_before)}")
     lines.append(f"- **Chosen method for numerical missing values:** {report['method_num']}")
     lines.append(f"- **Chosen method for categorical missing values:** {report['method_categ']}")
     

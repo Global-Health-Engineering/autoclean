@@ -18,8 +18,8 @@ Parameters:
 Steps applied:
     1. Load data from file & Standardize missing values ("NA", "", "-", "null", etc. → NaN)
     2. Strip whitespace from string columns
-    4. Remove completely empty rows
-    5. Remove completely empty columns
+    3. Remove completely empty rows
+    4. Remove completely empty columns
 """
 
 # =============================================================================

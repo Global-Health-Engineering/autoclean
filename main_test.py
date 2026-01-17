@@ -126,9 +126,9 @@ structural_reports.append(report7)
 # MISSING VALUES
 # =============================================================================
 
-df['Water Quality_Score'] = pd.to_numeric(df['Water Quality_Score'], errors='coerce')
-df['Population_served'] = pd.to_numeric(df['Population_served'], errors='coerce')
-df['users_Count'] = pd.to_numeric(df['users_Count'], errors='coerce')
+#df['Water Quality_Score'] = pd.to_numeric(df['Water Quality_Score'], errors='coerce')
+#df['Population_served'] = pd.to_numeric(df['Population_served'], errors='coerce')
+#df['users_Count'] = pd.to_numeric(df['users_Count'], errors='coerce')
 
 df, report_miss = handle_missing_values(df,
                                         method_num='missforest',
