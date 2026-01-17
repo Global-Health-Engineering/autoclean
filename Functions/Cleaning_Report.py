@@ -319,8 +319,8 @@ def _generate_missing_values_section(report: dict) -> list:
             lines.append("|-----|--------|-----------|--------|")
             for imp in imputations_num:
                 lines.append(f"| {imp['row']} | {imp['column']} | {imp['new_value']} | {imp['method']} |")
-        
-        lines.append("") # empty line
+           
+            lines.append("") # empty line
 
         if len(imputations_categ) > 0:
             lines.append("**Categorical:**")
@@ -328,7 +328,11 @@ def _generate_missing_values_section(report: dict) -> list:
             lines.append("|-----|--------|-----------|--------|")
             for imp in imputations_categ:
                 lines.append(f"| {imp['row']} | {imp['column']} | {imp['new_value']} | {imp['method']} |")
-                
+            
+            lines.append("") # empty line
+
+        lines.append("**Note:** Imputed values shown above are pre-rounding. Final values may be rounded in post-processing to match original column precision.")
+
     lines.append("") # empty line
 
     return lines

@@ -143,7 +143,7 @@ def handle_missing_values(df: pd.DataFrame,
             # Add excluded columns to the right
             for col in exclude_features:
                 df_work[col] = excluded_data[col]
-
+            
             # Restore original column order    
             df_work = df_work[original_column_order]
 
