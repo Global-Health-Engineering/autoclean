@@ -479,6 +479,12 @@ def _generate_structural_errors_section(report) -> list:
         # Show embedding model if embeddings were used
         if report['similarity'] == 'embeddings':
             lines.append(f"- **Embedding model:** {report['embedding_model']}")
+        # Show LLM parameters if LLM similarity was used
+        elif report['similarity'] == 'llm':
+            lines.append(f"- **LLM model:** {report['llm_model']}")
+            lines.append(f"- **LLM temperature:** {report['llm_temperature']}")
+            lines.append(f"- **LLM batch size:** {report['llm_batch_size']}")
+            lines.append(f"- **LLM context:** {report['llm_context']}")
 
         lines.append(f"- **Clustering method:** {report['clustering']}")
         # Show relevant parameter based on clustering method
@@ -564,6 +570,12 @@ def _generate_structural_errors_section(report) -> list:
             # Show embedding model if embeddings were used
             if single_report['similarity'] == 'embeddings':
                 lines.append(f"- **Embedding model:** {single_report['embedding_model']}")
+            # Show LLM parameters if LLM similarity was used
+            elif single_report['similarity'] == 'llm':
+                lines.append(f"- **LLM model:** {single_report['llm_model']}")
+                lines.append(f"- **LLM temperature:** {single_report['llm_temperature']}")
+                lines.append(f"- **LLM batch size:** {single_report['llm_batch_size']}")
+                lines.append(f"- **LLM context:** {single_report['llm_context']}")
 
             lines.append(f"- **Clustering method:** {single_report['clustering']}")
             # Show relevant parameter based on clustering method
