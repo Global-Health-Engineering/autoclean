@@ -24,7 +24,7 @@ For further information, see look at Structural_errors.md in the folder Addition
 """
 
 # =============================================================================
-# Pydantic Models for LLM Structured Output
+# Pydantic Schema for Method 3 
 # =============================================================================
 
 class SimilarityScore(BaseModel):

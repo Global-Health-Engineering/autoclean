@@ -1,5 +1,6 @@
 # Imported libraries
 from openai import OpenAI
+from pydantic import BaseModel
 
 # Needed to load API Key from .env 
 import os
@@ -16,6 +17,14 @@ Available methods:
 
 For further information, see look at Structural_errors.md in the folder Additional_Information
 """
+
+# =============================================================================
+# Pydantic Schema for Method 2 
+# =============================================================================
+
+class CanonicalSelection(BaseModel):
+    """Structured output for LLM canonical selection"""
+    index: int  # 1-based index of selected value
 
 # =============================================================================
 # Method 1: Most Frequent
@@ -82,31 +91,26 @@ def llm_selection(cluster_values: list, column_name: str) -> str:
         values_list += f"{i+1}. {v}\n"
     
     # Build prompt message for LLM 
-    prompt = f"""Select the best canonical name of the following listed values:
+    prompt = f"""Select the best canonical name from these values (column: {column_name}):
 {values_list}
-For your information, these values are from a column named: {column_name}
-Consider: completeness, correct spelling/capitalization, standard usage.
-Reply only with the corresponding number from the list above. Only one integer nothing else!"""
+Consider: completeness, correct spelling, proper capitalization, standard usage.
+Return the index (1-based) of your choice."""
 
     # Create OpenAi client 
     client = OpenAI(api_key = api_key)
 
-    # Get response from LLM 
-    response_total = client.chat.completions.create(model = "gpt-5-nano",
-                                              messages=[{"role": "user", "content": prompt}])
-    response = response_total.choices[0].message.content.strip() # Remove possible leading and trailing whitespaces from response with .strip() 
-    # Note: response is still a string
+    # Get response from LLM (with structured output)
+    response = client.beta.chat.completions.parse(model="gpt-4o-mini",
+                                                  temperature=0.0,
+                                                  messages=[{"role": "user", "content": prompt}],
+                                                  response_format=CanonicalSelection)
 
-    # Validate response: check if it's a number in valid range
-    if response.isdigit():
-        # Note: .isdigit() checks if all characters in the string are digits, if so True is returned otherwise False 
-        
-        # Adapt response to python indexing
-        index = int(response) - 1
-
-        # Check that index is in the right range
-        if 0 <= index < len(cluster_values):
-            return cluster_values[index]
+    # Get selected index (1-based from LLM) and convert to 0-based (python indexing)
+    index = response.choices[0].message.parsed.index - 1
+    
+    # Return selected value (with safety check)
+    if 0 <= index < len(cluster_values):
+        return cluster_values[index]
     
     # Fallback
     print(f"Warning: LLM returned invalid response: {response}, using fallback: {cluster_values[0]}")

@@ -14,12 +14,14 @@ Input (needs to have this structure):
                'missing_values': report_miss,
                'datetime': report_date,          
                'outliers': report_out,
-               'structural_errors': report_str,  
+               'structural_errors': report_str,
+               'semantic_outliers': report_sem,  
                'postprocessing': report_post}
 
 Note: 
     - Only include reports for cleaning functions that were actually performed (missing keys will be skipped in the report)
     - Value of key 'structural_errors' can be a list of dictionaries, if Structural_Errors.py is applied multiple times
+    - Value of key 'semantic_outliers' can be a list of dictionaries, if Semantic_Outliers.py is applied multiple times
 
 Principle of Markdown generation:
     1. Each line of the Markdown file is stored as a string in list 'lines'
@@ -75,22 +77,26 @@ def generate_cleaning_report(reports: dict, filepath: str = 'cleaning_report.md'
     if 'duplicates' in reports:
         lines.extend(_generate_duplicates_section(reports['duplicates'])) # Add returned list of _generate_duplicates_section() to lines
     
-    # Create missing values section (if key is not missing)
-    if 'missing_values' in reports:
-        lines.extend(_generate_missing_values_section(reports['missing_values'])) # Add returned list of _generate_missing_values_section() to lines
-    
-    # Create datetime section (if key is not missing)
-    if 'datetime' in reports:
-        lines.extend(_generate_datetime_section(reports['datetime'])) # Add returned list of _generate_datetime_section() to lines
-    
+    # Create semantic outliers section (if key is not missing)
+    if 'semantic_outliers' in reports:
+        lines.extend(_generate_semantic_outliers_section(reports['semantic_outliers'])) # Add returned list of _generate_semantic_outliers_section() to lines
+
     # Create outliers section (if key is not missing)
     if 'outliers' in reports:
         lines.extend(_generate_outliers_section(reports['outliers'])) # Add returned list of _generate_outliers_section() to lines
-    
+
+    # Create datetime section (if key is not missing)
+    if 'datetime' in reports:
+        lines.extend(_generate_datetime_section(reports['datetime'])) # Add returned list of _generate_datetime_section() to lines
+
     # Create structural errors section (if key is not missing)
     if 'structural_errors' in reports:
         lines.extend(_generate_structural_errors_section(reports['structural_errors'])) # Add returned list of _generate_structural_errors_section() to lines
-    
+
+    # Create missing values section (if key is not missing)
+    if 'missing_values' in reports:
+        lines.extend(_generate_missing_values_section(reports['missing_values'])) # Add returned list of _generate_missing_values_section() to lines
+        
     # Create postprocessing section (if key is not missing)
     if 'postprocessing' in reports:
         lines.extend(_generate_postprocessing_section(reports['postprocessing'])) # Add returned list of _generate_postprocessing_section() to lines
@@ -133,6 +139,7 @@ def _generate_summary(reports: dict) -> list:
     total_imputations = 0
     total_outliers = 0
     total_values_changed = 0
+    total_semantic_outliers = 0
     
     if 'preprocessing' in reports:
         total_rows_deleted += reports['preprocessing']['rows_removed']
@@ -155,7 +162,6 @@ def _generate_summary(reports: dict) -> list:
     
     if 'structural_errors' in reports:
         report_str = reports['structural_errors']
-        total_values_changed = 0
 
         # Distinguish if Structural_Error.py was applied multiple times or just once
         # Multiple times if report_str = list (of dict), otherwise single time
@@ -166,11 +172,26 @@ def _generate_summary(reports: dict) -> list:
 
         else:
             total_values_changed = report_str['values_changed']
-    
+
+    if 'semantic_outliers' in reports:
+        report_sem = reports['semantic_outliers']
+        
+        # Distinguish if Semantic_Outliers.py was applied multiple times or just once
+        # Multiple times if report_sem = list (of dict), otherwise single time
+        if isinstance(report_sem, list):
+            for single_report_sem in report_sem:
+                # Note isinstance(x, y) returns true if object x corresponds to type y 
+                total_semantic_outliers += single_report_sem['outliers_detected']
+                total_rows_deleted += single_report_sem['rows_deleted']
+        else:
+            total_semantic_outliers = report_sem['outliers_detected']
+            total_rows_deleted += report_sem['rows_deleted']
+
     lines.append(f"- **Total rows deleted:** {total_rows_deleted}")
     lines.append(f"- **Total columns deleted:** {total_cols_deleted}")    
     lines.append(f"- **Total values imputed:** {total_imputations}")
     lines.append(f"- **Total outliers handled:** {total_outliers}")
+    lines.append(f"- **Total semantic outliers detected:** {total_semantic_outliers}")
     lines.append(f"- **Total structural errors fixed:** {total_values_changed}")
     
     lines.append("") # empty line
@@ -231,152 +252,97 @@ def _generate_duplicates_section(report: dict) -> list:
 
     return lines
 
-def _generate_missing_values_section(report: dict) -> list:
-    """Generate missing values section"""
+def _generate_semantic_outliers_section(report) -> list:
+    """Generate semantic outliers section"""
     
     # Initialize list of lines
     lines = []
-
-    # Create title
+    
     lines.append("---") # divider line
     lines.append("") # empty line
-    lines.append("## Missing Values")
-    lines.append("") # empty line 
+    lines.append("## Semantic Outliers")
     
-    # Create section about selected columns for which missing values were handled
-    if report['columns'] != None: 
-        lines.append("### Column Selection")
+    # Distinguish if Semantic_Outliers.py was applied multiple times or just once
+    # Multiple times if report = list (of dict), otherwise single time
+    if not isinstance(report, list):
+        # Single column
         lines.append("") # empty line
-        lines.append("**Selected columns**: ")
-
-        for column in report['columns']: 
-            lines.append(f"- {column}")
-
-        lines.append("") # empty line 
-        lines.append("**Note:** Only these columns were selected to handle missing values.")
-        lines.append("") # empty line 
-    
-    else:
-        lines.append("### Column Selection")
-        lines.append("") # empty line
-        lines.append("All columns were selected to handle missing values.")
-        lines.append("") # empty line
-
-    # Create section about excluded features which were not used for KNN & MissForest
-    if report['exclude_features'] != None: 
-        if report['method_num'] == 'knn' or report['method_num'] == 'missforest' or report['method_categ'] == 'knn' or report['method_categ'] == 'missforest': 
-            lines.append("### Excluded Features")
+        
+        lines.append(f"- **Column:** {report['column']}")
+        lines.append(f"- **Context:** {report['context']}")
+        lines.append(f"- **Threshold:** {report['threshold']}")
+        lines.append(f"- **Action:** {report['action']}")
+        lines.append(f"- **Unique values checked:** {report['unique_values_checked']}")
+        lines.append(f"- **Outliers detected:** {report['outliers_detected']}")
+        
+        percentage = round((report['rows_affected'] / report['total_rows']) * 100, 2) if report['total_rows'] > 0 else 0
+        lines.append(f"- **Rows affected:** {report['rows_affected']} ({percentage}%)")
+        
+        if report['action'] == 'delete':
+            lines.append(f"- **Rows deleted:** {report['rows_deleted']}")
+        
+        # Create table of detected outliers
+        if len(report['outliers']) > 0:
             lines.append("") # empty line
-            lines.append("**Columns which were not used as features for KNN / MissForest**: ")
-
-            for column in report['exclude_features']: 
-                lines.append(f"- {column}")
-
-    else: 
-        if report['method_num'] == 'knn' or report['method_num'] == 'missforest' or report['method_categ'] == 'knn' or report['method_categ'] == 'missforest': 
-            lines.append("### Excluded Features")
+            lines.append("### Detected Outliers")
             lines.append("") # empty line
-            lines.append("No column was excluded as feature for KNN / MissForest")
-    
-    # Create section with most important facts (Overview)
-    lines.append("### Overview")
-    lines.append("") # empty line
-
-    num_missing_before = report['num_missing_before']
-    categ_missing_before = report['categ_missing_before']
-
-    if num_missing_before == 0 and categ_missing_before == 0:
-        lines.append("No missing values found.")
+            lines.append("| Value | Confidence | Rows Affected |")
+            lines.append("|-------|------------|---------------|")
+            
+            for outlier in report['outliers']:
+                lines.append(f"| {outlier['value']} | {outlier['confidence']} | {len(outlier['rows'])} |")
+        
         lines.append("") # empty line
         return lines
-
-    lines.append(f"- **Numerical missing values:** {int(num_missing_before)}")
-    lines.append(f"- **Categorical missing values:** {int(categ_missing_before)}")
-    lines.append(f"- **Chosen method for numerical missing values:** {report['method_num']}")
-    lines.append(f"- **Chosen method for categorical missing values:** {report['method_categ']}")
     
-    if report['method_num'] == 'knn' or report['method_categ'] == 'knn': 
-        lines.append(f"- **Chosen parameters for KNN:** n_neighbors = {report['n_neighbors']}")
-
-    if report['method_num'] == 'missforest' or report['method_categ'] == 'missforest': 
-        lines.append(f"- **Chosen parameters for MissForest:** n_estimators = {report['n_estimators']}; max_depth = {report['max_depth']}; max_iter = {report['max_iter']} & min_samples_leaf = {report['min_samples_leaf']}")
-
-    if report['rows_deleted'] > 0:
-        lines.append(f"- **Rows deleted:** {report['rows_deleted']}")
-    
-    # Create section with table of imputations 
-    imputations_num = report['imputations_num']
-    imputations_categ = report['imputations_categ']
-
-    if len(imputations_num) > 0 or len(imputations_categ) > 0:
+    else:
+        # Multiple columns - create overview first
         lines.append("") # empty line
-        lines.append("### Imputations")
+        lines.append("### Overview")
         lines.append("") # empty line
-
-        if len(imputations_num) > 0:
-            lines.append("**Numerical:**")
-            lines.append("| Row | Column | New Value | Method |")
-            lines.append("|-----|--------|-----------|--------|")
-            for imp in imputations_num:
-                lines.append(f"| {imp['row']} | {imp['column']} | {imp['new_value']} | {imp['method']} |")
-           
+        
+        total_outliers = 0
+        total_rows_affected = 0
+        for single_report in report:
+            total_outliers += single_report['outliers_detected']
+            total_rows_affected += single_report['rows_affected']
+        
+        lines.append(f"- **Columns processed:** {len(report)}")
+        lines.append(f"- **Total outliers detected:** {total_outliers}")
+        lines.append(f"- **Total rows affected:** {total_rows_affected}")
+        lines.append("") # empty line
+        
+        # Generate section for each column
+        for single_report in report:
+            lines.append(f"### Column: {single_report['column']}")
             lines.append("") # empty line
-
-        if len(imputations_categ) > 0:
-            lines.append("**Categorical:**")
-            lines.append("| Row | Column | New Value | Method |")
-            lines.append("|-----|--------|-----------|--------|")
-            for imp in imputations_categ:
-                lines.append(f"| {imp['row']} | {imp['column']} | {imp['new_value']} | {imp['method']} |")
+            
+            lines.append(f"- **Context:** {single_report['context']}")
+            lines.append(f"- **Threshold:** {single_report['threshold']}")
+            lines.append(f"- **Action:** {single_report['action']}")
+            lines.append(f"- **Unique values checked:** {single_report['unique_values_checked']}")
+            lines.append(f"- **Outliers detected:** {single_report['outliers_detected']}")
+            
+            percentage = round((single_report['rows_affected'] / single_report['total_rows']) * 100, 2) if single_report['total_rows'] > 0 else 0
+            lines.append(f"- **Rows affected:** {single_report['rows_affected']} ({percentage}%)")
+            
+            if single_report['action'] == 'delete':
+                lines.append(f"- **Rows deleted:** {single_report['rows_deleted']}")
+            
+            # Create table of detected outliers
+            if len(single_report['outliers']) > 0:
+                lines.append("") # empty line
+                lines.append("#### Detected Outliers")
+                lines.append("") # empty line
+                lines.append("| Value | Confidence | Rows Affected |")
+                lines.append("|-------|------------|---------------|")
+                
+                for outlier in single_report['outliers']:
+                    lines.append(f"| {outlier['value']} | {outlier['confidence']} | {len(outlier['rows'])} |")
             
             lines.append("") # empty line
-
-        lines.append("**Note:** Imputed values shown above are pre-rounding. Final values may be rounded in post-processing to match original column precision.")
-
-    lines.append("") # empty line
-
-    return lines
-
-def _generate_datetime_section(report: dict) -> list:
-    """Generate datetime standardization section"""
-    
-    # Initialize list of lines
-    lines = []
-
-    # Create title
-    lines.append("---") # divider line
-    lines.append("") # empty line
-    lines.append("## DateTime Standardization")
-    lines.append("") # empty line
-    
-    # Get most important facts (if available)
-    lines.append(f"- **Column:** {report['column']}")
-    lines.append(f"- **Format:** {report['format']}")
-    lines.append(f"- **Invalid handling:** {report['handle_invalid']}")
-    lines.append(f"- **Total values:** {report['total_values']}")
-    lines.append(f"- **Successfully converted / standardized:** {report['n_standardized_dates']}")
-    lines.append(f"- **Invalid values:** {report['invalid']}")
-    
-    if report['rows_deleted'] > 0:
-        lines.append(f"- **Rows deleted:** {report['rows_deleted']}")
-    
-    # Create table, to show how invalid values were handled
-    if report['invalid'] > 0:
-        details_invalid = report['details_invalid']
-
-        lines.append("") # empty line
-        lines.append("### Invalid values handled")
-        lines.append("") # empty line
-
-        lines.append("| Row | Original | Action |")
-        lines.append("|-----|----------|--------|")
-
-        for detail_invalid in details_invalid: 
-            lines.append(f"| {detail_invalid['row']} | {detail_invalid['original']} | {detail_invalid['action']} |")
-    
-    lines.append("") # empty line
-
-    return lines
+        
+        return lines
 
 def _generate_outliers_section(report: dict) -> list:
     """Generate outliers section"""
@@ -448,6 +414,47 @@ def _generate_outliers_section(report: dict) -> list:
             original_value = round(outlier['original_value'], 4)
 
             lines.append(f"| {outlier['row']} | {outlier['column']} | {original_value} | {outlier['new_value']} | {outlier['bound']} |")
+    
+    lines.append("") # empty line
+
+    return lines
+
+def _generate_datetime_section(report: dict) -> list:
+    """Generate datetime standardization section"""
+    
+    # Initialize list of lines
+    lines = []
+
+    # Create title
+    lines.append("---") # divider line
+    lines.append("") # empty line
+    lines.append("## DateTime Standardization")
+    lines.append("") # empty line
+    
+    # Get most important facts (if available)
+    lines.append(f"- **Column:** {report['column']}")
+    lines.append(f"- **Format:** {report['format']}")
+    lines.append(f"- **Invalid handling:** {report['handle_invalid']}")
+    lines.append(f"- **Total values:** {report['total_values']}")
+    lines.append(f"- **Successfully converted / standardized:** {report['n_standardized_dates']}")
+    lines.append(f"- **Invalid values:** {report['invalid']}")
+    
+    if report['rows_deleted'] > 0:
+        lines.append(f"- **Rows deleted:** {report['rows_deleted']}")
+    
+    # Create table, to show how invalid values were handled
+    if report['invalid'] > 0:
+        details_invalid = report['details_invalid']
+
+        lines.append("") # empty line
+        lines.append("### Invalid values handled")
+        lines.append("") # empty line
+
+        lines.append("| Row | Original | Action |")
+        lines.append("|-----|----------|--------|")
+
+        for detail_invalid in details_invalid: 
+            lines.append(f"| {detail_invalid['row']} | {detail_invalid['original']} | {detail_invalid['action']} |")
     
     lines.append("") # empty line
 
@@ -626,6 +633,112 @@ def _generate_structural_errors_section(report) -> list:
                 lines.append("") # empty line 
 
         return lines
+
+def _generate_missing_values_section(report: dict) -> list:
+    """Generate missing values section"""
+    
+    # Initialize list of lines
+    lines = []
+
+    # Create title
+    lines.append("---") # divider line
+    lines.append("") # empty line
+    lines.append("## Missing Values")
+    lines.append("") # empty line 
+    
+    # Create section about selected columns for which missing values were handled
+    if report['columns'] != None: 
+        lines.append("### Column Selection")
+        lines.append("") # empty line
+        lines.append("**Selected columns**: ")
+
+        for column in report['columns']: 
+            lines.append(f"- {column}")
+
+        lines.append("") # empty line 
+        lines.append("**Note:** Only these columns were selected to handle missing values.")
+        lines.append("") # empty line 
+    
+    else:
+        lines.append("### Column Selection")
+        lines.append("") # empty line
+        lines.append("All columns were selected to handle missing values.")
+        lines.append("") # empty line
+
+    # Create section about excluded features which were not used for KNN & MissForest
+    if report['exclude_features'] != None: 
+        if report['method_num'] == 'knn' or report['method_num'] == 'missforest' or report['method_categ'] == 'knn' or report['method_categ'] == 'missforest': 
+            lines.append("### Excluded Features")
+            lines.append("") # empty line
+            lines.append("**Columns which were not used as features for KNN / MissForest**: ")
+
+            for column in report['exclude_features']: 
+                lines.append(f"- {column}")
+
+    else: 
+        if report['method_num'] == 'knn' or report['method_num'] == 'missforest' or report['method_categ'] == 'knn' or report['method_categ'] == 'missforest': 
+            lines.append("### Excluded Features")
+            lines.append("") # empty line
+            lines.append("No column was excluded as feature for KNN / MissForest")
+    
+    # Create section with most important facts (Overview)
+    lines.append("### Overview")
+    lines.append("") # empty line
+
+    num_missing_before = report['num_missing_before']
+    categ_missing_before = report['categ_missing_before']
+
+    if num_missing_before == 0 and categ_missing_before == 0:
+        lines.append("No missing values found.")
+        lines.append("") # empty line
+        return lines
+
+    lines.append(f"- **Numerical missing values:** {int(num_missing_before)}")
+    lines.append(f"- **Categorical missing values:** {int(categ_missing_before)}")
+    lines.append(f"- **Chosen method for numerical missing values:** {report['method_num']}")
+    lines.append(f"- **Chosen method for categorical missing values:** {report['method_categ']}")
+    
+    if report['method_num'] == 'knn' or report['method_categ'] == 'knn': 
+        lines.append(f"- **Chosen parameters for KNN:** n_neighbors = {report['n_neighbors']}")
+
+    if report['method_num'] == 'missforest' or report['method_categ'] == 'missforest': 
+        lines.append(f"- **Chosen parameters for MissForest:** n_estimators = {report['n_estimators']}; max_depth = {report['max_depth']}; max_iter = {report['max_iter']} & min_samples_leaf = {report['min_samples_leaf']}")
+
+    if report['rows_deleted'] > 0:
+        lines.append(f"- **Rows deleted:** {report['rows_deleted']}")
+    
+    # Create section with table of imputations 
+    imputations_num = report['imputations_num']
+    imputations_categ = report['imputations_categ']
+
+    if len(imputations_num) > 0 or len(imputations_categ) > 0:
+        lines.append("") # empty line
+        lines.append("### Imputations")
+        lines.append("") # empty line
+
+        if len(imputations_num) > 0:
+            lines.append("**Numerical:**")
+            lines.append("| Row | Column | New Value | Method |")
+            lines.append("|-----|--------|-----------|--------|")
+            for imp in imputations_num:
+                lines.append(f"| {imp['row']} | {imp['column']} | {imp['new_value']} | {imp['method']} |")
+           
+            lines.append("") # empty line
+
+        if len(imputations_categ) > 0:
+            lines.append("**Categorical:**")
+            lines.append("| Row | Column | New Value | Method |")
+            lines.append("|-----|--------|-----------|--------|")
+            for imp in imputations_categ:
+                lines.append(f"| {imp['row']} | {imp['column']} | {imp['new_value']} | {imp['method']} |")
+            
+            lines.append("") # empty line
+
+        lines.append("**Note:** Imputed values shown above are pre-rounding. Final values may be rounded in post-processing to match original column precision.")
+
+    lines.append("") # empty line
+
+    return lines
 
 def _generate_postprocessing_section(report: dict) -> list:
     """Generate postprocessing section"""

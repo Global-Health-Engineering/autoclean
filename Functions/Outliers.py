@@ -37,6 +37,7 @@ def handle_outliers(df: pd.DataFrame, method: str = 'winsorize', multiplier: flo
               'rows_deleted': 0,
               'column_bounds': [],
               'outliers': []}
+    
     # Work with copy, to not modify input df 
     df_work = df.copy()
 
