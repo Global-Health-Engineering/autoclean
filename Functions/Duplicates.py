@@ -1,6 +1,3 @@
-# Imported libraries 
-import pandas as pd
-
 """
 Remove exact duplicate rows and columns
 
@@ -9,6 +6,9 @@ Note: Regarding exact duplicate columns, only the values in the column need to m
 Returns:
     Cleaned dataframe and report (as tuple)
 """
+
+# Imported libraries 
+import pandas as pd
 
 # ============================================================================
 # Main Function (Public)
