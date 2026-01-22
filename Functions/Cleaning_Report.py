@@ -291,7 +291,7 @@ def _generate_semantic_outliers_section(report) -> list:
             lines.append("|-------|------------|-------------------------|")
             
             for outlier in report['outliers']:
-                lines.append(f"| {outlier['value']} | {outlier['confidence']} | {len(outlier['n_affected_rows'])} |")
+                lines.append(f"| {outlier['value']} | {outlier['confidence']} | {outlier['n_affected_rows']} |")
         
         lines.append("") # empty line
         return lines
