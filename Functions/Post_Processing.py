@@ -2,17 +2,20 @@
 Post-Processing: Polish data after cleaning pipeline
 
 This function is the last step after all cleaning.
-It rounds numeric columns to match original precision and optionally cleans column names.
+It rounds numeric columns to match original precision (if rounding = True) and cleans column names (if clean_names = True).
 
 Steps applied:
-    1. Round numeric columns to match original decimal places
-    2. Restore integers (1.0 → 1), if the original column had integers
-    3. Clean column names (optional, lowercase with underscores)
+    1. Round numeric columns to match original decimal places (if rounding = True)
+    2. Restore integers (1.0 → 1), if the original column had integers (if rounding = True)
+    3. Clean column names (lowercase with underscores) (if clean_names = True)
 
 Parameters:
     df_cleaned: Dataframe after cleaning pipeline
     df_original: Original dataframe (from Pre_Processing.py)
-    clean_names: If True, standardize column names at the end (default: False)
+    rounding: If True, rounding is applied (default: False)
+    clean_names: If True, standardize column names (default: False)
+
+Notes: If Outliers.py and or Missing_Values.py was applied, recommended to set rounding = True. 
 
 Returns:
     Final (polished) dataframe and report (as tuple)
@@ -29,7 +32,8 @@ import janitor  # Python library PyJanitor
 
 def postprocess_data(df_cleaned: pd.DataFrame, 
                      df_original: pd.DataFrame,
-                     clean_names: bool = False) -> tuple:
+                     clean_names: bool = False,
+                     rounding: bool = False) -> tuple:
     # Terminal output: start
     print("Postprocessing... ", end="", flush=True)
     # Note: With flush = True, print is immediately
@@ -42,29 +46,30 @@ def postprocess_data(df_cleaned: pd.DataFrame,
               'columns_renamed': [], 
               'final_shape': None}
     
-    # Loop through numeric columns
-    for col in list(df.select_dtypes(include = np.number).columns):
-    # Note: .select_dtypes(include = np.number) returns a dataframe with numerical columns 
-    #       .columns gets the indexes of the numerical columns (as pandas Index object)
-    #       list() convert to list
-        
-        # Get column of original data (as pd.Series), without NaN values
-        original_data = df_original[col].dropna()
-        
-        # Check if original_data contains only integer → restore to integer
-        if _is_integer(original_data):
-            df[col] = df[col].round(0).astype('Int64')
-            # Note: .round(0) rounds all elements of the series to 0 decimal places (needed for imputed values)
-            #.      .astype('Int64) converts all elements to integers or keeps NaN values 
+    if rounding:
+        # Loop through numeric columns
+        for col in list(df.select_dtypes(include = np.number).columns):
+        # Note: .select_dtypes(include = np.number) returns a dataframe with numerical columns 
+        #       .columns gets the indexes of the numerical columns (as pandas Index object)
+        #       list() convert to list
+            
+            # Get column of original data (as pd.Series), without NaN values
+            original_data = df_original[col].dropna()
+            
+            # Check if original_data contains only integer → restore to integer
+            if _is_integer(original_data):
+                df[col] = df[col].round(0).astype('Int64')
+                # Note: .round(0) rounds all elements of the series to 0 decimal places (needed for imputed values)
+                #.      .astype('Int64) converts all elements to integers or keeps NaN values 
 
-            report['changes'].append({'column': col, 'action': 'Restored to integer'})
-            # Note: In the dict report the value of 'changes' is a list of dict
+                report['changes'].append({'column': col, 'action': 'Restored to integer'})
+                # Note: In the dict report the value of 'changes' is a list of dict
 
-        # Otherwise → round to original decimal places
-        else:
-            decimals = _get_decimals(original_data)
-            df[col] = df[col].round(decimals)
-            report['changes'].append({'column': col, 'action': f'Rounded to {decimals} decimals'})
+            # Otherwise → round to original decimal places
+            else:
+                decimals = _get_decimals(original_data)
+                df[col] = df[col].round(decimals)
+                report['changes'].append({'column': col, 'action': f'Rounded to {decimals} decimals'})
     
     # Clean column names (if clean_names = True)
     if clean_names:
