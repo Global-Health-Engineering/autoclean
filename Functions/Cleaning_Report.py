@@ -1,6 +1,3 @@
-# Imported libraries
-from datetime import datetime
-
 """
 Generate cleaning report as markdown file
 
@@ -11,17 +8,17 @@ report file (md file) is generated.
 Input (needs to have this structure):
     reports = {'preprocessing': report_pre,
                'duplicates': report_dup,
-               'missing_values': report_miss,
-               'datetime': report_date,          
+               'semantic_outliers': report_sem,
                'outliers': report_out,
+               'datetime': report_date,
                'structural_errors': report_str,
-               'semantic_outliers': report_sem,  
+               'missing_values': report_miss,
                'postprocessing': report_post}
 
 Note: 
     - Only include reports for cleaning functions that were actually performed (missing keys will be skipped in the report)
-    - Value of key 'structural_errors' can be a list of dictionaries, if Structural_Errors.py is applied multiple times
-    - Value of key 'semantic_outliers' can be a list of dictionaries, if Semantic_Outliers.py is applied multiple times
+    - Value of key 'structural_errors' can be a list of dictionaries, if Structural_Errors.py was applied multiple times
+    - Value of key 'semantic_outliers' can be a list of dictionaries, if Semantic_Outliers.py was applied multiple times
 
 Principle of Markdown generation:
     1. Each line of the Markdown file is stored as a string in list 'lines'
@@ -37,6 +34,9 @@ Markdown syntax used:
     | A | B |       → Table row
     |---|---|       → Table header separator (required after header row) 
 """
+
+# Imported libraries
+from datetime import datetime
 
 def generate_cleaning_report(reports: dict, filepath: str = 'cleaning_report.md', dataset_name: str = None) -> None:
     """
@@ -61,7 +61,7 @@ def generate_cleaning_report(reports: dict, filepath: str = 'cleaning_report.md'
     lines.append("# AutoClean Report")
     lines.append("") # empty line 
     if dataset_name is not None:
-        lines.append(f"**Dataset:** {dataset_name}")
+        lines.append(f"**Dataset:** {dataset_name}  ")
     lines.append(f"**Generated:** {datetime.now().strftime('%d.%m.%Y, %H:%M:%S')}") # Append line with current date & time
     lines.append("") # empty line
     
@@ -215,7 +215,7 @@ def _generate_preprocessing_section(report: dict) -> list:
         lines.append(f"- **Completely empty rows removed:** {report['rows_removed']}")
     if report['cols_removed'] > 0:
         lines.append(f"- **Completely empty columns removed:** {report['cols_removed']}")
-    else: 
+    if report['rows_removed'] == 0 and report['cols_removed'] == 0: 
         lines.append("No completely empty rows or columns found respectfully removed.")
 
     lines.append("") # empty line 
@@ -261,42 +261,43 @@ def _generate_semantic_outliers_section(report) -> list:
     lines.append("---") # divider line
     lines.append("") # empty line
     lines.append("## Semantic Outliers")
-    
-    # Distinguish if Semantic_Outliers.py was applied multiple times or just once
-    # Multiple times if report = list (of dict), otherwise single time
-    if not isinstance(report, list):
-        # Single column
+
+    # Distinguish if semantic outliers was applied once or multiple times
+    if isinstance(report, dict):
+        # Note isinstance(x, y) returns true if object x corresponds to type y
+
+        # Create overview for semantic outliers
         lines.append("") # empty line
+        lines.append("## Overview")
+        lines.append("") # empty line 
         
-        lines.append(f"- **Column:** {report['column']}")
-        lines.append(f"- **Context:** {report['context']}")
+        lines.append(f"- **Column processed:** {report['column']}")
+        lines.append(f"- **Given context:** {report['context']}")
         lines.append(f"- **Threshold:** {report['threshold']}")
         lines.append(f"- **Action:** {report['action']}")
         lines.append(f"- **Unique values checked:** {report['unique_values_checked']}")
         lines.append(f"- **Outliers detected:** {report['outliers_detected']}")
         
-        percentage = round((report['rows_affected'] / report['total_rows']) * 100, 2) if report['total_rows'] > 0 else 0
-        lines.append(f"- **Rows affected:** {report['rows_affected']} ({percentage}%)")
-        
-        if report['action'] == 'delete':
+        if report['rows_deleted'] > 0:
             lines.append(f"- **Rows deleted:** {report['rows_deleted']}")
         
-        # Create table of detected outliers
-        if len(report['outliers']) > 0:
+        # Create table of detected outliers (if available)
+        if report['outliers_detected'] > 0:
             lines.append("") # empty line
             lines.append("### Detected Outliers")
             lines.append("") # empty line
-            lines.append("| Value | Confidence | Rows Affected |")
-            lines.append("|-------|------------|---------------|")
+
+            lines.append("| Value | Confidence | Number of affected rows |")
+            lines.append("|-------|------------|-------------------------|")
             
             for outlier in report['outliers']:
-                lines.append(f"| {outlier['value']} | {outlier['confidence']} | {len(outlier['rows'])} |")
+                lines.append(f"| {outlier['value']} | {outlier['confidence']} | {len(outlier['n_affected_rows'])} |")
         
         lines.append("") # empty line
         return lines
     
     else:
-        # Multiple columns - create overview first
+         # Create overview for semantic outliers
         lines.append("") # empty line
         lines.append("### Overview")
         lines.append("") # empty line
@@ -309,36 +310,34 @@ def _generate_semantic_outliers_section(report) -> list:
         
         lines.append(f"- **Columns processed:** {len(report)}")
         lines.append(f"- **Total outliers detected:** {total_outliers}")
-        lines.append(f"- **Total rows affected:** {total_rows_affected}")
+        lines.append(f"- **Total number of affected rows:** {total_rows_affected}")
         lines.append("") # empty line
         
-        # Generate section for each column
+        # Generate section for each column processed
         for single_report in report:
             lines.append(f"### Column: {single_report['column']}")
             lines.append("") # empty line
             
-            lines.append(f"- **Context:** {single_report['context']}")
+            lines.append(f"- **Given context:** {single_report['context']}")
             lines.append(f"- **Threshold:** {single_report['threshold']}")
             lines.append(f"- **Action:** {single_report['action']}")
             lines.append(f"- **Unique values checked:** {single_report['unique_values_checked']}")
             lines.append(f"- **Outliers detected:** {single_report['outliers_detected']}")
             
-            percentage = round((single_report['rows_affected'] / single_report['total_rows']) * 100, 2) if single_report['total_rows'] > 0 else 0
-            lines.append(f"- **Rows affected:** {single_report['rows_affected']} ({percentage}%)")
-            
-            if single_report['action'] == 'delete':
+            if single_report['rows_deleted'] > 0:
                 lines.append(f"- **Rows deleted:** {single_report['rows_deleted']}")
             
-            # Create table of detected outliers
-            if len(single_report['outliers']) > 0:
+            # Create table of detected outliers (if available)
+            if single_report['outliers_detected'] > 0:
                 lines.append("") # empty line
                 lines.append("#### Detected Outliers")
                 lines.append("") # empty line
-                lines.append("| Value | Confidence | Rows Affected |")
-                lines.append("|-------|------------|---------------|")
+
+                lines.append("| Value | Confidence | Number of affected rows |")
+                lines.append("|-------|------------|-------------------------|")
                 
                 for outlier in single_report['outliers']:
-                    lines.append(f"| {outlier['value']} | {outlier['confidence']} | {len(outlier['rows'])} |")
+                    lines.append(f"| {outlier['value']} | {outlier['confidence']} | {outlier['n_affected_rows']} |")
             
             lines.append("") # empty line
         
@@ -469,7 +468,6 @@ def _generate_structural_errors_section(report) -> list:
     lines.append("---") # divider line
     lines.append("") # empty line
     lines.append("## Structural Errors")
-    lines.append("") # empty line
     
     # Distinguish if structural errors was applied once or multiple times
     if isinstance(report, dict):
@@ -481,7 +479,6 @@ def _generate_structural_errors_section(report) -> list:
         lines.append("") # empty line 
 
         lines.append(f"- **Column processed:** {report['column']}")
-
         lines.append(f"- **Similarity method:** {report['similarity']}")
         # Show embedding model if embeddings were used
         if report['similarity'] == 'embeddings':
@@ -489,8 +486,6 @@ def _generate_structural_errors_section(report) -> list:
         # Show LLM parameters if LLM similarity was used
         elif report['similarity'] == 'llm':
             lines.append(f"- **LLM model:** {report['llm_model']}")
-            lines.append(f"- **LLM temperature:** {report['llm_temperature']}")
-            lines.append(f"- **LLM batch size:** {report['llm_batch_size']}")
             lines.append(f"- **LLM context:** {report['llm_context']}")
 
         lines.append(f"- **Clustering method:** {report['clustering']}")
@@ -507,15 +502,22 @@ def _generate_structural_errors_section(report) -> list:
         lines.append(f"- **Values changed:** {report['values_changed']}")
         lines.append(f"- **Unique values before:** {report['unique_values_before']}")
         lines.append(f"- **Unique values after:** {report['unique_values_after']}")
-        change_unique_values = round((report['unique_values_after'] / report['unique_values_before']) * 100, 2)
-        lines.append(f"- **Change in unique values:** {change_unique_values}%")
 
         if report['unique_values_before'] == report['unique_values_after']: 
-            lines.append("") # empty line
-            lines.append(f"No clustering was applied, as only one unique value exists.")
-            lines.append("") # empty line
+            if report['unique_values_before'] == 1:
+                lines.append("") # empty line
+                lines.append(f"No clustering was applied, as only one unique value exists.")
+                lines.append("") # empty line
 
-            return lines
+                return lines
+            
+            else:
+                lines.append("") # empty line
+                lines.append(f"No clustering was applied (number of unique values have not changed).")
+                lines.append("") # empty line
+                
+                return lines
+        
         else:
             # Create section with table which shows clustering results 
             lines.append("") # empty line
@@ -558,15 +560,11 @@ def _generate_structural_errors_section(report) -> list:
             total_unique_values_before += single_report['unique_values_before']
             total_unique_values_after += single_report['unique_values_after']
 
-        total_columns = len(report)
-
-        lines.append(f"- **Columns processed:** {total_columns}")
+        lines.append(f"- **Columns processed:** {len(report)}")
         lines.append(f"- **Total values changed:** {total_values_changed}")
         lines.append(f"- **Total unique values before:** {total_unique_values_before}")
         lines.append(f"- **Total unique values after:** {total_unique_values_after}")
-        total_change_unique_values = round((total_unique_values_after / total_unique_values_before) * 100, 2)
-        lines.append(f"- **Total change in unique values:** {total_change_unique_values}%")
-        lines.append("")
+        lines.append("") # empty line
 
         # Generate section for each column processed
         for single_report in report:
@@ -580,8 +578,6 @@ def _generate_structural_errors_section(report) -> list:
             # Show LLM parameters if LLM similarity was used
             elif single_report['similarity'] == 'llm':
                 lines.append(f"- **LLM model:** {single_report['llm_model']}")
-                lines.append(f"- **LLM temperature:** {single_report['llm_temperature']}")
-                lines.append(f"- **LLM batch size:** {single_report['llm_batch_size']}")
                 lines.append(f"- **LLM context:** {single_report['llm_context']}")
 
             lines.append(f"- **Clustering method:** {single_report['clustering']}")
@@ -599,13 +595,21 @@ def _generate_structural_errors_section(report) -> list:
             lines.append(f"- **Values changed:** {single_report['values_changed']}")
             lines.append(f"- **Unique values before:** {single_report['unique_values_before']}")
             lines.append(f"- **Unique values after:** {single_report['unique_values_after']}")
-            change_unique_values = round((single_report['unique_values_after'] / single_report['unique_values_before']) * 100, 2)
-            lines.append(f"- **Change in unique values:** {change_unique_values}%")
-
+            
             if single_report['unique_values_before'] == single_report['unique_values_after']: 
-                lines.append("") # empty line
-                lines.append(f"No clustering was applied, as only one unique value in column '{single_report['column']}' exists.")
-                lines.append("") # empty line
+                if single_report['unique_values_before'] == 1:
+                    lines.append("") # empty line
+                    lines.append(f"No clustering was applied, as only one unique value exists.")
+                    lines.append("") # empty line
+
+                    return lines
+            
+                else:
+                    lines.append("") # empty line
+                    lines.append(f"No clustering was applied (number of unique values have not changed).")
+                    lines.append("") # empty line
+                    
+                    return lines
             
             else:
                 # Create section with table which shows clustering results 
@@ -764,7 +768,7 @@ def _generate_postprocessing_section(report: dict) -> list:
             lines.append(f"| {change['column']} | {change['action']} |")
 
     else:
-        lines.append("No precision restoration (rounding) was necessary in post-processing.")
+        lines.append("No precision restoration (rounding) was applied in post-processing.")
 
     # Create table of renamed columns (if available)
     lines.append("") # empty line 

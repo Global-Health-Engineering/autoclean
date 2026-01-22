@@ -1,11 +1,3 @@
-# Imported libraries
-import pandas as pd
-
-# Import subfunctions
-from Functions.Structural_Errors_Helper.Similarity import rapidfuzz_similarity, embedding_similarity, llm_similarity
-from Functions.Structural_Errors_Helper.Clustering import hierarchical_clustering, connected_components_clustering, affinity_propagation_clustering
-from Functions.Structural_Errors_Helper.Canonical import most_frequent, llm_selection
-
 """
 Structural Errors: Orchestrates all the subfunctions to handle structural errors. 
 
@@ -26,15 +18,24 @@ Parameters:
     embedding_model: "text-embedding-3-large" or "text-embedding-3-small" (default)
     damping: Controls how values update each round. Without damping, the algorithm replaces old values completely with new computed values. This can cause oscillation  where preferences flip back and forth forever. With damping = 0.7, the new value is blended: 70% old value + 30% newly computed value. This gradual change ensures the algorithm converges to a stable solution. (default: 0.7)
     llm_context: Description of the column (required)
-    llm_model: OpenAI model used (default = "gpt-4o")
+    llm_model: OpenAI model used (default = "gpt-4.1-mini-2025-04-14")
     llm_temperature: Temperature parameter for LLM (default = 0.0)
     llm_batch_size: Number of pairs per LLM API call (default = 50)
+    units: If true, specific prompt for similarity calculation with LLM for columns with units (default = False)
 
 Returns: 
     Cleaned dataframe and report (as tuple)
 
-For further information, see look at Structural_errors.md in the folder Additional_Information
+For further information, see look at Structural_errors.md in the folder Additional_Information.
 """
+
+# Imported libraries
+import pandas as pd
+
+# Import subfunctions
+from Functions.Structural_Errors_Helper.Similarity import rapidfuzz_similarity, embedding_similarity, llm_similarity
+from Functions.Structural_Errors_Helper.Clustering import hierarchical_clustering, connected_components_clustering, affinity_propagation_clustering
+from Functions.Structural_Errors_Helper.Canonical import most_frequent, llm_selection
 
 # =============================================================================
 # Main Function (Public)
@@ -50,9 +51,10 @@ def handle_structural_errors(df: pd.DataFrame,
                              damping: float = 0.7, 
                              embedding_model: str = "text-embedding-3-small",
                              llm_context: str = None,
-                             llm_model: str = "gpt-4o",
+                             llm_model: str = "gpt-4.1-mini",
                              llm_temperature: float = 0.0,
-                             llm_batch_size: int = 50) -> tuple:
+                             llm_batch_size: int = 50,
+                             units: bool = False) -> tuple:
     # Terminal output: start
     print(f"Fixing structural errors ({column})... ", end = "", flush = True)
     # Note: With flush = True, print is immediately
@@ -72,7 +74,6 @@ def handle_structural_errors(df: pd.DataFrame,
               'llm_context': llm_context,
               'llm_model': llm_model,
               'llm_temperature': llm_temperature,
-              'llm_batch_size': llm_batch_size,
               'unique_values_before': df[column].nunique(), # .nunique() returns number of unique values (excluding missing values)
               'unique_values_after': None,
               'mapping': {},
@@ -86,7 +87,7 @@ def handle_structural_errors(df: pd.DataFrame,
     
     # Edge case: 1 unique values
     if len(unique_values) == 1:
-        report['unique_values_after'] = report['unique_values_before']
+        report['unique_values_after'] = 1
         print("✓")
         return df_work, report
     
@@ -106,7 +107,7 @@ def handle_structural_errors(df: pd.DataFrame,
     elif similarity == "llm":
         if llm_context is None:
             raise ValueError("llm_context is required when similarity='llm'. Provide a description of the column.")
-        similarity_matrix = llm_similarity(unique_values, llm_context, llm_model, llm_temperature, llm_batch_size)
+        similarity_matrix = llm_similarity(unique_values, llm_context, llm_model, units)
     else:
         raise ValueError(f"Unknown similarity: {similarity}")
     

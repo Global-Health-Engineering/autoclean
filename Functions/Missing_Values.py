@@ -1,14 +1,3 @@
-# Imported libraries 
-import pandas as pd
-import numpy as np
-from sklearn.impute import KNNImputer
-from sklearn.preprocessing import OrdinalEncoder
-from sklearn.experimental import enable_iterative_imputer 
-# Note: from sklearn.experimental import enable_iterative_imputer needed to enable IterativeImputer (as its marked as experimental by sklearn) 
-from sklearn.impute import IterativeImputer
-from sklearn.ensemble import RandomForestRegressor
-from sklearn.preprocessing import StandardScaler
-
 """
 Handle missing values in the dataframe
 
@@ -50,6 +39,17 @@ Returns:
 
 For further information about the algorithms KNN & MissForest, see in the folder Additional_Information
 """
+
+# Imported libraries 
+import pandas as pd
+import numpy as np
+from sklearn.impute import KNNImputer
+from sklearn.preprocessing import OrdinalEncoder
+from sklearn.experimental import enable_iterative_imputer 
+# Note: from sklearn.experimental import enable_iterative_imputer needed to enable IterativeImputer (as its marked as experimental by sklearn) 
+from sklearn.impute import IterativeImputer
+from sklearn.ensemble import RandomForestRegressor
+from sklearn.preprocessing import StandardScaler
 
 # ============================================================================
 # Main Function (Public)

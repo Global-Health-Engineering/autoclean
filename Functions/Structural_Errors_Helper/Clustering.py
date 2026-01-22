@@ -1,13 +1,3 @@
-# Imported libraries
-import numpy as np
-# Hierachical Clustering
-from scipy.cluster.hierarchy import linkage, fcluster
-# Connected Components Clustering
-from scipy.sparse import csr_matrix
-from scipy.sparse.csgraph import connected_components
-# Affinity Propagation
-from sklearn.cluster import AffinityPropagation
-
 """
 Clustering: Group similar values into clusters
 Takes a similarity matrix and returns cluster labels (which cluster each value belongs to)
@@ -19,6 +9,16 @@ Available methods:
 
 For further information, see look at Structural_errors.md in the folder Additional_Information
 """
+
+# Imported libraries
+import numpy as np
+# Hierachical Clustering
+from scipy.cluster.hierarchy import linkage, fcluster
+# Connected Components Clustering
+from scipy.sparse import csr_matrix
+from scipy.sparse.csgraph import connected_components
+# Affinity Propagation
+from sklearn.cluster import AffinityPropagation
 
 # =============================================================================
 # Method 1: Hierarchical Clustering

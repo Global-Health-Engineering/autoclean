@@ -1,11 +1,3 @@
-# Imported libraries
-from openai import OpenAI
-from pydantic import BaseModel
-
-# Needed to load API Key from .env 
-import os
-from dotenv import load_dotenv
-
 """
 Canonical: Select the canonical (standard) name for a specific cluster
 The canonical name is one value / string out of the specific cluster
@@ -17,6 +9,14 @@ Available methods:
 
 For further information, see look at Structural_errors.md in the folder Additional_Information
 """
+
+# Imported libraries
+from openai import OpenAI
+from pydantic import BaseModel
+
+# Needed to load API Key from .env 
+import os
+from dotenv import load_dotenv
 
 # =============================================================================
 # Pydantic Schema for Method 2 
@@ -93,17 +93,19 @@ def llm_selection(cluster_values: list, column_name: str) -> str:
     # Build prompt message for LLM 
     prompt = f"""Select the best canonical name from these values (column: {column_name}):
 {values_list}
-Consider: completeness, correct spelling, proper capitalization, standard usage.
+Consider: completeness, correct spelling, readability, standard format, proper casing (title case preferred, never all caps), frequency (as tiebreaker only)
+
 Return the index (1-based) of your choice."""
 
     # Create OpenAi client 
     client = OpenAI(api_key = api_key)
 
     # Get response from LLM (with structured output)
-    response = client.beta.chat.completions.parse(model="gpt-4o-mini",
-                                                  temperature=0.0,
-                                                  messages=[{"role": "user", "content": prompt}],
-                                                  response_format=CanonicalSelection)
+    response = client.beta.chat.completions.parse(model = "gpt-4.1-mini",
+                                                  temperature = 0.0,
+                                                  seed = 42,
+                                                  messages = [{"role": "user", "content": prompt}],
+                                                  response_format = CanonicalSelection)
 
     # Get selected index (1-based from LLM) and convert to 0-based (python indexing)
     index = response.choices[0].message.parsed.index - 1

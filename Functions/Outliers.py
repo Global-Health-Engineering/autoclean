@@ -1,7 +1,3 @@
-# Imported libraries 
-import pandas as pd
-import numpy as np
-
 """
 Handle outliers in numerical columns
 
@@ -20,6 +16,10 @@ Two methods:
 Returns:
     Cleaned dataframe and report (as tuple)
 """
+
+# Imported libraries 
+import pandas as pd
+import numpy as np
 
 # ============================================================================
 # Main Function (Public)

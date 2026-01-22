@@ -1,14 +1,3 @@
-# Imported libraries
-import pandas as pd
-import numpy as np
-from openai import OpenAI
-from pydantic import BaseModel
-import json
-
-# Needed to load API Key from .env
-import os
-from dotenv import load_dotenv
-
 """
 Semantic Outliers: Detect semantically invalid values using LLM reasoning
 
@@ -22,12 +11,24 @@ Parameters:
     df: DataFrame to check
     column: Column to check for semantic outliers
     context: Description of what valid values look like (e.g., "Blood pressure in mmHg, valid range 60-180")
+    three_valid_values: 3 valid values of the column (as reference)
     threshold: Values with confidence below this are considered outliers (default: 0.5)
     action: 'nan' (replace with NaN) or 'delete' (remove entire row)
 
 Returns:
     Cleaned dataframe and report (as tuple)
 """
+
+# Imported libraries
+import pandas as pd
+import numpy as np
+from openai import OpenAI
+from pydantic import BaseModel, Field
+import json
+
+# Needed to load API Key from .env
+import os
+from dotenv import load_dotenv
 
 # =============================================================================
 # Pydantic Schema for Structured Output
@@ -36,7 +37,7 @@ Returns:
 class SemanticScore(BaseModel):
     """Single value score"""
     index: int          # Index of value in batch
-    confidence: float   # 0.0 = invalid, 1.0 = valid
+    confidence: float = Field(ge=0.0, le=1.0)  # Constrained to 0.0-1.0
 
 class SemanticResponse(BaseModel):
     """Structured output for semantic validation"""
@@ -62,7 +63,6 @@ def handle_semantic_outliers(df: pd.DataFrame,
               'context': context,
               'threshold': threshold,
               'action': action,
-              'total_rows': len(df_work),
               'unique_values_checked': 0,
               'outliers_detected': 0,
               'rows_affected': 0, # Number of rows containing outliers 
@@ -89,21 +89,19 @@ def handle_semantic_outliers(df: pd.DataFrame,
     client = OpenAI(api_key=api_key)
 
     # System prompt
-    system_prompt = f"""You are a data quality expert checking if values are semantically valid.
+    system_prompt = f"""
+How confident are you this value belongs in a column of {context}?
 
-COLUMN CONTEXT: {context}
-
-Score each value's validity:
-- 1.0 = Definitely valid
-- 0.7-0.9 = Likely valid
-- 0.4-0.6 = Uncertain
-- 0.1-0.3 = Likely invalid
-- 0.0 = Definitely invalid (impossible, nonsense, wrong data type)
-
-Be strict. If a value doesn't make sense at all for this column, score it low."""
-
+Score between 0.0 and 1.0:
+- 1.0 = Definitely belongs
+- 0.0 = Definitely does not belong
+ 
+Judge absolute plausibility, not statistical rarity.
+""".strip()
+    # Use the full range based on your confidence.
+    # Reference valid values: {three_valid_values}.
     # Process unique values in batches
-    batch_size = 50
+    batch_size = _get_batch_size(len(unique_values))
     value_confidence = {}  # {value: confidence}
 
     for batch_start in range(0, len(unique_values), batch_size):
@@ -117,8 +115,9 @@ Be strict. If a value doesn't make sense at all for this column, score it low.""
 
         # Call OpenAI API
         response = client.beta.chat.completions.parse(
-            model="gpt-4o",
-            temperature=0.0,
+            model = 'gpt-5-mini',
+            seed = 42,
+            reasoning_effort = "minimal",
             messages=[
                 {"role": "system", "content": system_prompt},
                 {"role": "user", "content": values_json}
@@ -129,9 +128,8 @@ Be strict. If a value doesn't make sense at all for this column, score it low.""
         # Extract scores
         for score_item in response.choices[0].message.parsed.scores:
             value = batch[score_item.index]
-            confidence = max(0.0, min(1.0, score_item.confidence))
-            value_confidence[value] = confidence
-
+            value_confidence[value] = score_item.confidence
+            
     # Find outliers (confidence < threshold)
     outlier_values = {v: c for v, c in value_confidence.items() if c < threshold}
 
@@ -145,7 +143,7 @@ Be strict. If a value doesn't make sense at all for this column, score it low.""
         report['outliers'].append({
             'value': value,
             'confidence': confidence,
-            'rows': affected_rows
+            'n_affected_rows': len(affected_rows)
         })
 
         report['outliers_detected'] += 1
@@ -166,3 +164,18 @@ Be strict. If a value doesn't make sense at all for this column, score it low.""
     print("✓")
 
     return df_work, report
+
+# =============================================================================
+# Helper Functions (Private)
+# =============================================================================
+
+def _get_batch_size(n_unique_values: int) -> int:
+    """
+    Get batch size depending on number of unique values (n_unique_values)
+    """
+    if n_unique_values <= 20:
+        return 20
+    elif n_unique_values <= 300:
+        return 30
+    else:
+        return 50

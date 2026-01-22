@@ -1,9 +1,5 @@
-# Imported libraries 
-import pandas as pd
-from dateutil import parser
-
 """
-Standardize datetime columns to consistent date format
+Standardize datetime columns to consistent date format.
 To standardize datetime columns with DateTime_Standardization.py, there are three important parameters. 
 One is column which specifies which column to standardize. The second is american which determines 
 the date format interpretation. The third is handle_invalid which controls how invalid dates are handled.
@@ -58,6 +54,10 @@ Invalid Detection Examples:
 Returns: 
     Cleaned dataframe and report (as tuple)
 """
+
+# Imported libraries 
+import pandas as pd
+from dateutil import parser
 
 # =============================================================================
 # Main Function (Public)
@@ -202,12 +202,13 @@ def _parse_and_validate(value_str: str, dayfirst: bool) -> tuple:
         if _is_year_in_middle(value_str):
             return pd.NaT, False
         
-        # Determine yearfirst parameter for parser.parse()
+        # Determine yearfirst parameter for parser.parse() & change dayfirst parameter if needed
         if _is_year_first(value_str):
-            # For year-first (YYYY/MM/DD), yearfirst = True
+            # For year-first (YYYY/MM/DD), yearfirst = True & dayfirst = False 
             yearfirst = True
+            dayfirst = False 
         else:
-            # For other formats, yearfirst = False 
+            # For other formats, yearfirst = False (dayfirst parameter allready set correctly)
             yearfirst = False
         
         # Parse the date with dateutil
@@ -322,21 +323,24 @@ def _was_autocorrected(value_str: str, parsed, dayfirst: bool) -> bool:
     
     # Remove possible leading/trailing whitespaces in elements of parts
     parts = [part.strip() for part in parts]
-
-    # Return false for year-first formats (no autocorrection there)
-    if len(parts[0]) == 4:
-        return False
     
-    # Convert first element of parts to integers
-    first = int(parts[0])
+    # Check if parsed was autocorrected by dateutil (year-first format)
+    if len(parts[0]) == 4:
+        expected_second = int(parts[1])
 
-    # Check if parsed was autocorrected by dateutil 
+        # Year-first format: expected_second = month 
+        return parsed.month != expected_second
+
+    # Convert first element of parts to integers
+    expected_first = int(parts[0])
+
+    # Check if parsed was autocorrected by dateutil (year-last format)
     if dayfirst:
-        # European: expected first = day
-        return parsed.day != first 
+        # European: expected_first = day
+        return parsed.day != expected_first 
     else:
-        # American: expected first = month
-        return parsed.month != first 
+        # American: expected_first = month
+        return parsed.month != expected_first 
 
 def _is_year_in_middle(value_str: str) -> bool:
     """
