@@ -1,8 +1,3 @@
-# Imported libraries
-import pandas as pd
-import numpy as np
-import janitor  # Python library PyJanitor
-
 """
 Post-Processing: Polish data after cleaning pipeline
 
@@ -22,6 +17,11 @@ Parameters:
 Returns:
     Final (polished) dataframe and report (as tuple)
 """
+
+# Imported libraries
+import pandas as pd
+import numpy as np
+import janitor  # Python library PyJanitor
 
 # =============================================================================
 # Main Function (Public)
