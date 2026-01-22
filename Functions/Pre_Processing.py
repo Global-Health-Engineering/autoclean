@@ -1,8 +1,3 @@
-# Imported libraries
-import pandas as pd
-import numpy as np
-import janitor  # Python library PyJanitor 
-
 """
 Pre-Processing: Prepare data before cleaning 
 
@@ -21,6 +16,11 @@ Steps applied:
     3. Remove completely empty rows
     4. Remove completely empty columns
 """
+
+# Imported libraries
+import pandas as pd
+import numpy as np
+import janitor  # Python library PyJanitor 
 
 # =============================================================================
 # Main Function (Public)
@@ -70,4 +70,4 @@ def preprocess_data(filepath: str) -> tuple:
     # Terminal output: end
     print("✓")
     
-    return df_original, df, report
+    return df, df_original, report
