@@ -3,7 +3,7 @@
 **Name of dataset:** Test Data (made up WHASH dataset)  
 **Filepath of messy dataset:** Data/Test/Test.csv  
 **Filepath of cleaned dataset:** Data/Test/Test_Cleaned.csv  
-**Generated:** 23.01.2026, 02:30:04
+**Generated:** 23.01.2026, 19:16:10
 
 ---
 
@@ -14,9 +14,9 @@
 - **Total rows deleted:** 2
 - **Total columns deleted:** 2
 - **Total values imputed:** 0
-- **Total outliers handled:** 3
+- **Total outliers handled:** 0
 - **Total semantic outliers detected:** 0
-- **Total structural errors fixed:** 0
+- **Total structural errors fixed:** 47
 
 ---
 
@@ -34,55 +34,61 @@
 
 ---
 
-## Outliers
+## Structural Errors
 
-### Lower & Upper Bounds
+## Overview
 
-| Column | Lower Bound | Upper Bound |
-|--------|-------------|-------------|
-| Flow Rate lps | -1.6987 | 6.7512 |
+- **Columns processed:** 2
+- **Total values changed:** 47
+- **Total unique values before:** 34
+- **Total unique values after:** 15
 
-### Overview
+### Column: is_functional
 
-- **Multiplier:** 1.5
-- **Total outliers:** 3
-- **Method:** winsorize
+- **Similarity method:** rapidfuzz
+- **Clustering method:** hierarchical
+- **Threshold (hierarchical):** 0.8
+- **Canonical selection:** most_frequent
+- **Values changed:** 14
+- **Unique values before:** 21
+- **Unique values after:** 13
 
-### Outliers Handled
+#### Clustering Results
 
-| Column | Original | New Value | Bound |
-|--------|----------|-----------|-------|
-| Flow Rate lps | 48.7 | 6.75125 | upper |
-| Flow Rate lps | 9.2 | 6.75125 | upper |
-| Flow Rate lps | 12.8 | 6.75125 | upper |
+| Original Values | Clustered to Canonical |
+|-----------------|------------------------|
+| No; NO; no | No |
+| TRUE; True; true | True |
+| FALSE; false | FALSE |
+| broken | broken |
+| 0 | 0 |
+| not functional | not functional |
+| working | working |
+| yes; YES | yes |
+| N; n | N |
+| y; Y | y |
+| not working | not working |
+| operational | operational |
+| 1 | 1 |
 
-**Note:** New values shown above are pre-rounding. Final values may be rounded in post-processing to match original column precision.
+### Column: is_functional
 
----
+- **Similarity method:** llm
+- **LLM model:** gpt-4.1-mini
+- **LLM context:** Wether water point is working or not
+- **Clustering method:** hierarchical
+- **Threshold (hierarchical):** 0.7
+- **Canonical selection:** llm
+- **Values changed:** 33
+- **Unique values before:** 13
+- **Unique values after:** 2
 
-## DateTime Standardization
+#### Clustering Results
 
-- **Column:** install_date
-- **Format:** European (DD/MM)
-- **Invalid handling:** nat
-- **Total values:** 50
-- **Successfully converted / standardized:** 40
-- **Invalid values:** 10
-
-### Invalid values handled
-
-| Row | Original | Action |
-|-----|----------|--------|
-| 38 | 15/2020 | set to NaT |
-| 39 | January 2020 | set to NaT |
-| 40 | 15/25/2020 | set to NaT |
-| 41 | 31/04/2020 | set to NaT |
-| 42 | 29/02/2023 | set to NaT |
-| 43 | 15/05/2200 | set to NaT |
-| 44 | 15/2020/05 | set to NaT |
-| 45 | 01/25/2024 | set to NaT |
-| 46 | 2024/25/01 | set to NaT |
-| 47 | unknown | set to NaT |
+| Original Values | Clustered to Canonical |
+|-----------------|------------------------|
+| No; FALSE; broken; 0; not functional; N; not working | No |
+| True; working; yes; y; operational; 1 | True |
 
 ---
 
