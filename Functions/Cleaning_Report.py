@@ -449,11 +449,11 @@ def _generate_datetime_section(report: dict) -> list:
         lines.append("### Invalid values handled")
         lines.append("") # empty line
 
-        lines.append("| Row | Original | Action |")
-        lines.append("|-----|----------|--------|")
+        lines.append("| Original | Action |")
+        lines.append("|----------|--------|")
 
         for detail_invalid in details_invalid: 
-            lines.append(f"| {detail_invalid['row']} | {detail_invalid['original']} | {detail_invalid['action']} |")
+            lines.append(f"| {detail_invalid['original']} | {detail_invalid['action']} |")
     
     lines.append("") # empty line
 
@@ -479,14 +479,15 @@ def _generate_structural_errors_section(report) -> list:
         lines.append("") # empty line 
 
         lines.append(f"- **Column processed:** {report['column']}")
+
         lines.append(f"- **Similarity method:** {report['similarity']}")
         # Show embedding model if embeddings were used
         if report['similarity'] == 'embeddings':
             lines.append(f"- **Embedding model:** {report['embedding_model']}")
-        # Show LLM parameters if LLM similarity was used
+        # Show LLM settings if LLM similarity was used
         elif report['similarity'] == 'llm':
-            lines.append(f"- **LLM model:** {report['llm_model']}")
-            lines.append(f"- **LLM context:** {report['llm_context']}")
+            lines.append(f"- **LLM mode:** {report['llm_model']}")
+            lines.append(f"- **LLM context provided:** {report['llm_context']}")
 
         lines.append(f"- **Clustering method:** {report['clustering']}")
         # Show relevant parameter based on clustering method
@@ -498,7 +499,6 @@ def _generate_structural_errors_section(report) -> list:
             lines.append(f"- **Damping (affinity propagation):** {report['damping']}")
         
         lines.append(f"- **Canonical selection:** {report['canonical']}")
-        
         lines.append(f"- **Values changed:** {report['values_changed']}")
         lines.append(f"- **Unique values before:** {report['unique_values_before']}")
         lines.append(f"- **Unique values after:** {report['unique_values_after']}")
@@ -575,10 +575,10 @@ def _generate_structural_errors_section(report) -> list:
             # Show embedding model if embeddings were used
             if single_report['similarity'] == 'embeddings':
                 lines.append(f"- **Embedding model:** {single_report['embedding_model']}")
-            # Show LLM parameters if LLM similarity was used
+            # Show LLM settings if LLM similarity was used
             elif single_report['similarity'] == 'llm':
-                lines.append(f"- **LLM model:** {single_report['llm_model']}")
-                lines.append(f"- **LLM context:** {single_report['llm_context']}")
+                lines.append(f"- **LLM mode:** {single_report['llm_model']}")
+                lines.append(f"- **LLM context provided:** {single_report['llm_context']}")
 
             lines.append(f"- **Clustering method:** {single_report['clustering']}")
             # Show relevant parameter based on clustering method
@@ -591,7 +591,6 @@ def _generate_structural_errors_section(report) -> list:
         
 
             lines.append(f"- **Canonical selection:** {single_report['canonical']}")
-            
             lines.append(f"- **Values changed:** {single_report['values_changed']}")
             lines.append(f"- **Unique values before:** {single_report['unique_values_before']}")
             lines.append(f"- **Unique values after:** {single_report['unique_values_after']}")

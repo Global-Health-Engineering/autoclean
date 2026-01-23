@@ -142,18 +142,14 @@ def standardize_datetime(df: pd.DataFrame,
                 df_work.at[idx, column] = pd.NaT
 
                 # Update report 
-                report['details_invalid'].append({'row': idx,
-                                                 'original': value_str,
-                                                 'action': 'set to NaT'})
+                report['details_invalid'].append({'original': value_str, 'action': 'set to NaT'})
             
             elif handle_invalid == 'delete':
                 # Update indexes of rows to delete 
                 i_rows_to_delete.append(idx)
 
                 # Update report 
-                report['details_invalid'].append({'row': idx,
-                                                 'original': value_str,
-                                                 'action': 'row deleted'})
+                report['details_invalid'].append({'original': value_str, 'action': 'row deleted'})
     
     # Delete rows if needed (this needs to be outside for loop, otherwise rows would be skipped)
     if len(i_rows_to_delete) > 0:

@@ -70,12 +70,12 @@ df, report_out = handle_outliers(df,
 # =============================================================================
 # DATETIME STANDARDIZATION 
 # =============================================================================
-'''
+
 df, report_date = standardize_datetime(df,
                                        column = 'install_date',  
                                        american = False,
                                        handle_invalid = 'nat')
-'''
+
 # =============================================================================
 # STRUCTURAL ERRORS 
 # =============================================================================
@@ -110,7 +110,7 @@ df, report_str3 = handle_structural_errors(df,
                                           canonical = 'llm')
 report_str.append(report_str3) 
 '''
-
+'''
 df, report_str4 = handle_structural_errors(df,
                                            column = 'is_functional',
                                            similarity = 'rapidfuzz',
@@ -128,7 +128,7 @@ df, report_str5 = handle_structural_errors(df,
                                            llm_context = 'Wether water point is working or not',
                                            canonical = 'llm')
 report_str.append(report_str5)
-
+'''
 '''
 df, report_str1 = handle_structural_errors(df,
                                            column = 'sample Volume',
@@ -172,8 +172,8 @@ reports = {'preprocessing': report_pre,
            'duplicates': report_dup,
            #'semantic_outliers': report_sem,
            #'outliers': report_out,
-           #'datetime': report_date,
-           'structural_errors': report_str,
+           'datetime': report_date,
+           #'structural_errors': report_str,
            #'missing_values': report_miss,
            'postprocessing': report_post}
 

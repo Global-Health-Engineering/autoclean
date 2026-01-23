@@ -3,7 +3,7 @@
 **Name of dataset:** Test Data (made up WHASH dataset)  
 **Filepath of messy dataset:** Data/Test/Test.csv  
 **Filepath of cleaned dataset:** Data/Test/Test_Cleaned.csv  
-**Generated:** 23.01.2026, 19:16:10
+**Generated:** 24.01.2026, 00:28:56
 
 ---
 
@@ -16,7 +16,7 @@
 - **Total values imputed:** 0
 - **Total outliers handled:** 0
 - **Total semantic outliers detected:** 0
-- **Total structural errors fixed:** 47
+- **Total structural errors fixed:** 0
 
 ---
 
@@ -34,61 +34,29 @@
 
 ---
 
-## Structural Errors
+## DateTime Standardization
 
-## Overview
+- **Column:** install_date
+- **Format:** European (DD/MM)
+- **Invalid handling:** nat
+- **Total values:** 50
+- **Successfully converted / standardized:** 40
+- **Invalid values:** 10
 
-- **Columns processed:** 2
-- **Total values changed:** 47
-- **Total unique values before:** 34
-- **Total unique values after:** 15
+### Invalid values handled
 
-### Column: is_functional
-
-- **Similarity method:** rapidfuzz
-- **Clustering method:** hierarchical
-- **Threshold (hierarchical):** 0.8
-- **Canonical selection:** most_frequent
-- **Values changed:** 14
-- **Unique values before:** 21
-- **Unique values after:** 13
-
-#### Clustering Results
-
-| Original Values | Clustered to Canonical |
-|-----------------|------------------------|
-| No; NO; no | No |
-| TRUE; True; true | True |
-| FALSE; false | FALSE |
-| broken | broken |
-| 0 | 0 |
-| not functional | not functional |
-| working | working |
-| yes; YES | yes |
-| N; n | N |
-| y; Y | y |
-| not working | not working |
-| operational | operational |
-| 1 | 1 |
-
-### Column: is_functional
-
-- **Similarity method:** llm
-- **LLM model:** gpt-4.1-mini
-- **LLM context:** Wether water point is working or not
-- **Clustering method:** hierarchical
-- **Threshold (hierarchical):** 0.7
-- **Canonical selection:** llm
-- **Values changed:** 33
-- **Unique values before:** 13
-- **Unique values after:** 2
-
-#### Clustering Results
-
-| Original Values | Clustered to Canonical |
-|-----------------|------------------------|
-| No; FALSE; broken; 0; not functional; N; not working | No |
-| True; working; yes; y; operational; 1 | True |
+| Original | Action |
+|----------|--------|
+| 15/2020 | set to NaT |
+| January 2020 | set to NaT |
+| 15/25/2020 | set to NaT |
+| 31/04/2020 | set to NaT |
+| 29/02/2023 | set to NaT |
+| 15/05/2200 | set to NaT |
+| 15/2020/05 | set to NaT |
+| 01/25/2024 | set to NaT |
+| 2024/25/01 | set to NaT |
+| unknown | set to NaT |
 
 ---
 
