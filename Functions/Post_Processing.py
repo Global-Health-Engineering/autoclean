@@ -2,23 +2,25 @@
 Post-Processing: Polish data after cleaning pipeline
 
 This function is the last step after all cleaning.
-It rounds numeric columns to match original precision (if rounding = True) and cleans column names (if clean_names = True).
+It rounds numeric columns to match original precision (if rounding = True), cleans column names (if clean_names = True) and export the final df as CSV.
 
 Steps applied:
     1. Round numeric columns to match original decimal places (if rounding = True)
     2. Restore integers (1.0 → 1), if the original column had integers (if rounding = True)
     3. Clean column names (lowercase with underscores) (if clean_names = True)
+    4. Export df as CSV to specified location (output_filepath)
 
 Parameters:
     df_cleaned: Dataframe after cleaning pipeline
     df_original: Original dataframe (from Pre_Processing.py)
     rounding: If True, rounding is applied (default: False)
     clean_names: If True, standardize column names (default: False)
+    output_filepath: Filepath where df as CSV is saved
 
 Notes: If Outliers.py and or Missing_Values.py was applied, recommended to set rounding = True. 
 
 Returns:
-    Final (polished) dataframe and report (as tuple)
+    report (as dictionary)
 """
 
 # Imported libraries
@@ -32,8 +34,9 @@ import janitor  # Python library PyJanitor
 
 def postprocess_data(df_cleaned: pd.DataFrame, 
                      df_original: pd.DataFrame,
+                     output_filepath: str,
                      clean_names: bool = False,
-                     rounding: bool = False) -> tuple:
+                     rounding: bool = False) -> dict:
     # Terminal output: start
     print("Postprocessing... ", end="", flush=True)
     # Note: With flush = True, print is immediately
@@ -91,10 +94,14 @@ def postprocess_data(df_cleaned: pd.DataFrame,
     # Update report
     report['final_shape'] = df.shape
     
+    # Export final df as csv to specified location (output_filepath)
+    df.to_csv(output_filepath, index = False)
+    # Note: index = False leads to no row index in final csv 
+
     # Terminal output: end
     print("✓")
     
-    return df, report
+    return report
 
 # =============================================================================
 # Helper Functions (Private)
