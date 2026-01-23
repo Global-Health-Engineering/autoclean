@@ -1,19 +1,20 @@
 """
-Semantic Outliers: Detect semantically invalid values using LLM reasoning
+Semantic Outliers: Detect semantically invalid values using LLM
 
 This function checks if values in a column make semantic sense given the context.
-For example:
-- Blood pressure of 0 → physically impossible
-- Country "Freelance consultant" → not a country
-- Age of -5 → impossible
+For each value, the LLM returns its confidence between 0.0 & 1.0, where 0.0 means the value does definitely not belong in this column and 1.0 means the value definitely belongs in the column. Values with confidence below (provided) threshold are then either set to np.nan or the whole row is deleted. 
+
+Example of semantic outliers:
+- Column country: 28.1 -> not a country
+- Column age: -5 -> physically impossible
+- Column name: lkajdsfl -> nonsense
 
 Parameters:
-    df: DataFrame to check
-    column: Column to check for semantic outliers
-    context: Description of what valid values look like (e.g., "Blood pressure in mmHg, valid range 60-180")
-    three_valid_values: 3 valid values of the column (as reference)
-    threshold: Values with confidence below this are considered outliers (default: 0.5)
-    action: 'nan' (replace with NaN) or 'delete' (remove entire row)
+    - df: DataFrame to clean 
+    - column: Name of column, for which handle_semantic_outliers needs to be applied 
+    - context: Description of column, to provide context to LLM
+    - threshold: Values with confidence below this are considered semantic outliers (default: 0.3)
+    - action: 'nan' (replace with semantic outlier with np.nan, default) or 'delete' (remove semantic outlier and its entire row)
 
 Returns:
     Cleaned dataframe and report (as tuple)
@@ -50,7 +51,7 @@ class SemanticResponse(BaseModel):
 def handle_semantic_outliers(df: pd.DataFrame,
                              column: str,
                              context: str,
-                             threshold: float = 0.5,
+                             threshold: float = 0.3,
                              action: str = 'nan') -> tuple:
     # Terminal output: start
     print(f"Detecting semantic outliers ({column})... ", end="", flush=True)
@@ -90,7 +91,7 @@ def handle_semantic_outliers(df: pd.DataFrame,
 
     # System prompt
     system_prompt = f"""
-How confident are you this value belongs in a column of {context}?
+How confident are you these values belong in a column of {context}?
 
 Score between 0.0 and 1.0:
 - 1.0 = Definitely belongs
@@ -98,7 +99,7 @@ Score between 0.0 and 1.0:
  
 Judge absolute plausibility, not statistical rarity.
 """.strip()
-    
+
     # Process unique values in batches
     batch_size = _get_batch_size(len(unique_values))
     value_confidence = {}  # {value: confidence}
