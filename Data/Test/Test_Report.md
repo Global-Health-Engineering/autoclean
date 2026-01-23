@@ -3,7 +3,7 @@
 **Name of dataset:** Test Data (made up WHASH dataset)  
 **Filepath of messy dataset:** Data/Test/Test.csv  
 **Filepath of cleaned dataset:** Data/Test/Test_Cleaned.csv  
-**Generated:** 24.01.2026, 00:28:56
+**Generated:** 24.01.2026, 00:51:24
 
 ---
 
@@ -14,8 +14,8 @@
 - **Total rows deleted:** 2
 - **Total columns deleted:** 2
 - **Total values imputed:** 0
-- **Total outliers handled:** 0
-- **Total semantic outliers detected:** 0
+- **Total outliers handled:** 3
+- **Total semantic outliers detected:** 8
 - **Total structural errors fixed:** 0
 
 ---
@@ -31,6 +31,76 @@
 
 - **Duplicate rows removed:** 1
 - **Duplicate columns removed:** 1
+
+---
+
+## Semantic Outliers
+
+### Overview
+
+- **Columns processed:** 2
+- **Total outliers detected:** 8
+- **Total number of affected rows:** 8
+
+### Column: Village
+
+- **Given context:** Location name in Africa
+- **Threshold:** 0.5
+- **Action:** nan
+- **Unique values checked:** 14
+- **Outliers detected:** 4
+
+#### Detected Outliers
+
+| Value | Confidence | Number of affected rows |
+|-------|------------|-------------------------|
+| sdflkajsdf | 0.0 | 1 |
+| I love studying at ETH! | 0.0 | 1 |
+| 1.8 | 0.0 | 1 |
+| unknown | 0.0 | 1 |
+
+### Column: Population served
+
+- **Given context:** Number of people
+- **Threshold:** 0.5
+- **Action:** nan
+- **Unique values checked:** 50
+- **Outliers detected:** 4
+
+#### Detected Outliers
+
+| Value | Confidence | Number of affected rows |
+|-------|------------|-------------------------|
+| -250 | 0.0 | 1 |
+| 1234.89 | 0.2 | 1 |
+| 999.99 | 0.0 | 1 |
+| not so many | 0.0 | 1 |
+
+---
+
+## Outliers
+
+### Lower & Upper Bounds
+
+| Column | Lower Bound | Upper Bound |
+|--------|-------------|-------------|
+| Flow Rate lps | -1.6987 | 6.7512 |
+
+### Overview
+
+- **Multiplier:** 1.5
+- **Total outliers:** 3
+- **Method:** winsorize
+
+### Outliers Handled
+
+| Column | Original | New Value | Bound |
+|--------|----------|-----------|-------|
+| Flow Rate lps | 48.7 | 6.75125 | upper |
+| Flow Rate lps | 9.2 | 6.75125 | upper |
+| Flow Rate lps | 12.8 | 6.75125 | upper |
+
+**Note:** New values shown above are pre-rounding. Final values may be rounded in post-processing to match original column precision.
 
 ---
 

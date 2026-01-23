@@ -47,7 +47,7 @@ report_sem = []
 
 df, report_sem1 = handle_semantic_outliers(df,
                                            column = 'Village',
-                                           context = 'Location name in Africa',
+                                           context = 'Location names in Africa',
                                            threshold = 0.5,
                                            action = 'nan')
 report_sem.append(report_sem1)
@@ -70,36 +70,37 @@ df, report_out = handle_outliers(df,
 # =============================================================================
 # DATETIME STANDARDIZATION 
 # =============================================================================
-
+'''
 df, report_date = standardize_datetime(df,
                                        column = 'install_date',  
                                        american = False,
                                        handle_invalid = 'nat')
-
+'''
 # =============================================================================
 # STRUCTURAL ERRORS 
 # =============================================================================
 
 # Define list to store all reports of handle_structural_errors()
 report_str = []
-'''
+
 df, report_str1 = handle_structural_errors(df,
                                            column = 'funding organization',
                                            similarity = 'embeddings',
                                            embedding_model = 'text-embedding-3-large',
                                            clustering = 'connected_components',
                                            threshold_cc = 0.6,
-                                           canonical = 'most_frequent')
+                                           canonical = 'llm')
 report_str.append(report_str1)
 df, report_str2 = handle_structural_errors(df,
                                            column = 'funding organization',
                                            similarity = 'llm',
+                                           llm_mode = 'fast',
                                            llm_context = 'Funding organizations',
                                            clustering = 'hierarchical',
-                                           threshold_h = 0.85,
-                                           canonical = 'most_frequent')
+                                           threshold_h = 0.9,
+                                           canonical = 'llm')
 report_str.append(report_str2)
-'''
+
 
 '''
 df, report_str3 = handle_structural_errors(df,
@@ -172,8 +173,8 @@ reports = {'preprocessing': report_pre,
            'duplicates': report_dup,
            #'semantic_outliers': report_sem,
            #'outliers': report_out,
-           'datetime': report_date,
-           #'structural_errors': report_str,
+           #'datetime': report_date,
+           'structural_errors': report_str,
            #'missing_values': report_miss,
            'postprocessing': report_post}
 

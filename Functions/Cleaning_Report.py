@@ -486,7 +486,7 @@ def _generate_structural_errors_section(report) -> list:
             lines.append(f"- **Embedding model:** {report['embedding_model']}")
         # Show LLM settings if LLM similarity was used
         elif report['similarity'] == 'llm':
-            lines.append(f"- **LLM mode:** {report['llm_model']}")
+            lines.append(f"- **LLM mode:** {report['llm_mode']}")
             lines.append(f"- **LLM context provided:** {report['llm_context']}")
 
         lines.append(f"- **Clustering method:** {report['clustering']}")
@@ -577,7 +577,7 @@ def _generate_structural_errors_section(report) -> list:
                 lines.append(f"- **Embedding model:** {single_report['embedding_model']}")
             # Show LLM settings if LLM similarity was used
             elif single_report['similarity'] == 'llm':
-                lines.append(f"- **LLM mode:** {single_report['llm_model']}")
+                lines.append(f"- **LLM mode:** {single_report['llm_mode']}")
                 lines.append(f"- **LLM context provided:** {single_report['llm_context']}")
 
             lines.append(f"- **Clustering method:** {single_report['clustering']}")
