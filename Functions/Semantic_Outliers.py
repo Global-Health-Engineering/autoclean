@@ -38,7 +38,7 @@ from dotenv import load_dotenv
 class SemanticScore(BaseModel):
     """Single value score"""
     index: int = Field(ge = 0, description = "Index of value in the input list")
-    confidence: float = Field(ge = 0.0, le = 1.0, description = "Semantic confidence score of the value") 
+    confidence: float = Field(ge = 0.0, le = 1.0, description = "Confidence score of the value") 
 
 class SemanticResponse(BaseModel):
     """Structured output for semantic validation"""
@@ -91,15 +91,17 @@ def handle_semantic_outliers(df: pd.DataFrame,
 
     # System prompt
     system_prompt = f"""
-How confident are you these values belong in a column of {context}?
+How confident are you these values belong in a column of: {context}?
 
-Score between 0.0 and 1.0:
+Scoring:
 - 1.0 = Definitely belongs
 - 0.0 = Definitely does not belong
- 
-Judge absolute plausibility, not statistical rarity.
-""".strip()
 
+Judge absolute plausibility, not statistical rarity.
+
+Return confidence score and index as given in the input.
+""".strip()
+    
     # Process unique values in batches
     batch_size = _get_batch_size(len(unique_values))
     value_confidence = {}  # {value: confidence}
