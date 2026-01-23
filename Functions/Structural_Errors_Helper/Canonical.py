@@ -12,7 +12,7 @@ For further information, see look at Structural_errors.md in the folder Addition
 
 # Imported libraries
 from openai import OpenAI
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 # Needed to load API Key from .env 
 import os
@@ -24,7 +24,7 @@ from dotenv import load_dotenv
 
 class CanonicalSelection(BaseModel):
     """Structured output for LLM canonical selection"""
-    index: int  # 1-based index of selected value
+    index: int = Field(ge=1, description = 'Number of the selected value from the list')  # Minimum must be 1 (list starts with 1)
 
 # =============================================================================
 # Method 1: Most Frequent
@@ -91,11 +91,15 @@ def llm_selection(cluster_values: list, column_name: str) -> str:
         values_list += f"{i+1}. {v}\n"
     
     # Build prompt message for LLM 
-    prompt = f"""Select the best canonical name from these values (column: {column_name}):
+    prompt = f"""
+Select the best canonical name from this list and return its number:
+
 {values_list}
+
 Consider: completeness, correct spelling, readability, standard format, proper casing (title case preferred, never all caps), frequency (as tiebreaker only)
 
-Return the index (1-based) of your choice."""
+Note: Values are from column: {column_name}
+""".strip()
 
     # Create OpenAi client 
     client = OpenAI(api_key = api_key)
@@ -107,13 +111,13 @@ Return the index (1-based) of your choice."""
                                                   messages = [{"role": "user", "content": prompt}],
                                                   response_format = CanonicalSelection)
 
-    # Get selected index (1-based from LLM) and convert to 0-based (python indexing)
+    # Get selected number from llm and convert to python index (0-based)
     index = response.choices[0].message.parsed.index - 1
     
-    # Return selected value (with safety check)
-    if 0 <= index < len(cluster_values):
+    # Return selected value (if not out of range)
+    if index < len(cluster_values):
         return cluster_values[index]
     
     # Fallback
-    print(f"Warning: LLM returned invalid response: {response}, using fallback: {cluster_values[0]}")
+    print(f"Warning chosen index by LLM ({index}) is out of range, using fallback canonical: {cluster_values[0]}")
     return cluster_values[0]
