@@ -1,7 +1,7 @@
 """
 Canonical: Select the canonical (standard) name for a specific cluster
-The canonical name is one value / string out of the specific cluster
-All other values in that specific cluster will be mapped to this canonical name
+
+The canonical name is one value (string) out of the specific cluster. All other values in that specific cluster will be mapped to this canonical name.
 
 Available methods:
     - most_frequent: Choose the most frequent value as the canonical name
@@ -13,10 +13,6 @@ For further information, see look at Structural_errors.md in the folder Addition
 # Imported libraries
 from openai import OpenAI
 from pydantic import BaseModel, Field
-
-# Needed to load API Key from .env 
-import os
-from dotenv import load_dotenv
 
 # =============================================================================
 # Pydantic Schema for Method 2 
@@ -32,7 +28,7 @@ class CanonicalSelection(BaseModel):
 
 def most_frequent(cluster_values: list, value_counts: dict) -> str:
     """
-    Select the most frequently occurring value of a specific cluster as canonical name.
+    Select the most frequently occurring value of a specific cluster as canonical name
 
     Input: 
         - cluster_values: List of values grouped to one specific cluster
@@ -65,50 +61,35 @@ def most_frequent(cluster_values: list, value_counts: dict) -> str:
 # Method 2: LLM Selection
 # =============================================================================
 
-def llm_selection(cluster_values: list, column_name: str) -> str:
+def llm_selection(cluster_values: list, column_name: str, client: OpenAI) -> str:
     """
-    Use LLM to select the best canonical name.
+    Use LLM to select the best canonical name of a specific cluster
     
     Input: 
         - cluster_values: List of values grouped to one specific cluster
         - column_name: Name of the column (provides context)
+        - client: OpenAI client for API calls
     """
-    # If cluster contains only one value, return it
-    if len(cluster_values) == 1:
-        return cluster_values[0]
-    
-    # Get API key from .env file
-    load_dotenv()
-    api_key = os.getenv("OPENAI_API_KEY")
-
-    # Raise ValueError if api_key is not found (api_key == None) or if api_key is empty (api_key == "")
-    if api_key == None or api_key == "":
-        raise ValueError("OPENAI_API_KEY was not found or is empty in .env")
-
     # Build numbered list of values from the specific cluster as a string
     values_list = ""
     for i, v in enumerate(cluster_values):
         values_list += f"{i+1}. {v}\n"
     
     # Build prompt message for LLM 
-    prompt = f"""
-Select the best canonical name from this list and return its number:
 
-{values_list}
+    system_prompt = f"""
+Select the best canonical name from the list and return its number.
 
-Consider: completeness, correct spelling, readability, standard format, proper casing (title case preferred, never all caps), frequency (as tiebreaker only)
+Consider: correct spelling, completeness, readability, standard format, proper casing.
 
-Note: Values are from column: {column_name}
+Values are from column: {column_name}
 """.strip()
-
-    # Create OpenAi client 
-    client = OpenAI(api_key = api_key)
 
     # Get response from LLM (with structured output)
     response = client.beta.chat.completions.parse(model = "gpt-4.1-mini",
                                                   temperature = 0.0,
                                                   seed = 42,
-                                                  messages = [{"role": "user", "content": prompt}],
+                                                  messages = [{"role": "system", "content": system_prompt}, {"role": "user", "content": values_list}],
                                                   response_format = CanonicalSelection)
 
     # Get selected number from llm and convert to python index (0-based)
