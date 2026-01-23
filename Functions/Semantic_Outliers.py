@@ -36,12 +36,12 @@ from dotenv import load_dotenv
 
 class SemanticScore(BaseModel):
     """Single value score"""
-    index: int          # Index of value in batch
-    confidence: float = Field(ge=0.0, le=1.0)  # Constrained to 0.0-1.0
+    index: int = Field(ge = 0, description = "Index of value in the input list")
+    confidence: float = Field(ge = 0.0, le = 1.0, description = "Semantic confidence score of the value") 
 
 class SemanticResponse(BaseModel):
     """Structured output for semantic validation"""
-    scores: list[SemanticScore]
+    scores: list[SemanticScore] = Field(description = "Scores for all items in input list")
 
 # =============================================================================
 # Main Function (Public)
@@ -98,8 +98,7 @@ Score between 0.0 and 1.0:
  
 Judge absolute plausibility, not statistical rarity.
 """.strip()
-    # Use the full range based on your confidence.
-    # Reference valid values: {three_valid_values}.
+    
     # Process unique values in batches
     batch_size = _get_batch_size(len(unique_values))
     value_confidence = {}  # {value: confidence}
