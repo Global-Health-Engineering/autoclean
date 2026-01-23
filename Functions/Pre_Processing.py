@@ -45,6 +45,7 @@ def preprocess_data(filepath: str) -> tuple:
 
     # Initialize report (as dictionary)
     report = {'original_shape': df_original.shape,
+              'filepath': filepath,
               'rows_removed': 0,
               'cols_removed': 0}
     # Note: .shape = (#rows, #columns)
