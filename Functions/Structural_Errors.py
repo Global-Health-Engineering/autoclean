@@ -1,5 +1,5 @@
 """
-Structural Errors: Orchestrates all the subfunctions to handle structural errors. 
+Structural Errors: Orchestrates all the subfunctions to handle structural errors 
 
 Pipeline: 
     Step 1: Compute Similarity Matrix 
@@ -8,20 +8,20 @@ Pipeline:
     Step 4: Apply mapping
 
 Parameters: 
-    df: DataFrame to clean
-    column: Name of column for which handle_structural_errors needs to be applied 
-    similarity: "rapidfuzz" (default), "embeddings", or "llm"
-    clustering: "connected_components", "affinity_propagation", "hierarchical" (default)
-    canonical: "llm" or "most_frequent" (default)
-    threshold_cc:  Threshold for connected components clustering (default = 0.85)
-    threshold_h: Threshold for hierarchical clustering (default = 0.85)
-    embedding_model: "text-embedding-3-large" or "text-embedding-3-small" (default)
-    damping: Controls how values update each round. Without damping, the algorithm replaces old values completely with new computed values. This can cause oscillation  where preferences flip back and forth forever. With damping = 0.7, the new value is blended: 70% old value + 30% newly computed value. This gradual change ensures the algorithm converges to a stable solution. (default: 0.7)
-    llm_context: Description of the column (required)
-    llm_model: OpenAI model used (default = "gpt-4.1-mini-2025-04-14")
-    llm_temperature: Temperature parameter for LLM (default = 0.0)
-    llm_batch_size: Number of pairs per LLM API call (default = 50)
-    units: If true, specific prompt for similarity calculation with LLM for columns with units (default = False)
+    - df: DataFrame to clean
+    - column: Name of column for which handle_structural_errors needs to be applied 
+    - similarity: "rapidfuzz" (default), "embeddings", or "llm"
+    - clustering: "connected_components", "affinity_propagation", "hierarchical" (default)
+    - canonical: "llm" or "most_frequent" (default)
+    - threshold_cc:  Threshold for connected components clustering (default = 0.85)
+    - threshold_h: Threshold for hierarchical clustering (default = 0.85)
+    - embedding_model: "text-embedding-3-large" or "text-embedding-3-small" (default)
+    - damping: Controls how values update each round. Without damping, the algorithm replaces old values completely with new computed values. This can cause oscillation  where preferences flip back and forth forever. With damping = 0.7, the new value is blended: 70% old value + 30% newly computed value. This gradual change ensures the algorithm converges to a stable solution. (default: 0.7)
+    - llm_context: Description of the column
+    - llm_mode: Mode for LLM similarity scoring
+        'strict': Binary scoring (0 or 1), best for unit standardization
+        'fast': Range scoring (0 to 1) with gpt-4.1, faster but less accurate (default)
+        'reliable': Range scoring (0 to 1) with gpt-5-mini, slower but more accurate  
 
 Returns: 
     Cleaned dataframe and report (as tuple)
@@ -31,6 +31,11 @@ For further information, see look at Structural_errors.md in the folder Addition
 
 # Imported libraries
 import pandas as pd
+from openai import OpenAI
+
+# Needed to load API Key from .env 
+import os
+from dotenv import load_dotenv
 
 # Import subfunctions
 from Functions.Structural_Errors_Helper.Similarity import rapidfuzz_similarity, embedding_similarity, llm_similarity
@@ -51,10 +56,7 @@ def handle_structural_errors(df: pd.DataFrame,
                              damping: float = 0.7, 
                              embedding_model: str = "text-embedding-3-small",
                              llm_context: str = None,
-                             llm_model: str = "gpt-4.1-mini",
-                             llm_temperature: float = 0.0,
-                             llm_batch_size: int = 50,
-                             units: bool = False) -> tuple:
+                             llm_mode: str = "fast",) -> tuple:
     # Terminal output: start
     print(f"Fixing structural errors ({column})... ", end = "", flush = True)
     # Note: With flush = True, print is immediately
@@ -72,8 +74,7 @@ def handle_structural_errors(df: pd.DataFrame,
               'damping': damping,
               'embedding_model': embedding_model,
               'llm_context': llm_context,
-              'llm_model': llm_model,
-              'llm_temperature': llm_temperature,
+              'llm_mode': llm_mode,
               'unique_values_before': df[column].nunique(), # .nunique() returns number of unique values (excluding missing values)
               'unique_values_after': None,
               'mapping': {},
@@ -96,6 +97,18 @@ def handle_structural_errors(df: pd.DataFrame,
     # Note: .value_counts() returns a pd series with index = unique values & data = count of the unique values
     #       dict() converts pd series to dict, where index -> key, data -> value
 
+    # Get OpenAI client (if needed)
+    if similarity == 'embeddings' or similarity == 'llm' or canonical == 'llm':
+        # Get API key from .env file
+        load_dotenv()
+        api_key = os.getenv("OPENAI_API_KEY")
+
+        # Raise ValueError if api_key is not found (api_key == None) or if api_key is empty (api_key == "")
+        if api_key == None or api_key == "":
+            raise ValueError("OPENAI_API_KEY was not found or is empty in .env")
+
+        client = OpenAI(api_key = api_key)
+
     # =========================================================================
     # Step 1: Compute similarity matrix
     # =========================================================================
@@ -103,13 +116,14 @@ def handle_structural_errors(df: pd.DataFrame,
     if similarity == "rapidfuzz":
         similarity_matrix = rapidfuzz_similarity(unique_values)
     elif similarity == "embeddings":
-        similarity_matrix = embedding_similarity(unique_values, embedding_model)
+        similarity_matrix = embedding_similarity(unique_values, embedding_model, client)
     elif similarity == "llm":
         if llm_context is None:
-            raise ValueError("llm_context is required when similarity='llm'. Provide a description of the column.")
-        similarity_matrix = llm_similarity(unique_values, llm_context, llm_model, units)
+            raise ValueError("llm_context is required when similarity = 'llm'. Provide a description of the column.")
+        
+        similarity_matrix = llm_similarity(unique_values, llm_context, llm_mode, client)
     else:
-        raise ValueError(f"Unknown similarity: {similarity}")
+        raise ValueError(f"Unknown similarity method: {similarity}")
     
     # =========================================================================
     # Step 2: Cluster similar values
@@ -122,7 +136,7 @@ def handle_structural_errors(df: pd.DataFrame,
     elif clustering == "affinity_propagation":
         labels = affinity_propagation_clustering(similarity_matrix, damping)
     else:
-        raise ValueError(f"Unknown clustering: {clustering}")
+        raise ValueError(f"Unknown clustering method: {clustering}")
     
     # =========================================================================
     # Step 3: Build mapping (value → canonical) by choosing canonical form 
@@ -147,10 +161,8 @@ def handle_structural_errors(df: pd.DataFrame,
     for label, cluster_values in clusters.items():
         if canonical == "most_frequent":
             canonical_name = most_frequent(cluster_values, value_counts)
-
         elif canonical == "llm":
-            canonical_name = llm_selection(cluster_values, column)
-
+            canonical_name = llm_selection(cluster_values, column, client)
         else:
             raise ValueError(f"Unknown canonical: {canonical}")
         
