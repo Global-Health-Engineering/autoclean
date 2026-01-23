@@ -21,7 +21,7 @@ import json
 
 class CanonicalSelection(BaseModel):
     """Structured output for LLM canonical selection"""
-    index: int = Field(ge = 0, description = "Index of selected value")
+    index: int = Field(ge = 0, description = "Index of selected value from the input list")
 
 # =============================================================================
 # Method 1: Most Frequent
@@ -80,7 +80,7 @@ def llm_selection(cluster_values: list, column_name: str, client: OpenAI) -> str
     
     # Build prompt message for LLM 
     system_prompt = f"""
-Select the best canonical name from the list and return its index.
+Select best value from input list as canonical form and return its index. 
 
 Consider: correct spelling, completeness, readability, standard format, proper casing.
 
