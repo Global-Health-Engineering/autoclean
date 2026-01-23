@@ -18,17 +18,19 @@ from Functions.Cleaning_Report import generate_cleaning_report
 # =============================================================================
 # SETTINGS
 # =============================================================================
-
+# Optional:
 DATASET_NAME = 'Test Data' # For Cleaning Report, to include Dataset name 
-INPUT_FILE = 'Data/Test/Test_v3.csv'
-OUTPUT_FILE = 'Data/Test/Test_Cleaned.csv'
-REPORT_FILE = 'Data/Test/Test_Report.md'
+
+# Mandatory: 
+INPUT_FILEPATH = 'Data/Test/Test_v3.csv'
+OUTPUT_FILEPATH = 'Data/Test/Test_Cleaned.csv'
+REPORT_FILEPATH = 'Data/Test/Test_Report.md'
 
 # =============================================================================
 # PRE-PROCESSING
 # =============================================================================
 
-df, df_original, report_pre = preprocess_data(INPUT_FILE)
+df, df_original, report_pre = preprocess_data(INPUT_FILEPATH)
 
 # =============================================================================
 # DUPLICATES
@@ -39,32 +41,32 @@ df, report_dup = handle_duplicates(df)
 # =============================================================================
 # SEMANTIC OUTLIERS
 # =============================================================================
-
+'''
 # Define list to store all reports of handle_semantic_outliers()
 report_sem = []
 
-df, report_sem1 = handle_semantic_outliers(df = df,
+df, report_sem1 = handle_semantic_outliers(df,
                                            column = 'Village',
                                            context = 'Location name in Africa',
                                            threshold = 0.5,
                                            action = 'nan')
 report_sem.append(report_sem1)
 
-df, report_sem2 = handle_semantic_outliers(df = df,
+df, report_sem2 = handle_semantic_outliers(df,
                                            column = 'Population served',
                                            context = 'Number of people',
                                            threshold = 0.5,
                                            action = 'nan')
 report_sem.append(report_sem2)
-
+'''
 # =============================================================================
 # OUTLIERS
 # =============================================================================
-'''
+
 df, report_out = handle_outliers(df,
-                                 method = 'winsorize',
+                                 method = 'delete',
                                  multiplier = 1.5)
-'''
+
 # =============================================================================
 # DATETIME STANDARDIZATION 
 # =============================================================================
@@ -160,14 +162,7 @@ report_str.append(report_str6)
 # POST-PROCESSING
 # =============================================================================
 
-df, report_post = postprocess_data(df, df_original, clean_names = True, rounding = False)
-
-# =============================================================================
-# SAVE OUTPUT
-# =============================================================================
-
-df.to_csv(OUTPUT_FILE, index = False)
-# Note: index = False leads to no row index in final csv
+report_post = postprocess_data(df, df_original, OUTPUT_FILEPATH, clean_names = True, rounding = False)
 
 # =============================================================================
 # GENERATE REPORT
@@ -175,11 +170,11 @@ df.to_csv(OUTPUT_FILE, index = False)
 
 reports = {'preprocessing': report_pre,
            'duplicates': report_dup,
-           'semantic_outliers': report_sem,
-           #'outliers': report_out,
+           #'semantic_outliers': report_sem,
+           'outliers': report_out,
            #'datetime': report_date,
            #'structural_errors': report_str,
            #'missing_values': report_miss,
            'postprocessing': report_post}
 
-generate_cleaning_report(reports, REPORT_FILE, dataset_name = DATASET_NAME)
+generate_cleaning_report(reports, report_filepath = REPORT_FILEPATH, dataset_name = DATASET_NAME)

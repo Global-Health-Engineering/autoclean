@@ -8,14 +8,14 @@ Steps applied:
     1. Round numeric columns to match original decimal places (if rounding = True)
     2. Restore integers (1.0 → 1), if the original column had integers (if rounding = True)
     3. Clean column names (lowercase with underscores) (if clean_names = True)
-    4. Export df as CSV to specified location (output_filepath)
+    4. Export df as CSV to specified location (output_filepath) 
 
 Parameters:
     df_cleaned: Dataframe after cleaning pipeline
     df_original: Original dataframe (from Pre_Processing.py)
     rounding: If True, rounding is applied (default: False)
     clean_names: If True, standardize column names (default: False)
-    output_filepath: Filepath where df as CSV is saved
+    output_filepath: Filepath where df is as CSV saved (default: Cleaned_df.csv)
 
 Notes: If Outliers.py and or Missing_Values.py was applied, recommended to set rounding = True. 
 
@@ -34,7 +34,7 @@ import janitor  # Python library PyJanitor
 
 def postprocess_data(df_cleaned: pd.DataFrame, 
                      df_original: pd.DataFrame,
-                     output_filepath: str,
+                     output_filepath: str = 'Cleaned_df.csv',
                      clean_names: bool = False,
                      rounding: bool = False) -> dict:
     # Terminal output: start
@@ -47,7 +47,8 @@ def postprocess_data(df_cleaned: pd.DataFrame,
     # Initialize report (as dictionary)
     report = {'changes': [],
               'columns_renamed': [], 
-              'final_shape': None}
+              'final_shape': None,
+              'output_filepath': output_filepath}
     
     if rounding:
         # Loop through numeric columns

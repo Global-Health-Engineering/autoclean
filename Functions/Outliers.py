@@ -87,8 +87,7 @@ def handle_outliers(df: pd.DataFrame, method: str = 'winsorize', multiplier: flo
                     # Note: list(df_work[mask].index) gives row indexes, where mask is true (as list)
 
                     # Add outliers to report
-                    report['outliers'].append({'row': idx_row,
-                                               'column': idx_col,
+                    report['outliers'].append({'column': idx_col,
                                                'original_value': df_work.at[idx_row, idx_col],
                                                'new_value': lower_bound,
                                                'bound': 'lower'})
@@ -98,8 +97,7 @@ def handle_outliers(df: pd.DataFrame, method: str = 'winsorize', multiplier: flo
                     # Note: list(df_work[mask].index) gives row indexes, where mask is true (as list)
 
                     # Add outliers to report
-                    report['outliers'].append({'row': idx_row,
-                                               'column': idx_col,
+                    report['outliers'].append({'column': idx_col,
                                                'original_value': df_work.at[idx_row, idx_col],
                                                'new_value': upper_bound,
                                                'bound': 'upper'})
@@ -117,12 +115,10 @@ def handle_outliers(df: pd.DataFrame, method: str = 'winsorize', multiplier: flo
                     # Note: list(df_work[mask].index) gives row indexes, where mask is true (as list)
 
                     # Add outliers to report 
-                    report['outliers'].append({
-                        'row': idx_row,
-                        'column': idx_col,
-                        'original_value': df_work.at[idx_row, idx_col],
-                        'new_value': 'None, deleted whole row',
-                        'bound': 'lower' if df_work.at[idx_row, idx_col] < lower_bound else 'upper'}) # = Ternary Operator (One-Line If-Else), structure: ... = value_1 if condition else value_2
+                    report['outliers'].append({'column': idx_col,
+                                               'original_value': df_work.at[idx_row, idx_col],
+                                               'new_value': 'None, deleted whole row',
+                                               'bound': 'lower' if df_work.at[idx_row, idx_col] < lower_bound else 'upper'}) # = Ternary Operator (One-Line If-Else), structure: ... = value_1 if condition else value_2
                     # Note: In the dict report the value of 'outliers' is a list of dict
 
                 # Remove rows with outliers

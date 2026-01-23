@@ -38,16 +38,16 @@ Markdown syntax used:
 # Imported libraries
 from datetime import datetime
 
-def generate_cleaning_report(reports: dict, filepath: str = 'cleaning_report.md', dataset_name: str = None) -> None:
+def generate_cleaning_report(reports: dict, report_filepath: str = 'Cleaning_Report.md', dataset_name: str = None) -> None:
     """
     Generate Markdown cleaning report from report dicts.
     
     Parameters:
-        filepath: Output path for Markdown file (default = 'cleaning_report.md')
+        report_filepath: Output path for Markdown file (default = 'Cleaning_Report.md')
         dataset_name: Optional name of dataset for report (default = None)
     
     Returns:
-        Function returns nothing (None), directly saves md file in desired location (filepath)
+        Function returns nothing (None), directly saves md file in desired location (report_filepath)
     """
     
     # Terminal output: start
@@ -60,8 +60,12 @@ def generate_cleaning_report(reports: dict, filepath: str = 'cleaning_report.md'
     # Create Header
     lines.append("# AutoClean Report")
     lines.append("") # empty line 
+
     if dataset_name is not None:
         lines.append(f"**Dataset:** {dataset_name}  ")
+        
+    lines.append(f"- **Filepath of dataset to clean:** {reports['preprocessing']['input_filepath']}")
+    lines.append(f"- **Filepath of cleaned dataset:** {reports['postprocessing']['output_filepath']}")
     lines.append(f"**Generated:** {datetime.now().strftime('%d.%m.%Y, %H:%M:%S')}") # Append line with current date & time
     lines.append("") # empty line
     
@@ -101,8 +105,8 @@ def generate_cleaning_report(reports: dict, filepath: str = 'cleaning_report.md'
     if 'postprocessing' in reports:
         lines.extend(_generate_postprocessing_section(reports['postprocessing'])) # Add returned list of _generate_postprocessing_section() to lines
     
-    # Write md file and save it to filepath
-    file = open(filepath, 'w') # Create file @filepath (if already exists -> gets cleared)
+    # Write md file and save it to report_filepath
+    file = open(report_filepath, 'w') # Create file @report_filepath (if already exists -> gets cleared)
     file.write('\n'.join(lines)) # Write the joined string into file 
     # Note: '\n'.join(lines) joins all elements of lines to a string with each element seperated by \n
     file.close() # Close and save the file 
@@ -209,7 +213,7 @@ def _generate_preprocessing_section(report: dict) -> list:
     lines.append("") # empty line 
     lines.append("## Preprocessing")
     lines.append("") # empty line 
-    
+
     # Get info about removed rows / columns
     if report['rows_removed'] > 0:
         lines.append(f"- **Completely empty rows removed:** {report['rows_removed']}")
@@ -396,23 +400,23 @@ def _generate_outliers_section(report: dict) -> list:
     lines.append("### Outliers Handled")
     lines.append("") # empty line
 
-    lines.append("| Row | Column | Original | New Value | Bound |")
-    lines.append("|-----|--------|----------|-----------|-------|")
+    lines.append("| Column | Original | New Value | Bound |")
+    lines.append("|--------|----------|-----------|-------|")
 
     if report['method'] == 'winsorize': 
         for outlier in report['outliers']:
             # Round original & new value to same precision in decimal digits (Note: In pipeline rounding is applied to df in post-processing)
-            original_value = round(outlier['original_value'], 4)
-            new_value = round(outlier['new_value'], 4)
+            original_value = round(outlier['original_value'], 3)
+            new_value = round(outlier['new_value'], 3)
 
-            lines.append(f"| {outlier['row']} | {outlier['column']} | {original_value} | {new_value} | {outlier['bound']} |")
+            lines.append(f"| {outlier['column']} | {original_value} | {new_value} | {outlier['bound']} |")
     
     if report['method'] == 'delete': 
         for outlier in report['outliers']:
             # Round original value
-            original_value = round(outlier['original_value'], 4)
+            original_value = round(outlier['original_value'], 3)
 
-            lines.append(f"| {outlier['row']} | {outlier['column']} | {original_value} | {outlier['new_value']} | {outlier['bound']} |")
+            lines.append(f"| {outlier['column']} | {original_value} | {outlier['new_value']} | {outlier['bound']} |")
     
     lines.append("") # empty line
 

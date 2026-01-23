@@ -8,7 +8,7 @@ It returns three items (as tuple):
     - report: Dict with preprocessing details
 
 Parameters:
-    filepath: Path to CSV file
+    input_filepath: Filepath to inptu CSV file (dataset to clean)
     
 Steps applied:
     1. Load data from file & Standardize missing values ("NA", "", "-", "null", etc. → NaN)
@@ -26,26 +26,26 @@ import janitor  # Python library PyJanitor
 # Main Function (Public)
 # =============================================================================
 
-def preprocess_data(filepath: str) -> tuple:
+def preprocess_data(input_filepath: str) -> tuple:
     # Terminal output: start
     print("Preprocessing... ", end = "", flush = True)
     # Note: With flush = True, print is immediately
 
     # Load data (only CSV file otherwise error)
-    if filepath.endswith('.csv'):
-        df = pd.read_csv(filepath, na_values = [' ', '  ', '   ', '    ', '     ', 'none', '-', '--', '.', 'na'])
+    if input_filepath.endswith('.csv'):
+        df = pd.read_csv(input_filepath, na_values = [' ', '  ', '   ', '    ', '     ', 'none', '-', '--', '.', 'na'])
     # Note: pd.read_csv converts by default values like: ““, “#N/A”, “#N/A N/A”, “#NA”, “-1.#IND”, “-1.#QNAN”, “-NaN”, “-nan”, “1.#IND”, “1.#QNAN”, “<NA>”, “N/A”, “NA”, “NULL”, “NaN”, “None”, “n/a”, “nan”, “null“ 
     # by default to np.nan. Additionally also the values from the list na_values. 
 
     else:
-        raise ValueError(f"{filepath} = unsupported file type (only CSV)")
+        raise ValueError(f"{input_filepath} = unsupported file type (only CSV)")
 
     # Store original dataframe
     df_original = df.copy()
 
     # Initialize report (as dictionary)
     report = {'original_shape': df_original.shape,
-              'filepath': filepath,
+              'input_filepath': input_filepath,
               'rows_removed': 0,
               'cols_removed': 0}
     # Note: .shape = (#rows, #columns)

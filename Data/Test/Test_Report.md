@@ -1,19 +1,19 @@
 # AutoClean Report
 
 **Dataset:** Test Data  
-**Generated:** 23.01.2026, 00:00:45
+**Generated:** 23.01.2026, 01:10:00
 
 ---
 
 ## Summary
 
 - **Original shape:** 52 rows × 13 columns
-- **Final shape:** 50 rows × 11 columns
-- **Total rows deleted:** 2
+- **Final shape:** 47 rows × 11 columns
+- **Total rows deleted:** 5
 - **Total columns deleted:** 2
 - **Total values imputed:** 0
-- **Total outliers handled:** 0
-- **Total semantic outliers detected:** 8
+- **Total outliers handled:** 3
+- **Total semantic outliers detected:** 0
 - **Total structural errors fixed:** 0
 
 ---
@@ -32,47 +32,28 @@
 
 ---
 
-## Semantic Outliers
+## Outliers
+
+### Lower & Upper Bounds
+
+| Column | Lower Bound | Upper Bound |
+|--------|-------------|-------------|
+| Flow Rate lps | -1.6987 | 6.7512 |
 
 ### Overview
 
-- **Columns processed:** 2
-- **Total outliers detected:** 8
-- **Total number of affected rows:** 8
+- **Multiplier:** 1.5
+- **Total outliers:** 3
+- **Method:** delete
+- **Rows deleted:** 3
 
-### Column: Village
+### Outliers Handled
 
-- **Given context:** Location name in Africa
-- **Threshold:** 0.5
-- **Action:** nan
-- **Unique values checked:** 14
-- **Outliers detected:** 4
-
-#### Detected Outliers
-
-| Value | Confidence | Number of affected rows |
-|-------|------------|-------------------------|
-| sdflkajsdf | 0.0 | 1 |
-| I love studying at ETH! | 0.0 | 1 |
-| 1.8 | 0.0 | 1 |
-| unknown | 0.0 | 1 |
-
-### Column: Population served
-
-- **Given context:** Number of people
-- **Threshold:** 0.5
-- **Action:** nan
-- **Unique values checked:** 50
-- **Outliers detected:** 4
-
-#### Detected Outliers
-
-| Value | Confidence | Number of affected rows |
-|-------|------------|-------------------------|
-| -250 | 0.0 | 1 |
-| 1234.56 | 0.2 | 1 |
-| 999.99 | 0.2 | 1 |
-| not so many | 0.0 | 1 |
+| Column | Original | New Value | Bound |
+|--------|----------|-----------|-------|
+| Flow Rate lps | 48.7 | None, deleted whole row | upper |
+| Flow Rate lps | 9.2 | None, deleted whole row | upper |
+| Flow Rate lps | 12.8 | None, deleted whole row | upper |
 
 ---
 
