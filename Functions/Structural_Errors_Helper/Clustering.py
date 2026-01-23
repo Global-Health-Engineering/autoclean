@@ -1,6 +1,7 @@
 """
 Clustering: Group similar values into clusters
-Takes a similarity matrix and returns cluster labels (which cluster each value belongs to)
+
+Takes a similarity matrix and returns cluster labels (which cluster each value belongs to).
 
 Available methods:
     - hierarchical_clustering: All-rounder. You directly control how strict the grouping is via the threshold. Most predictable behavior and good default choice.
