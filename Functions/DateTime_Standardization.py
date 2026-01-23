@@ -189,11 +189,15 @@ def _parse_and_validate(value_str: str, dayfirst: bool) -> tuple:
     """
 
     try:
+        # Check if text-month format 
         is_text_month = _is_text_month_format(value_str)
 
+        # Validate text-month format
         if is_text_month:
             if not _validate_text_month_format(value_str): 
                 return pd.NaT, False
+        
+        # Validate numerical date
         else:
             if not _validate_numerical_date(value_str): 
                 return pd.NaT, False

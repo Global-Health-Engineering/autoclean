@@ -18,11 +18,11 @@ from Functions.Cleaning_Report import generate_cleaning_report
 # =============================================================================
 # SETTINGS
 # =============================================================================
-# Optional:
-DATASET_NAME = 'Test Data' # For Cleaning Report, to include Dataset name 
 
-# Mandatory: 
-INPUT_FILEPATH = 'Data/Test/Test_v3.csv'
+INPUT_FILEPATH = 'Data/Test/Test.csv'
+
+# Optional:
+DATASET_NAME = 'Test Data (made up WHASH dataset)' # For header in Cleaning Report
 OUTPUT_FILEPATH = 'Data/Test/Test_Cleaned.csv'
 REPORT_FILEPATH = 'Data/Test/Test_Report.md'
 
@@ -64,18 +64,18 @@ report_sem.append(report_sem2)
 # =============================================================================
 
 df, report_out = handle_outliers(df,
-                                 method = 'delete',
+                                 method = 'winsorize',
                                  multiplier = 1.5)
 
 # =============================================================================
 # DATETIME STANDARDIZATION 
 # =============================================================================
-'''
+
 df, report_date = standardize_datetime(df,
                                        column = 'install_date',  
                                        american = False,
                                        handle_invalid = 'nat')
-'''
+
 # =============================================================================
 # STRUCTURAL ERRORS 
 # =============================================================================
@@ -162,7 +162,7 @@ report_str.append(report_str6)
 # POST-PROCESSING
 # =============================================================================
 
-report_post = postprocess_data(df, df_original, OUTPUT_FILEPATH, clean_names = True, rounding = False)
+report_post = postprocess_data(df, df_original, OUTPUT_FILEPATH, clean_names = True, rounding = True)
 
 # =============================================================================
 # GENERATE REPORT
@@ -172,9 +172,9 @@ reports = {'preprocessing': report_pre,
            'duplicates': report_dup,
            #'semantic_outliers': report_sem,
            'outliers': report_out,
-           #'datetime': report_date,
+           'datetime': report_date,
            #'structural_errors': report_str,
            #'missing_values': report_miss,
            'postprocessing': report_post}
 
-generate_cleaning_report(reports, report_filepath = REPORT_FILEPATH, dataset_name = DATASET_NAME)
+generate_cleaning_report(reports, REPORT_FILEPATH, DATASET_NAME)

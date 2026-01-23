@@ -62,10 +62,10 @@ def generate_cleaning_report(reports: dict, report_filepath: str = 'Cleaning_Rep
     lines.append("") # empty line 
 
     if dataset_name is not None:
-        lines.append(f"**Dataset:** {dataset_name}  ")
-        
-    lines.append(f"- **Filepath of dataset to clean:** {reports['preprocessing']['input_filepath']}")
-    lines.append(f"- **Filepath of cleaned dataset:** {reports['postprocessing']['output_filepath']}")
+        lines.append(f"**Name of dataset:** {dataset_name}  ")
+
+    lines.append(f"**Filepath of messy dataset:** {reports['preprocessing']['input_filepath']}  ")
+    lines.append(f"**Filepath of cleaned dataset:** {reports['postprocessing']['output_filepath']}  ")
     lines.append(f"**Generated:** {datetime.now().strftime('%d.%m.%Y, %H:%M:%S')}") # Append line with current date & time
     lines.append("") # empty line
     
@@ -405,18 +405,14 @@ def _generate_outliers_section(report: dict) -> list:
 
     if report['method'] == 'winsorize': 
         for outlier in report['outliers']:
-            # Round original & new value to same precision in decimal digits (Note: In pipeline rounding is applied to df in post-processing)
-            original_value = round(outlier['original_value'], 3)
-            new_value = round(outlier['new_value'], 3)
+            lines.append(f"| {outlier['column']} | {outlier['original_value']} | {outlier['new_value']} | {outlier['bound']} |")
 
-            lines.append(f"| {outlier['column']} | {original_value} | {new_value} | {outlier['bound']} |")
+        lines.append("") # empty line
+        lines.append("**Note:** New values shown above are pre-rounding. Final values may be rounded in post-processing to match original column precision.")
     
     if report['method'] == 'delete': 
         for outlier in report['outliers']:
-            # Round original value
-            original_value = round(outlier['original_value'], 3)
-
-            lines.append(f"| {outlier['column']} | {original_value} | {outlier['new_value']} | {outlier['bound']} |")
+            lines.append(f"| {outlier['column']} | {outlier['original_value']} | {outlier['new_value']} | {outlier['bound']} |")
     
     lines.append("") # empty line
 
