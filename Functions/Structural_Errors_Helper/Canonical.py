@@ -13,6 +13,7 @@ For further information, see look at Structural_errors.md in the folder Addition
 # Imported libraries
 from openai import OpenAI
 from pydantic import BaseModel, Field
+import json
 
 # =============================================================================
 # Pydantic Schema for Method 2 
@@ -20,7 +21,7 @@ from pydantic import BaseModel, Field
 
 class CanonicalSelection(BaseModel):
     """Structured output for LLM canonical selection"""
-    index: int = Field(ge=1, description = 'Number of the selected value from the list')  # Minimum must be 1 (list starts with 1)
+    index: int = Field(ge = 0, description = "Index of selected value")
 
 # =============================================================================
 # Method 1: Most Frequent
@@ -70,15 +71,16 @@ def llm_selection(cluster_values: list, column_name: str, client: OpenAI) -> str
         - column_name: Name of the column (provides context)
         - client: OpenAI client for API calls
     """
-    # Build numbered list of values from the specific cluster as a string
-    values_list = ""
-    for i, v in enumerate(cluster_values):
-        values_list += f"{i+1}. {v}\n"
+    # If cluster contains only one value, return it
+    if len(cluster_values) == 1:
+        return cluster_values[0]
+    
+    # Get input as JSON
+    values_json = json.dumps([{"index": i, "value": v} for i, v in enumerate(cluster_values)])
     
     # Build prompt message for LLM 
-
     system_prompt = f"""
-Select the best canonical name from the list and return its number.
+Select the best canonical name from the list and return its index.
 
 Consider: correct spelling, completeness, readability, standard format, proper casing.
 
@@ -89,11 +91,11 @@ Values are from column: {column_name}
     response = client.beta.chat.completions.parse(model = "gpt-4.1-mini",
                                                   temperature = 0.0,
                                                   seed = 42,
-                                                  messages = [{"role": "system", "content": system_prompt}, {"role": "user", "content": values_list}],
+                                                  messages = [{"role": "system", "content": system_prompt}, {"role": "user", "content": values_json}],
                                                   response_format = CanonicalSelection)
 
-    # Get selected number from llm and convert to python index (0-based)
-    index = response.choices[0].message.parsed.index - 1
+    # Get selected index from llm 
+    index = response.choices[0].message.parsed.index
     
     # Return selected value (if not out of range)
     if index < len(cluster_values):
