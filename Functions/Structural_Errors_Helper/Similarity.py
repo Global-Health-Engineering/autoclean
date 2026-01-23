@@ -1,12 +1,13 @@
 """
 Similarity: Compute similarity matrix between string values 
-Returns a similarity matrix (n x n) for n unique values, where cell [i,j] = similarity between value i and j
-Values range from 0 (different) to 1 (identical)
+
+Returns a similarity matrix (n x n) for n unique values, where cell [i,j] = similarity between value i and j.
+Values range from 0 (different) to 1 (identical).
 
 Available methods:
     - rapidfuzz_similarity: Character-based (typos, case, spacing, word order differences)
-    - embedding_similarity: Semantic (abbreviations, synonyms, semantic variations)
-    - llm_similarity: Reasoning-based (unit conversions, number words, complex abbreviations)
+    - embedding_similarity: Embedding-based (abbreviations, synonyms, semantic variations)
+    - llm_similarity: LLM-based (complex equivalences beyond embeddings)
 
 For further information, see look at Structural_errors.md in the folder Additional_Information
 """
@@ -15,13 +16,9 @@ For further information, see look at Structural_errors.md in the folder Addition
 import numpy as np
 from rapidfuzz import fuzz
 from openai import OpenAI
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 from itertools import combinations
 import json
-
-# Needed to load API Key from .env 
-import os
-from dotenv import load_dotenv
 
 # =============================================================================
 # Pydantic Schema for Method 3 
@@ -29,12 +26,12 @@ from dotenv import load_dotenv
 
 class SimilarityScore(BaseModel):
     """Single pair score"""
-    index: int                  # Index of the pair in the batch
-    similarity: float           # Score between 0.0 and 1.0
+    index: int = Field(ge = 0, description = "Index of the pair in given list") 
+    similarity: float = Field(ge = 0.0, le = 1.0, description = "Similarity score between the two values")
 
 class SimilarityResponse(BaseModel):
-    """Structured output for Phase 2: Pair scores"""
-    scores: list[SimilarityScore]
+    """Structured output for LLM similarity scoring"""
+    scores: list[SimilarityScore] = Field(description = "Scores for all pairs in input list")
 
 # =============================================================================
 # Method 1: RapidFuzz Similarity
@@ -42,7 +39,7 @@ class SimilarityResponse(BaseModel):
 
 def rapidfuzz_similarity(values: list) -> np.ndarray:
     """
-    From list values compute similarity matrix using RapidFuzz token_sort_ratio
+    From list of values (input) compute similarity matrix using RapidFuzz token_sort_ratio
     """
     # Get the # of unique values (values = list of unique values)
     n = len(values)
@@ -71,27 +68,17 @@ def rapidfuzz_similarity(values: list) -> np.ndarray:
 # Method 2: Embedding Similarity (OpenAI)
 # =============================================================================
 
-def embedding_similarity(values: list, model: str) -> np.ndarray:
+def embedding_similarity(values: list, embedding_model: str, client: OpenAI) -> np.ndarray:
     """
-    From list values compute similarity matrix using OpenAI embeddings and cosine similarity
+    From list of values (input) compute similarity matrix using OpenAI embeddings and cosine similarity
     
-    Available OpenAI model: 
-    - "text-embedding-3-small" (best for Everyday language)
-    - "text-embedding-3-large" (best for Specialized/technical vocabulary) 
+    Parameters:
+        - values: List of values to compare
+        - embedding_model: "text-embedding-3-small" (best for Everyday language) or "text-embedding-3-large" (best for Specialized/technical vocabulary)
+        - client: OpenAI client for API calls
     """
-    # Get API key from .env file
-    load_dotenv()
-    api_key = os.getenv("OPENAI_API_KEY")
-
-    # Raise ValueError if api_key is not found (api_key == None) or if api_key is empty (api_key == "")
-    if api_key == None or api_key == "":
-        raise ValueError("OPENAI_API_KEY was not found or is empty in .env")
-    
-    # Create OpenAi client 
-    client = OpenAI(api_key = api_key)
-
     # Get the embeddings as np array (each row == embeding)
-    response = client.embeddings.create(input=[str(v) for v in values], model = model)
+    response = client.embeddings.create(input=[str(v) for v in values], model = embedding_model)
     # Note: str() is for safety, in case not already string
     embeddings = np.array([item.embedding for item in response.data])
     
@@ -109,165 +96,119 @@ def embedding_similarity(values: list, model: str) -> np.ndarray:
 # =============================================================================
 
 def llm_similarity(values: list,
-                   context: str,
-                   model: str,
-                   units: bool) -> np.ndarray:
+                   llm_context: str,
+                   llm_mode: str,
+                   client: OpenAI) -> np.ndarray:
     """
-    From list values compute similarity matrix using LLM reasoning.
-    
-    This is one step above embedding similarity - it uses LLM reasoning to understand
-    complex equivalences that embeddings miss:
-    - Unit conversions: "500L" ↔ "500000ml"
-    - Number words: "25" ↔ "twenty-five"  
-    - Complex abbreviations: "WHO" ↔ "World Health Organization"
-    - Boolean variations: "Yes" ↔ "Y" ↔ "1" ↔ "true"
+    From list of values (input) compute similarity matrix using LLM
     
     Parameters:
-        values: List of unique string values to compare
-        context: Description of the column (e.g., "City names with abbreviations")
-        model: OpenAI model to use (default: "gpt-4o")
-        temperature: Controls randomness, 0.0 = deterministic (default: 0.0)
-        batch_size: Number of pairs per API call (default: 50)
-        units: Different prompt for clustering units (default False)
-    
-    Returns:
-        np.ndarray: Similarity matrix of shape (n, n)
+        - values: List of values to compare
+        - llm_context: Description of column, to provide context to LLM
+        - llm_mode: Mode for LLM similarity scoring
+            'strict': Binary scoring (0 or 1), best for unit standardization
+            'fast': Range scoring (0 to 1) with gpt-4.1, faster but less accurate
+            'reliable': Range scoring (0 to 1) with gpt-5-mini, slower but more accurate
+        - client: OpenAI client for API calls
     """
-    # Get API key from .env file
-    load_dotenv()
-    api_key = os.getenv("OPENAI_API_KEY")
-
-    # Raise ValueError if api_key is not found or empty
-    if not api_key:
-        raise ValueError("OPENAI_API_KEY was not found or is empty in .env")
-    
-    # Create OpenAI client 
-    client = OpenAI(api_key=api_key)
-
     # Get the # of unique values
-    n = len(values)
+    n_unique_values = len(values)
 
     # Initialize n x n matrix with diagonal = 1.0 (self-similarity)
-    similarity_matrix = np.eye(n)
+    similarity_matrix = np.eye(n_unique_values)
 
     # Generate all pairs (upper triangle only, will mirror later)
-    pairs = list(combinations(range(n), 2))
+    pairs = list(combinations(range(n_unique_values), 2))
     # Note: combinations(range(n), 2) generates all unique pairs (i, j) where i < j
     
-    # System prompt - provides context for all batches
-    if units: 
-        system_prompt = f"""You are a unit conversion expert.
+    # Get model, model parameters & system prompt for strict mode
+    if llm_mode == 'strict': 
+        system_prompt = f"""
+For each pair (a vs b): Do these two values represent the same quantity?
 
-CONTEXT: {context}
-
-TASK: Do these two values represent the SAME quantity?
-
-SCORING:
-- 1.0 = Same quantity (different format/unit)
+Similarity scoring:
+- 1.0 = Same quantity (different format/unit allowed)
 - 0.0 = Different quantity
 
-Convert all values to a base unit, then compare.
-If quantities match after conversion → 1.0
-If quantities differ after conversion → 0.0"""
+Convert to base unit if needed, then compare.
 
-        batch_size = get_batch_size(n)
+Context: {llm_context}
 
-        # Process pairs in batches
-        for batch_start in range(0, len(pairs), batch_size):
-            batch = pairs[batch_start:batch_start + batch_size]
-            
-            # Build list of pairs for this batch with their indices
-            pairs_json = json.dumps([{"index": idx, "a": str(values[i]), "b": str(values[j])} for idx, (i, j) in enumerate(batch)])
-            
-            # Call OpenAI API for this batch (with structured output)
-            response = client.beta.chat.completions.parse(
-                model='gpt-5-mini',
-                reasoning_effort= 'low',
-                seed = 42,
-                messages=[
-                    {"role": "system", "content": system_prompt},
-                    {"role": "user", "content": pairs_json}
-                ],
-                response_format=SimilarityResponse
-            )
+Return similarity score and index as given in input. 
+""".strip()
 
-            # Extract scores and fill matrix
-            for score_item in response.choices[0].message.parsed.scores:
-                i, j = batch[score_item.index]
-                similarity = max(0.0, min(1.0, score_item.similarity))  # Clip to [0, 1]
-                
-                # Print with aligned formatting
-                print(f"{values[i]:30} ↔ {values[j]:30} → {similarity:.2f}")
+        model = 'gpt-5-mini'
+        model_parameters = {'reasoning_effort': 'low', 'seed': 42}
 
-                # Fill both [i,j] and [j,i] (symmetric matrix)
-                similarity_matrix[i, j] = similarity
-                similarity_matrix[j, i] = similarity
-    
-        return similarity_matrix
+    # Get model, model parameters & system prompt for fast and reliable mode 
+    elif llm_mode == 'fast' or llm_mode == 'reliable': 
+        system_prompt = f"""
+Score similarity for each pair (a vs b).
 
-    
-    else: 
-        system_prompt = f"""You are a data cleaning expert helping standardize a dataset column.
+Scoring:
+- 1.0 = Definitely same entity
+- 0.8-0.9 = Very likely same
+- 0.5-0.7 = Possibly related
+- 0.1-0.4 = Weak relation
+- 0.0 = Definitely different
 
-COLUMN CONTEXT: {context}
+Be precise: scoring different entities too high is worse than scoring same entities too low.
 
-YOUR TASK: Score similarity between value pairs. These scores will be used to cluster similar values and replace them with one canonical form.
+Context: {llm_context}
 
-SCORING GUIDE:
-- 1.0 = Definitely the same entity → will be merged
-- 0.8-0.9 = Very likely same (typo, abbreviation, format variation)
-- 0.5-0.7 = Possibly related, uncertain
-- 0.1-0.4 = Weak relation, probably different
-- 0.0 = Definitely different → will NOT be merged
-
-Consider: typos, case differences, abbreviations, synonyms, number words.
-
-IMPORTANT: Be precise. False merges (scoring different entities high) are worse than missed merges (scoring same entities low)."""
-        batch_size = get_batch_size(n)
-        # Process pairs in batches
-        for batch_start in range(0, len(pairs), batch_size):
-            batch = pairs[batch_start:batch_start + batch_size]
-            
-            # Build list of pairs for this batch with their indices
-            pairs_json = json.dumps([
-                {"index": idx, "a": str(values[i]), "b": str(values[j])}
-                for idx, (i, j) in enumerate(batch)
-            ])
-            
-            # Call OpenAI API for this batch (with structured output)
-            response = client.beta.chat.completions.parse(
-                model= model,
-                temperature = 0.0,
-                seed = 42,
-                messages=[
-                    {"role": "system", "content": system_prompt},
-                    {"role": "user", "content": pairs_json}
-                ],
-                response_format=SimilarityResponse
-            )
-
-            # Extract scores and fill matrix
-            for score_item in response.choices[0].message.parsed.scores:
-                i, j = batch[score_item.index]
-                similarity = max(0.0, min(1.0, score_item.similarity))  # Clip to [0, 1]
-                
-                # Print with aligned formatting
-                print(f"{values[i]:30} ↔ {values[j]:30} → {similarity:.2f}")
-
-                # Fill both [i,j] and [j,i] (symmetric matrix)
-                similarity_matrix[i, j] = similarity
-                similarity_matrix[j, i] = similarity
+Return similarity score and index as given in input. 
+""".strip()
         
-        return similarity_matrix
+        model = 'gpt-4.1' if llm_mode == 'fast' else 'gpt-5-mini'
+        model_parameters = {'temperature': 0.0, 'seed': 42} if llm_mode == 'fast' else {'reasoning_effort': 'low', 'seed': 42}
 
-def get_batch_size(n_values: int) -> int:
-    if n_values <= 10:
+    else:
+        raise ValueError(f"Invalid llm_mode: {llm_mode}. Must be 'strict', 'fast', or 'reliable'.")
+
+    # Get right batch size, depending on number of unique values
+    batch_size = _get_batch_size(n_unique_values)
+
+    # Process pairs in batches
+    for batch_start in range(0, len(pairs), batch_size):
+        batch = pairs[batch_start:batch_start + batch_size]
+        
+        # Build list of pairs for this batch with their indices
+        pairs_json = json.dumps([{"index": idx, "a": str(values[i]), "b": str(values[j])} for idx, (i, j) in enumerate(batch)])
+        
+        # Call OpenAI API for this batch (with structured output)
+        response = client.beta.chat.completions.parse(model = model,
+                                                      **model_parameters, 
+                                                      messages = [{"role": "system", "content": system_prompt}, {"role": "user", "content": pairs_json}],
+                                                      response_format = SimilarityResponse)
+
+        # Extract scores and fill matrix
+        for score_item in response.choices[0].message.parsed.scores:
+            i, j = batch[score_item.index]
+            
+            # Print with aligned formatting
+            print(f"{values[i]:30} ↔ {values[j]:30} → {score_item.similarity:.2f}")
+
+            # Fill both [i,j] and [j,i] (symmetric matrix)
+            similarity_matrix[i, j] = score_item.similarity
+            similarity_matrix[j, i] = score_item.similarity
+
+    return similarity_matrix
+
+# =============================================================================
+# Helper Functions (Private)
+# =============================================================================
+
+def _get_batch_size(n_unique_values: int) -> int:
+    """
+    Get batch size depending on number of unique values (n_unique_values)
+    """
+    if n_unique_values <= 10:
         return 15
-    elif n_values <= 30:
+    elif n_unique_values <= 30:
         return 20
-    elif n_values <= 75:
+    elif n_unique_values <= 75:
         return 30
-    elif n_values <= 100:
+    elif n_unique_values <= 100:
         return 40
     else:
         return 50
