@@ -49,14 +49,14 @@ from Functions.Structural_Errors_Helper.Canonical import most_frequent, llm_sele
 def handle_structural_errors(df: pd.DataFrame,
                              column: str,
                              similarity: str = "rapidfuzz",
+                             embedding_model: str = "text-embedding-3-small",
+                             llm_mode: str = "fast",
+                             llm_context: str = None,
                              clustering: str = "hierarchical",
-                             canonical: str = "most_frequent",
                              threshold_cc: float = 0.85,
                              threshold_h: float = 0.85,
-                             damping: float = 0.7, 
-                             embedding_model: str = "text-embedding-3-small",
-                             llm_context: str = None,
-                             llm_mode: str = "fast",) -> tuple:
+                             damping: float = 0.7,
+                             canonical: str = "most_frequent") -> tuple:
     # Terminal output: start
     print(f"Fixing structural errors ({column})... ", end = "", flush = True)
     # Note: With flush = True, print is immediately

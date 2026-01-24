@@ -3,7 +3,7 @@
 **Name of dataset:** Test Data (made up WHASH dataset)  
 **Filepath of messy dataset:** Data/Test/Test.csv  
 **Filepath of cleaned dataset:** Data/Test/Test_Cleaned.csv  
-**Generated:** 24.01.2026, 00:51:24
+**Generated:** 24.01.2026, 00:58:38
 
 ---
 
@@ -14,9 +14,9 @@
 - **Total rows deleted:** 2
 - **Total columns deleted:** 2
 - **Total values imputed:** 0
-- **Total outliers handled:** 3
-- **Total semantic outliers detected:** 8
-- **Total structural errors fixed:** 0
+- **Total outliers handled:** 0
+- **Total semantic outliers detected:** 0
+- **Total structural errors fixed:** 42
 
 ---
 
@@ -34,99 +34,56 @@
 
 ---
 
-## Semantic Outliers
+## Structural Errors
 
-### Overview
+## Overview
 
 - **Columns processed:** 2
-- **Total outliers detected:** 8
-- **Total number of affected rows:** 8
+- **Total values changed:** 42
+- **Total unique values before:** 29
+- **Total unique values after:** 9
 
-### Column: Village
+### Column: funding organization
 
-- **Given context:** Location name in Africa
-- **Threshold:** 0.5
-- **Action:** nan
-- **Unique values checked:** 14
-- **Outliers detected:** 4
+- **Similarity method:** embeddings
+- **Embedding model:** text-embedding-3-large
+- **Clustering method:** connected_components
+- **Threshold (connected components):** 0.6
+- **Canonical selection:** llm
+- **Values changed:** 40
+- **Unique values before:** 24
+- **Unique values after:** 5
 
-#### Detected Outliers
+#### Clustering Results
 
-| Value | Confidence | Number of affected rows |
-|-------|------------|-------------------------|
-| sdflkajsdf | 0.0 | 1 |
-| I love studying at ETH! | 0.0 | 1 |
-| 1.8 | 0.0 | 1 |
-| unknown | 0.0 | 1 |
+| Original Values | Clustered to Canonical |
+|-----------------|------------------------|
+| Red Crss; RED CROSS; ICRC; International Red Cross; red cross; RedCross | International Red Cross |
+| world health org; WHO; World Health Org; WH0; World Health Organization; W.H.O.; W.H.O; WHO. | World Health Organization |
+| WorldBank; WORLD BANK; World Bank; Wrold Bank; world bank | World Bank |
+| UNICEF; unicef; U.N.I.C.E.F.; United Nations Children's Fund | United Nations Children's Fund |
+| WB | WB |
 
-### Column: Population served
+### Column: funding organization
 
-- **Given context:** Number of people
-- **Threshold:** 0.5
-- **Action:** nan
-- **Unique values checked:** 50
-- **Outliers detected:** 4
+- **Similarity method:** llm
+- **LLM mode:** fast
+- **LLM context provided:** Funding organizations
+- **Clustering method:** hierarchical
+- **Threshold (hierarchical):** 0.9
+- **Canonical selection:** llm
+- **Values changed:** 2
+- **Unique values before:** 5
+- **Unique values after:** 4
 
-#### Detected Outliers
+#### Clustering Results
 
-| Value | Confidence | Number of affected rows |
-|-------|------------|-------------------------|
-| -250 | 0.0 | 1 |
-| 1234.89 | 0.2 | 1 |
-| 999.99 | 0.0 | 1 |
-| not so many | 0.0 | 1 |
-
----
-
-## Outliers
-
-### Lower & Upper Bounds
-
-| Column | Lower Bound | Upper Bound |
-|--------|-------------|-------------|
-| Flow Rate lps | -1.6987 | 6.7512 |
-
-### Overview
-
-- **Multiplier:** 1.5
-- **Total outliers:** 3
-- **Method:** winsorize
-
-### Outliers Handled
-
-| Column | Original | New Value | Bound |
-|--------|----------|-----------|-------|
-| Flow Rate lps | 48.7 | 6.75125 | upper |
-| Flow Rate lps | 9.2 | 6.75125 | upper |
-| Flow Rate lps | 12.8 | 6.75125 | upper |
-
-**Note:** New values shown above are pre-rounding. Final values may be rounded in post-processing to match original column precision.
-
----
-
-## DateTime Standardization
-
-- **Column:** install_date
-- **Format:** European (DD/MM)
-- **Invalid handling:** nat
-- **Total values:** 50
-- **Successfully converted / standardized:** 40
-- **Invalid values:** 10
-
-### Invalid values handled
-
-| Original | Action |
-|----------|--------|
-| 15/2020 | set to NaT |
-| January 2020 | set to NaT |
-| 15/25/2020 | set to NaT |
-| 31/04/2020 | set to NaT |
-| 29/02/2023 | set to NaT |
-| 15/05/2200 | set to NaT |
-| 15/2020/05 | set to NaT |
-| 01/25/2024 | set to NaT |
-| 2024/25/01 | set to NaT |
-| unknown | set to NaT |
+| Original Values | Clustered to Canonical |
+|-----------------|------------------------|
+| International Red Cross | International Red Cross |
+| World Health Organization | World Health Organization |
+| World Bank; WB | World Bank |
+| United Nations Children's Fund | United Nations Children's Fund |
 
 ---
 

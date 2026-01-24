@@ -95,10 +95,7 @@ def embedding_similarity(values: list, embedding_model: str, client: OpenAI) -> 
 # Method 3: LLM Similarity (OpenAI)
 # =============================================================================
 
-def llm_similarity(values: list,
-                   llm_context: str,
-                   llm_mode: str,
-                   client: OpenAI) -> np.ndarray:
+def llm_similarity(values: list, llm_mode: str, llm_context: str, client: OpenAI) -> np.ndarray:
     """
     From list of values (input) compute similarity matrix using LLM
     

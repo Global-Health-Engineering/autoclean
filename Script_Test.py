@@ -82,7 +82,7 @@ df, report_date = standardize_datetime(df,
 
 # Define list to store all reports of handle_structural_errors()
 report_str = []
-
+''''''
 df, report_str1 = handle_structural_errors(df,
                                            column = 'funding organization',
                                            similarity = 'embeddings',
