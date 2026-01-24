@@ -41,7 +41,7 @@ df, report_dup = handle_duplicates(df)
 # =============================================================================
 # SEMANTIC OUTLIERS
 # =============================================================================
-'''
+
 # Define list to store all reports of handle_semantic_outliers()
 report_sem = []
 
@@ -79,10 +79,10 @@ df, report_date = standardize_datetime(df,
 # =============================================================================
 # STRUCTURAL ERRORS 
 # =============================================================================
-'''
+
 # Define list to store all reports of handle_structural_errors()
 report_str = []
-'''
+
 df, report_str1 = handle_structural_errors(df,
                                            column = 'funding organization',
                                            similarity = 'embeddings',
@@ -142,7 +142,7 @@ df, report_str7 = handle_structural_errors(df,
                                            threshold_h = 0.5,
                                            canonical = 'llm')
 report_str.append(report_str7)
-'''
+
 df, report_str8 = handle_structural_errors(df,
                                            column = 'sample Volume',
                                            similarity = 'rapidfuzz',
@@ -159,7 +159,7 @@ df, report_str9 = handle_structural_errors(df,
                                            threshold_cc = 1.0,
                                            canonical = 'llm')
 report_str.append(report_str9)
-'''
+
 df, report_str10 = handle_structural_errors(df,
                                             column = 'country',
                                             similarity = 'embeddings',
@@ -187,7 +187,7 @@ df, report_str12 = handle_structural_errors(df,
                                             threshold_h = 0.8,
                                             canonical = 'llm')
 report_str.append(report_str12)
-'''
+
 # =============================================================================
 # POST-PROCESSING
 # =============================================================================
@@ -200,9 +200,9 @@ report_post = postprocess_data(df, df_original, OUTPUT_FILEPATH, clean_names = T
 
 reports = {'preprocessing': report_pre,
            'duplicates': report_dup,
-           #'semantic_outliers': report_sem,
-           #'outliers': report_out,
-           #'datetime': report_date,
+           'semantic_outliers': report_sem,
+           'outliers': report_out,
+           'datetime': report_date,
            'structural_errors': report_str,
            #'missing_values': report_miss,
            'postprocessing': report_post}

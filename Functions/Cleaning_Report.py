@@ -19,6 +19,7 @@ Note:
     - Only include reports for cleaning functions that were actually performed (missing keys will be skipped in the report)
     - Value of key 'structural_errors' can be a list of dictionaries, if Structural_Errors.py was applied multiple times
     - Value of key 'semantic_outliers' can be a list of dictionaries, if Semantic_Outliers.py was applied multiple times
+    - Value of key 'missing_values' can be a list of dictionaries, if Missing_values.py was applied multiple times
 
 Principle of Markdown generation:
     1. Each line of the Markdown file is stored as a string in list 'lines'
@@ -153,10 +154,6 @@ def _generate_summary(reports: dict) -> list:
         total_rows_deleted += reports['duplicates']['rows_removed']
         total_cols_deleted += reports['duplicates']['cols_removed']
 
-    if 'missing_values' in reports:
-        total_rows_deleted += reports['missing_values']['rows_deleted']
-        total_imputations = len(reports['missing_values']['imputations_num']) + len(reports['missing_values']['imputations_categ'])
-
     if 'datetime' in reports:
         total_rows_deleted += reports['datetime']['rows_deleted']
     
@@ -164,6 +161,21 @@ def _generate_summary(reports: dict) -> list:
         total_rows_deleted += reports['outliers']['rows_deleted']
         total_outliers = reports['outliers']['total_outliers']
     
+    if 'missing_values' in reports:
+        report_miss = reports['missing_values']
+
+        # Distinguish if Missing_Values.py was applied multiple times or just once
+        # Multiple times if report_miss = list (of dict), otherwise single time
+        if isinstance(report_miss, list):
+            # Note isinstance(x, y) returns true if object x corresponds to type y
+            for single_report in report_miss:
+                total_rows_deleted += single_report['n_rows_deleted']
+                total_imputations += single_report['n_imputed']
+
+        else:
+            total_rows_deleted += report_miss['n_rows_deleted']
+            total_imputations += report_miss['n_imputed']
+
     if 'structural_errors' in reports:
         report_str = reports['structural_errors']
 
@@ -272,7 +284,7 @@ def _generate_semantic_outliers_section(report) -> list:
 
         # Create overview for semantic outliers
         lines.append("") # empty line
-        lines.append("## Overview")
+        lines.append("### Overview")
         lines.append("") # empty line 
         
         lines.append(f"- **Column processed:** {report['column']}")
@@ -288,7 +300,7 @@ def _generate_semantic_outliers_section(report) -> list:
         # Create table of detected outliers (if available)
         if report['outliers_detected'] > 0:
             lines.append("") # empty line
-            lines.append("### Detected Outliers")
+            lines.append("#### Detected Outliers")
             lines.append("") # empty line
 
             lines.append("| Value | Confidence | Number of affected rows |")
@@ -306,6 +318,7 @@ def _generate_semantic_outliers_section(report) -> list:
         lines.append("### Overview")
         lines.append("") # empty line
         
+        # Calculate totals across all single reports
         total_outliers = 0
         total_rows_affected = 0
         for single_report in report:
@@ -475,7 +488,7 @@ def _generate_structural_errors_section(report) -> list:
         
         # Create overview for structural errors 
         lines.append("") # empty line
-        lines.append("## Overview")
+        lines.append("### Overview")
         lines.append("") # empty line 
 
         lines.append(f"- **Column processed:** {report['column']}")
@@ -548,7 +561,7 @@ def _generate_structural_errors_section(report) -> list:
     else:
         # Create overview for structural errors 
         lines.append("") # empty line
-        lines.append("## Overview")
+        lines.append("### Overview")
         lines.append("") # empty line
 
         # Calculate totals across all single reports
@@ -637,111 +650,138 @@ def _generate_structural_errors_section(report) -> list:
 
         return lines
 
-def _generate_missing_values_section(report: dict) -> list:
+def _generate_missing_values_section(report) -> list:
     """Generate missing values section"""
     
     # Initialize list of lines
     lines = []
-
-    # Create title
+    
     lines.append("---") # divider line
     lines.append("") # empty line
     lines.append("## Missing Values")
-    lines.append("") # empty line 
-    
-    # Create section about selected columns for which missing values were handled
-    if report['columns'] != None: 
-        lines.append("### Column Selection")
-        lines.append("") # empty line
-        lines.append("**Selected columns**: ")
 
-        for column in report['columns']: 
-            lines.append(f"- {column}")
+    # Distinguish if missing values was applied once or multiple times
+    if isinstance(report, dict):
+        # Note isinstance(x, y) returns true if object x corresponds to type y
 
-        lines.append("") # empty line 
-        lines.append("**Note:** Only these columns were selected to handle missing values.")
-        lines.append("") # empty line 
-    
-    else:
-        lines.append("### Column Selection")
+        # Create overview for missing values
         lines.append("") # empty line
-        lines.append("All columns were selected to handle missing values.")
+        lines.append("### Overview")
         lines.append("") # empty line
+        
+        lines.append(f"- **Column processed:** {report['column']}")
+        lines.append(f"- **Method:** {report['method']}")
 
-    # Create section about excluded features which were not used for KNN & MissForest
-    if report['exclude_features'] != None: 
-        if report['method_num'] == 'knn' or report['method_num'] == 'missforest' or report['method_categ'] == 'knn' or report['method_categ'] == 'missforest': 
-            lines.append("### Excluded Features")
+        # Get features columns & parameters if KNN/MissForest was used 
+        if report['method'] in ['knn', 'missforest']:
+            if report['features'] != None:
+                lines.append(f"- **Features used:** {'; '.join(report['features'])}")
+                # Note: '; '.join(report['features']) joins all elements of report['features'] to a string with each element seperated by ;
+            else:
+                lines.append(f"- **Features used:** All columns, except column '{report['column']}'")
+            
+            if report['method'] == 'knn':
+                lines.append(f"- **n_neighbors:** {report['n_neighbors']}")
+
+            elif report['method'] == 'missforest':
+                lines.append(f"- **n_estimators:** {report['n_estimators']}")
+                lines.append(f"- **max_iter:** {report['max_iter']}")
+                lines.append(f"- **max_depth:** {report['max_depth']}")
+                lines.append(f"- **min_samples_leaf:** {report['min_samples_leaf']}")
+
+        lines.append(f"- **Missing values before imputation:** {report['n_missing_before']}")
+        
+        if report['n_rows_deleted'] > 0:
+            lines.append(f"- **Rows deleted:** {report['n_rows_deleted']}")
+        else:
+            lines.append(f"- **Values imputed:** {report['n_imputed']}")
+             
+        # Create table of imputations (if available)
+        if report['n_imputed'] > 0:
             lines.append("") # empty line
-            lines.append("**Columns which were not used as features for KNN / MissForest**: ")
-
-            for column in report['exclude_features']: 
-                lines.append(f"- {column}")
-
-    else: 
-        if report['method_num'] == 'knn' or report['method_num'] == 'missforest' or report['method_categ'] == 'knn' or report['method_categ'] == 'missforest': 
-            lines.append("### Excluded Features")
-            lines.append("") # empty line
-            lines.append("No column was excluded as feature for KNN / MissForest")
-    
-    # Create section with most important facts (Overview)
-    lines.append("### Overview")
-    lines.append("") # empty line
-
-    num_missing_before = report['num_missing_before']
-    categ_missing_before = report['categ_missing_before']
-
-    if num_missing_before == 0 and categ_missing_before == 0:
-        lines.append("No missing values found.")
-        lines.append("") # empty line
-        return lines
-
-    lines.append(f"- **Numerical missing values:** {int(num_missing_before)}")
-    lines.append(f"- **Categorical missing values:** {int(categ_missing_before)}")
-    lines.append(f"- **Chosen method for numerical missing values:** {report['method_num']}")
-    lines.append(f"- **Chosen method for categorical missing values:** {report['method_categ']}")
-    
-    if report['method_num'] == 'knn' or report['method_categ'] == 'knn': 
-        lines.append(f"- **Chosen parameters for KNN:** n_neighbors = {report['n_neighbors']}")
-
-    if report['method_num'] == 'missforest' or report['method_categ'] == 'missforest': 
-        lines.append(f"- **Chosen parameters for MissForest:** n_estimators = {report['n_estimators']}; max_depth = {report['max_depth']}; max_iter = {report['max_iter']} & min_samples_leaf = {report['min_samples_leaf']}")
-
-    if report['rows_deleted'] > 0:
-        lines.append(f"- **Rows deleted:** {report['rows_deleted']}")
-    
-    # Create section with table of imputations 
-    imputations_num = report['imputations_num']
-    imputations_categ = report['imputations_categ']
-
-    if len(imputations_num) > 0 or len(imputations_categ) > 0:
-        lines.append("") # empty line
-        lines.append("### Imputations")
-        lines.append("") # empty line
-
-        if len(imputations_num) > 0:
-            lines.append("**Numerical:**")
-            lines.append("| Row | Column | New Value | Method |")
-            lines.append("|-----|--------|-----------|--------|")
-            for imp in imputations_num:
-                lines.append(f"| {imp['row']} | {imp['column']} | {imp['new_value']} | {imp['method']} |")
-           
+            lines.append("#### Imputations")
             lines.append("") # empty line
 
-        if len(imputations_categ) > 0:
-            lines.append("**Categorical:**")
-            lines.append("| Row | Column | New Value | Method |")
-            lines.append("|-----|--------|-----------|--------|")
-            for imp in imputations_categ:
-                lines.append(f"| {imp['row']} | {imp['column']} | {imp['new_value']} | {imp['method']} |")
+            lines.append("| Row | New imputed Value |")
+            lines.append("|-----|-------------------|")
+
+            for imp in report['imputations']:
+                lines.append(f"| {imp['row']} | {imp['new_value']} |")
             
             lines.append("") # empty line
+            lines.append("**Note:** Imputed values shown above are pre-rounding. Final values may be rounded in post-processing.")
+        
+        lines.append("") # empty line
+        
+        return lines
+    
+    else:
+        # Create overview for missing values
+        lines.append("") # empty line
+        lines.append("### Overview")
+        lines.append("") # empty line
+        
+        # Calculate totals across all single reports
+        total_imputed = 0
+        total_rows_deleted = 0
+        for single_report in report:
+            total_imputed += single_report['n_imputed']
+            total_rows_deleted += single_report['n_rows_deleted']
+        
+        lines.append(f"- **Columns processed:** {len(report)}")
+        lines.append(f"- **Total values imputed:** {total_imputed}")
+        lines.append(f"- **Total rows deleted:** {total_rows_deleted}")
+        lines.append("") # empty line
+        
+        # Generate section for each column processed
+        for single_report in report:
+            lines.append(f"### Column: {single_report['column']}")
+            lines.append("") # empty line
+            
+            lines.append(f"- **Method:** {single_report['method']}")
 
-        lines.append("**Note:** Imputed values shown above are pre-rounding. Final values may be rounded in post-processing to match original column precision.")
+            # Get features columns & parameters if KNN/MissForest was used 
+            if single_report['method'] in ['knn', 'missforest']:
+                if single_report['features'] != None:
+                    lines.append(f"- **Features used:** {'; '.join(single_report['features'])}")
+                    # Note: '; '.join(report['features']) joins all elements of report['features'] to a string with each element seperated by ;
+                else:
+                    lines.append(f"- **Features used:** All columns, except column '{single_report['column']}'")
+                
+                if single_report['method'] == 'knn':
+                    lines.append(f"- **n_neighbors:** {single_report['n_neighbors']}")
 
-    lines.append("") # empty line
+                elif single_report['method'] == 'missforest':
+                    lines.append(f"- **n_estimators:** {single_report['n_estimators']}")
+                    lines.append(f"- **max_iter:** {single_report['max_iter']}")
+                    lines.append(f"- **max_depth:** {single_report['max_depth']}")
+                    lines.append(f"- **min_samples_leaf:** {single_report['min_samples_leaf']}")
 
-    return lines
+            lines.append(f"- **Missing values before imputation:** {single_report['n_missing_before']}")
+        
+            if single_report['n_rows_deleted'] > 0:
+                lines.append(f"- **Rows deleted:** {single_report['n_rows_deleted']}")
+            else:
+                lines.append(f"- **Values imputed:** {single_report['n_imputed']}")
+            
+            # Create table of imputations (if available)
+            if report['n_imputed'] > 0:
+                lines.append("") # empty line
+                lines.append("#### Imputations")
+                lines.append("") # empty line
+
+                lines.append("| Row | New imputed Value |")
+                lines.append("|-----|-------------------|")
+                
+                for imp in single_report['imputations']:
+                    lines.append(f"| {imp['row']} | {imp['new_value']} |")
+                
+                lines.append("") # empty line
+                lines.append("**Note:** Imputed values shown above are pre-rounding. Final values may be rounded in post-processing.")
+        
+        lines.append("") # empty line
+        
+        return lines
 
 def _generate_postprocessing_section(report: dict) -> list:
     """Generate postprocessing section"""

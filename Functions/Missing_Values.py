@@ -1,38 +1,28 @@
 """
-Handle missing values in the dataframe
+Missing Values: Impute missing values in a specific column
 
-To impute missing values with handle_missing_values, there are four important parameters. One is columns which can be used if imputation is needed only on certain columns and not all. The other is exclude_features, which can be used if certain columns should not be used as features for KNN and MissForest. Note the list of columns and exclude_features should not have any intersection. Hence exclude_features can't have columns, for which one wants to apply data imputation. If there are columns which need data imputation and cannot be used as features for other columns which need data imputation, the function needs to be applied multiple times. The last two are method_num & method_categ which choose the methods for imputation of numerical / categorical columns. 
+This function handles missing values for one column at a time. 
+User specifies the column, method, and optionally which columns to use as features for KNN/MissForest.
+Apply multiple times for different columns and append reports to a list.
 
-Column Selection (columns):
-    - None: Process all columns (default)
-    - ['col1', 'col2', ...]: Process only specified columns
-
-Excluding columns as features (exclude_features):
-    - None: Use all columns as potential features (default)
-    - ['col1', 'col2', ...]: Dont use specified columns as potential features
-
-Methods for numerical columns (method_num):
-    - 'mean': Fill with column average (default)
-    - 'median': Fill with column median  
-    - 'mode': Fill with most frequent value
-    - 'delete': Remove rows with numerical missing values
-    - 'knn': K-Nearest Neighbors imputation
-    - 'missforest': Random Forest iterative imputation
-    - 'false': Skip all numerical columns
-    
-Methods for categorical columns (method_categ):
-    - 'mode': Fill with most frequent value (default)
-    - 'delete': Remove rows with categorical missing values
-    - 'knn': K-Nearest Neighbors imputation
-    - 'missforest': Random Forest iterative imputation
-    - 'false': Skip all categorical columns
-    
-Note on remaining parameters for MissForest and KNN: 
-    - n_neighbors : Number of neighbors for KNN imputation (default=5)
-    - max_iter : Maximum iterations for MissForest imputation (default=10)
-    - n_estimators : Number of decision trees in Random Forest for MissForest (default=10)
-    - max_depth : Maximum depth of each tree in Random Forest for MissForest (default=None, unlimited)
-    - min_samples_leaf : Minimum samples required at each leaf node of the decision tree from Random Forest for MissForest (default=1)
+Parameters:
+    - df: DataFrame to clean
+    - column: Name of column to apply handle_missing_values() (target column)
+    - method: Imputation methods
+        - 'mean': Fill with column average (only for numerical columns)
+        - 'median': Fill with column median (only for numerical columns)
+        - 'mode': Fill with most frequent value in the column (for numerical or categorical columns, default)
+        - 'delete': Remove rows with missing values (for numerical or categorical columns)
+        - 'knn': K-Nearest Neighbors imputation (for numerical or categorical columns)
+        - 'missforest': Random Forest iterative imputation (for numerical or categorical columns)
+    - features: Optional list of columns to use as features for KNN/MissForest
+        - None: Use all columns (except the one specified for imputation) as features (default)
+        - ['col1', 'col2', ...]: Use only specified columns as features 
+    - n_neighbors: Number of neighbors for KNN imputation (default = 5)
+    - max_iter: Maximum iterations for MissForest imputation (default = 10)
+    - n_estimators: Number of decision trees in Random Forest for MissForest (default = 10)
+    - max_depth: Maximum depth of each tree in Random Forest for MissForest (default = None, unlimited)
+    - min_samples_leaf: Minimum samples required at each leaf node of the decision tree from Random Forest for MissForest (default = 1)
 
 Returns: 
     Cleaned datafram and report (as tuple)
@@ -55,190 +45,132 @@ from sklearn.preprocessing import StandardScaler
 # Main Function (Public)
 # ============================================================================
 
-def handle_missing_values(df: pd.DataFrame, 
-                          method_num: str = 'mean', 
-                          method_categ: str = 'mode',
-                          columns: list = None,
-                          exclude_features: list = None,
-                          n_neighbors: int = 5, 
+def handle_missing_values(df: pd.DataFrame,
+                          column: str,
+                          method: str = 'mode',
+                          features: list = None,
+                          n_neighbors: int = 5,
                           max_iter: int = 10,
-                          n_estimators: int = 10, 
+                          n_estimators: int = 10,
                           max_depth: int = None,
                           min_samples_leaf: int = 1) -> tuple:
     # Terminal output: start
-    print("Handling missing values... ", end="", flush=True)
+    print(f"Handling missing values ({column})... ", end = "", flush = True)
     # Note: With flush = True, print is immediately
 
-    # Initialize report
-    report = {'method_num': method_num,
-              'method_categ': method_categ,
-              'columns': columns,
-              'exclude_features': exclude_features,
-              'n_neighbors': n_neighbors, 
-              'max_iter': max_iter,
-              'n_estimators': n_estimators, 
-              'max_depth': max_depth,
-              'min_samples_leaf': min_samples_leaf,
-              'num_missing_before': 0,
-              'categ_missing_before': 0,
-              'rows_deleted': 0,
-              'imputations_num': [],
-              'imputations_categ': []}
-    
-    # Work with copy, to not modify input df 
+    # Work with copy, to not modify input df
     df_work = df.copy()
 
-    # Validation: columns and exclude_features should not intersect, if they do raise Value error
-    if columns != None and exclude_features != None:
-        intersection = [col for col in columns if col in exclude_features]
-        if len(intersection) > 0:
-            raise ValueError(f"List from columns and exclude_features do intersect with: {intersection}. This is invalid.")
-        
-    # Exclude specified columns as features (if provided) by removing them from df_work
-    # Save excluded columns and column order, to add them at the end again in correct order  
-    if exclude_features != None:
-        original_column_order = list(df_work.columns)
-        excluded_data = df_work[exclude_features].copy()
-        df_work = df_work.drop(columns = exclude_features)
+    # Validate if target column exists
+    if column not in list(df_work.columns):
+        # Note: list(df_work.columns) returns a list of all column names of df_work 
+        raise ValueError(f"Column '{column}' not found in dataframe")
 
-    # Get indexes of numerical & categorical columns
-    i_num_cols = list(df_work.select_dtypes(include = np.number).columns)
-    # Note: .select_dtypes(include = np.number) returns a dataframe with numerical columns 
-    #       .columns gets the indexes of the numerical columns (as pandas Index object)
-    #       list() convert to list
-    i_categ_cols = list(df_work.select_dtypes(include = ['object', 'category', 'bool']).columns)
-    # Note: .select_dtypes(include = ['object', 'category', 'bool']) returns a dataframe with categorical columns
-    #       .columns gets the indexes of the numerical columns (as pandas Index object)
-    #       list() convert to list
+    # Initialize report
+    report = {'column': column,
+              'method': method,
+              'n_missing_before': 0,
+              'n_imputed': 0,
+              'n_rows_deleted': 0,
+              'imputations': []}
 
-    # Adjust the i_num_cols / i_categ_cols if specific columns are selected to impute 
-    if columns != None:
-        # Keep only columns that are in the specified list (columns)
-        i_num_cols = [col for col in i_num_cols if col in columns]
-        i_categ_cols = [col for col in i_categ_cols if col in columns]
+    # Add method-specific parameters to report
+    if method == 'knn':
+        report['features'] = features
+        report['n_neighbors'] = n_neighbors
 
-    # Count total missing values 
-    n_num_missing = df_work[i_num_cols].isna().sum().sum() 
-    # Note: df_work[i_num_cols] returns a dataframe with (selected) numerical columns 
-    #       .isna() returns a dataframe of True / False, with True for missing values 
-    #       First .sum() sums each column
-    #       Second .sum() sums all the column totals
-    #       if i_num_cols is empty, n_num_missing = 0
-    n_categ_missing = df_work[i_categ_cols].isna().sum().sum() 
-    # Note: df_work[i_categ_cols] returns a dataframe with (selected) categorical columns 
-    #       .isna() returns a dataframe of True / False, with True for missing values 
-    #       First .sum() sums each column
-    #       Second .sum() sums all the column totals
-    #       if i_categ_cols is empty, n_categ_missing = 0
-    n_total_missing = n_categ_missing + n_num_missing
+    elif method == 'missforest':
+        report['features'] = features
+        report['max_iter'] = max_iter
+        report['n_estimators'] = n_estimators
+        report['max_depth'] = max_depth
+        report['min_samples_leaf'] = min_samples_leaf
 
-    # Update report
-    report['num_missing_before'] = n_num_missing
-    report['categ_missing_before'] = n_categ_missing
+    # Count missing values in target column before imputation and add it to report 
+    n_missing_before = df_work[column].isna().sum()
+    # Note: .isna() returns series of True / False, with True for missing values
+    #       .sum() sums all True as 1 in the boolean series 
+    report['n_missing_before'] = n_missing_before
 
-    # End if no missing value in total
-    if n_total_missing == 0:
-        # Add excluded columns in original order (if any were excluded)
-        if exclude_features != None:
-            # Add excluded columns to the right
-            for col in exclude_features:
-                df_work[col] = excluded_data[col]
-            
-            # Restore original column order    
-            df_work = df_work[original_column_order]
+    # End if no missing value in specified column 
+    if n_missing_before == 0:
+        print("✓")
+        return df_work, report
+
+    # Get boolean mask (True = missing value) as list for missing values before imputation (for report)
+    mask_missing_before = list(df_work[column].isna())
+
+    # Determine if target column is numerical (is_numerical = True) or categorical (is_numerical = False)
+    is_numerical = np.issubdtype(df_work[column].dtype, np.number)
+    # Note: .dtype returns the data type of a column
+    #       np.issubdtype(x, y) returns True if x is equal to y (= specific type) or a subtype of y (= group of types, e.g. np.number)
+    #       np.number includes all numerical types
+    
+    # Validate method compatibility (mean & median only work for numerical columns)
+    if method in ['mean', 'median'] and not is_numerical:
+        raise ValueError(f"Chosen method '{method}' only works with numerical columns. Specified column '{column}' is categorical.")
+
+    # Get seperate df with only feature columns if method is KNN or MissForest
+    if method in ['knn', 'missforest']:
+        df_features = _prepare_features(df_work, column, features)
+    
+    # Execute specified imputation method
+    if method == 'delete':
+        # Get # of rows before removing rows with missing values in specified column (for report)
+        n_rows_before = len(df_work)
+
+        # Remove rows with missing values in specified column 
+        df_work = df_work.dropna(subset = [column]).reset_index(drop = True)
+        # Note: .dropna(subset = [column]) removes rows with missing values in column 
+        #       .reset_index(drop = True) resets row indexes and doesnt keep old indexes as new column (drop = True)
+
+        # Update report
+        report['n_rows_deleted'] = n_rows_before - len(df_work)
 
         print("✓")
         return df_work, report
-    
-    # If no numerical missing values, then set method_num to false
-    if n_num_missing == 0: 
-        method_num = 'false'
 
-    # Execute numerical methods (if methode_num == 'false', then execution is skipped)
-    if method_num != 'false':
-        # Get boolean mask for missing values before numerical imputation (for report)
-        mask_missing_before_num = df_work[i_num_cols].isna().copy() 
-        
-        if method_num == 'delete':
-            # Get # of rows before numerical delete is applied (for report) 
-            n_rows_before = len(df_work)
+    elif method == 'mean':
+        # Calculate mean of target column 
+        fill_value = df_work[column].mean()
 
-            df_work = _handle_numerical_delete(df_work, i_num_cols)
+        # Fill missing value(s) in target column with mean
+        df_work[column] = df_work[column].fillna(fill_value)
 
-            # Update report 
-            report['rows_deleted'] = n_rows_before - len(df_work)
+    elif method == 'median':
+        # Calculate median of target target column
+        fill_value = df_work[column].median()
 
-            # Possible that n_categ_missing has changed through deleting rows 
-            n_categ_missing = df_work[i_categ_cols].isna().sum().sum()
+        # Fill missing value(s) in target column with median
+        df_work[column] = df_work[column].fillna(fill_value)
 
-        elif method_num in ['mean', 'median', 'mode']:
-            df_work = _handle_numerical_statistical(df_work, i_num_cols, method_num)
-            
-        elif method_num == 'knn':
-            df_work = _handle_numerical_knn(df_work, i_num_cols, n_neighbors)
-        
-        elif method_num == 'missforest':
-            df_work = _handle_numerical_missforest(df_work, i_num_cols, max_iter, n_estimators, max_depth, min_samples_leaf)
-    
-    # Track for report data imputation (numerical) 
-    if method_num not in ['false', 'delete']:
-        for col in i_num_cols:
-            for idx in df_work.index: # df_work.index gets row indexes 
-                # Check if cell was missing before (mask_missing_before_num.at[idx, col]) and now has a value, i.e. was imputed (pd.notna(df_work.at[idx, col]))
-                if mask_missing_before_num.at[idx, col] and pd.notna(df_work.at[idx, col]):
-                    report['imputations_num'].append({'row': idx,
-                                                      'column': col,
-                                                      'new_value': df_work.at[idx, col],
-                                                      'method': method_num})
-                    # Note: Value of key 'imputations' in dict report is a list, in which each value is a dictionary 
-    
-    # If no categorical missing values, then set method_categ to false
-    if n_categ_missing == 0: 
-        method_categ = 'false'
+    elif method == 'mode':
+        # Calculate the most frequent value in target column, which returns series (can be multiple values if tie) of which the first value is taken ([0])
+        fill_value = df_work[column].mode()[0]
 
-    # Execute categorical methods (if methode_categ == 'false', then execution is skipped)
-    if method_categ != 'false':
-        # Get boolean mask for missing values before categorical imputation (for report)
-        mask_missing_before_categ = df_work[i_categ_cols].isna().copy()
+        # Fill missing value(s) in target column with most frequent value 
+        df_work[column] = df_work[column].fillna(fill_value)
 
-        if method_categ == 'delete':
-            # Get # of rows before categorical delete is applied (for report) 
-            n_rows_before = len(df_work)
+    elif method == 'knn':
+        df_work = _impute_knn(df_work, column, df_features, n_neighbors, is_numerical)
 
-            df_work = _handle_categorical_delete(df_work, i_categ_cols)
+    elif method == 'missforest':
+        df_work = _impute_missforest(df_work, column, df_features, max_iter, n_estimators, max_depth, min_samples_leaf, is_numerical)
+
+    else:
+        raise ValueError(f"Invalid method: {method}. Must be 'mean', 'median', 'mode', 'delete', 'knn', or 'missforest'.")
+
+    # Track imputations for report
+    for idx in list(df_work.index): # list(df_work.index) gets list of row indexes
+        # Check if value in target column, at row idx was missing value before imputation and is now imputed
+        if mask_missing_before[idx] and pd.notna(df_work.at[idx, column]):
+            # Note: pd.notna(x) returns True if x is not a missing value
             
             # Update report 
-            report['rows_deleted'] += n_rows_before - len(df_work)
-            
-        elif method_categ == 'mode':
-            df_work = _handle_categorical_mode(df_work, i_categ_cols)
-            
-        elif method_categ == 'knn':
-            df_work = _handle_categorical_knn(df_work, i_categ_cols, n_neighbors)
-            
-        elif method_categ == 'missforest':
-            df_work = _handle_categorical_missforest(df_work, i_categ_cols, max_iter, n_estimators, max_depth, min_samples_leaf)
-    
-    # Track for report data imputation (categorical)
-    if method_categ not in ['false', 'delete']:
-        for col in i_categ_cols:
-            for idx in df_work.index: # df_work.index gets row indexes 
-                # Check if cell was missing before (mask_missing_before_categ.at[idx, col]) and now has a value, i.e. was imputed (pd.notna(df_work.at[idx, col]))
-                if mask_missing_before_categ.at[idx, col] and pd.notna(df_work.at[idx, col]):
-                    report['imputations_categ'].append({'row': idx,
-                                                        'column': col,
-                                                        'new_value': df_work.at[idx, col],
-                                                        'method': method_categ})
-                    # Note: Value of key 'imputations' in dict report is a list, in which each value is a dictionary
+            report['imputations'].append({'row': idx, 'new_value': df_work.at[idx, column]})
+            # Note: Value of key 'imputations' in dict report is a list, in which each value is a dictionary
 
-    # Add excluded columns in original order (if any were excluded)
-    if exclude_features != None:
-        # Add excluded columns to the right
-        for col in exclude_features:
-            df_work[col] = excluded_data[col]
-
-        # Restore original column order    
-        df_work = df_work[original_column_order]
+    report['n_imputed'] = len(report['imputations'])
 
     # Terminal output: end
     print("✓")
@@ -248,96 +180,56 @@ def handle_missing_values(df: pd.DataFrame,
 # Helper Functions (Private)
 # ============================================================================
 
-def _handle_numerical_delete(df: pd.DataFrame, i_num_cols: list) -> pd.DataFrame:
+def _prepare_features(df: pd.DataFrame, target_column: str, features: list) -> pd.DataFrame:
     """
-    Delete rows that have missing values in (selected) numerical columns 
+    Return a dataframe with only feature columns for KNN/MissForest imputation
     """
+    # If features == None, all columns except target_column (specified column for imputation) are features
+    if features is None:
+        feature_cols = [col for col in list(df.columns) if col != target_column]
+    # If features are specified (features need to exist in df & can't be target column) 
+    else:
+        feature_cols = [col for col in features if col in list(df.columns) and col != target_column]
+        if len(feature_cols) == 0:
+            raise ValueError(f"No valid feature columns found. Provided: {features}")
     
-    # Get boolean mask (type: Series) with True if row has missing values in (selected) numerical columns & otherwise False
-    mask = df[i_num_cols].isna().any(axis = 1)
-    # Note: df[i_num_cols] gets a dataframe with (selected) numerical columns
-    #       .isna() returns a dataframe of True / False, with True for missing values
-    #       .any(axis = 1) convert each row (axis = 1) into a single bool (if any True in row --> True, otherwise --> False) 
+    return df[feature_cols]
 
-    # Remove rows, where mask is True (missing numerical value(s))
-    df = df[~mask].reset_index(drop=True)
-    # Note: '~' flips True & False
-    #       df[mask] gets dataframe with rows for which mask is true
-    #       .reset_index(drop=True) resets indexes of rows & don't keep the old ones as a new column (drop = true) 
-    
-    return df
-
-def _handle_numerical_statistical(df: pd.DataFrame, i_num_cols: list, method: str) -> pd.DataFrame:
-    """
-    Handle missing values in (selected) numerical columns with simple statistical methods (mean, median, mode)
-    """
-
-    for idx in i_num_cols:
-        # Check if column idx has any missing number
-        if df[idx].isna().any():
-            if method == 'mean':
-                # Calculate mean of column idx 
-                fill_value = df[idx].mean() 
-                
-                # Fill missing value(s) in column idx with mean
-                df[idx] = df[idx].fillna(fill_value)
-
-            elif method == 'median':
-                # Calculate median of column idx 
-                fill_value = df[idx].median()
-
-                # Fill missing value(s) in column idx with median
-                df[idx] = df[idx].fillna(fill_value)
-
-            elif method == 'mode':
-                # Calculate the most frequent value in column idx, which returns series (can be multiple values if tie) of which the first value is taken ([0])
-                fill_value = df[idx].mode()[0]
-
-                # Fill missing value(s) in column idx with most frequent value
-                df[idx] = df[idx].fillna(fill_value)
-    
-    return df
-
-def _encode_categorical_columns(df: pd.DataFrame, i_categ_cols: list) -> tuple:
-    """
-    Encode (selected) categorical columns to numerical values
-    """
-    
-    # Create encoder for (selected) categorical columns
+def _encode_categorical_columns(df: pd.DataFrame, categ_cols: list) -> tuple:
+    """Encode (selected) categorical columns to numerical columns"""
+    # Create encoder 
     encoder = OrdinalEncoder()
-    
-    # Fit encoder and transform (selected) categorical columns 
-    df[i_categ_cols] = encoder.fit_transform(df[i_categ_cols])
-    
+
+     # Fit encoder and transform (selected) categorical columns 
+    df[categ_cols] = encoder.fit_transform(df[categ_cols])
+
     return df, encoder
 
-def _decode_categorical_columns(df: pd.DataFrame, i_categ_cols: list, encoder: OrdinalEncoder) -> pd.DataFrame:
-    """
-    Decode (selected) categorical columns from numerical values back to original categories
-    """
-    
-    df[i_categ_cols] = df[i_categ_cols].round()
-    # Note: KNN / MissForest may produce decimals, which need to be rounded to integers, to perform decoding 
-    
-    # Decode (selected) categorical columns back to original values
-    df[i_categ_cols] = encoder.inverse_transform(df[i_categ_cols])
-    
+def _decode_categorical_columns(df: pd.DataFrame, categ_cols: list, encoder: OrdinalEncoder) -> pd.DataFrame:
+    """Decode (selected) categorical columns back to original numerical columns"""
+    df[categ_cols] = df[categ_cols].round()
+    # Note: KNN / MissForest may produce decimals, which need to be rounded to integers (resp. floats with .0 ending), to perform decoding 
+
+    # Decode (selected) categorical columns back to original numerical columns
+    df[categ_cols] = encoder.inverse_transform(df[categ_cols])
+
     return df
 
-def _handle_numerical_knn(df: pd.DataFrame, i_num_cols: list, n_neighbors: int) -> pd.DataFrame:
-    """
-    Handle (selected) numerical columns with KNN imputation using all columns as features
-    """
+def _impute_knn(df: pd.DataFrame, column: str, df_features: pd.DataFrame, n_neighbors: int, is_numerical: bool) -> pd.DataFrame:
+    """Impute missing values using KNN"""
     
-    # Work with copy of df to impute only (selected) numerical columns  
-    df_work = df.copy()
+    # Combine target column with features columns to one df (axis = 1 -> concatenate horizontally)
+    df_work = pd.concat([df[[column]], df_features], axis = 1)
     
-    # Get indexes of all categorical columns 
-    i_categ_cols = list(df_work.select_dtypes(include = ['object', 'category', 'bool']).columns)
-    
+    # Get list of categorical column names 
+    categ_cols = list(df_work.select_dtypes(include = ['object', 'category', 'bool']).columns)
+    # Note: .select_dtypes(include = ['object', 'category', 'bool']) returns a dataframe with categorical columns
+    #       .columns gets the names of the categorical columns (as pandas Index object)
+    #       list() convert to list
+
     # Encode all categorical columns (if they exist), such that df_work is only numerical
-    if len(i_categ_cols) > 0:
-        df_work, encoder = _encode_categorical_columns(df_work, i_categ_cols)
+    if len(categ_cols) > 0:
+        df_work, encoder = _encode_categorical_columns(df_work, categ_cols)
     
     # Standardize all columns of df_work (mean = 0, standard deviation = 1) with StandardScaler()
     scaler = StandardScaler()
@@ -346,153 +238,67 @@ def _handle_numerical_knn(df: pd.DataFrame, i_num_cols: list, n_neighbors: int) 
     # Convert back to DataFrame (scaler returns a np array)
     df_scaled = pd.DataFrame(df_scaled_array, columns = df_work.columns, index = df_work.index)
     
-    # Apply KNN imputation (fills all missing values, inlcuding orginially categorical columns)
+    # Apply KNN imputation (fills the missing values in all columns)
     imputer = KNNImputer(n_neighbors = n_neighbors)
     df_imputed_array = imputer.fit_transform(df_scaled)
-    
+
     # Convert back to DataFrame (KNNImputer returns np array) & inverse standardization (.inverse_transform())
     df_imputed = pd.DataFrame(scaler.inverse_transform(df_imputed_array),
                               columns = df_work.columns,
                               index = df_work.index)
-
-    # Update only (selected) numerical columns in original dataframe
-    for idx in i_num_cols:
-        df[idx] = df_imputed[idx]
+    
+    # Decode target column back if its categorical
+    if not is_numerical:
+        df_imputed = _decode_categorical_columns(df_imputed, [column], encoder)
+    
+    # Update only target column
+    df[column] = df_imputed[column]
     
     return df
 
-def _handle_numerical_missforest(df: pd.DataFrame, i_num_cols: list, max_iter: int, n_estimators: int, max_depth: int, min_samples_leaf: int) -> pd.DataFrame:
-    """
-    Handle (selected) numerical columns with MissForest imputation using all columns as features
-    """
+def _impute_missforest(df: pd.DataFrame, 
+                       column: str, 
+                       df_features: pd.DataFrame, 
+                       max_iter: int, 
+                       n_estimators: int, 
+                       max_depth: int, 
+                       min_samples_leaf: int, 
+                       is_numerical: bool) -> pd.DataFrame:
+    """Impute missing values using MissForest"""
+    # Combine target column with features columns to one df (axis = 1 -> concatenate horizontally)
+    df_work = pd.concat([df[[column]], df_features], axis = 1)
     
-    # Work with copy of df to impute only (selected) numerical columns
-    df_work = df.copy()
+    # Get list of categorical column names 
+    categ_cols = list(df_work.select_dtypes(include = ['object', 'category', 'bool']).columns)
+    # Note: .select_dtypes(include = ['object', 'category', 'bool']) returns a dataframe with categorical columns
+    #       .columns gets the names of the categorical columns (as pandas Index object)
+    #       list() convert to list
+
+    # Encode all categorical columns (if they exist), such that df_work is only numerical
+    if len(categ_cols) > 0:
+        df_work, encoder = _encode_categorical_columns(df_work, categ_cols)
     
-    # Get indexes of all categorical columns
-    i_categ_cols = list(df_work.select_dtypes(include = ['object', 'category', 'bool']).columns)
-    
-    # Encode categorical columns (if they exist), such that df_work is only numerical
-    if len(i_categ_cols) > 0:
-        df_work, encoder = _encode_categorical_columns(df_work, i_categ_cols)
-    
-    # Apply MissForest (fills all missing values, inlcuding orginially categorical columns)
-    imputer = IterativeImputer(estimator = RandomForestRegressor(n_estimators = n_estimators, max_depth = max_depth, min_samples_leaf = min_samples_leaf, random_state = 0),
+    # Apply MissForest (fills the missing values in all columns)
+    imputer = IterativeImputer(estimator = RandomForestRegressor(n_estimators = n_estimators, 
+                                                                 max_depth = max_depth, 
+                                                                 min_samples_leaf = min_samples_leaf, 
+                                                                 random_state = 0),
                                max_iter = max_iter, 
                                random_state = 0)
     # Note: random_state = 0 ensures reproducibility
-    df_imputed_array = imputer.fit_transform(df_work.values)
+    df_imputed_array = imputer.fit_transform(df_work.values) 
+    # Note: df.values returns df without column and row indexes as np array 
     
     # Convert back to DataFrame (IterativeImputer returns np array)
     df_imputed = pd.DataFrame(df_imputed_array,
                               columns = df_work.columns,
                               index = df_work.index)
     
-    # Update only (selected) numerical columns in original dataframe
-    for idx in i_num_cols:
-        df[idx] = df_imputed[idx]
+    # Decode target column back if its categorical
+    if not is_numerical:
+        df_imputed = _decode_categorical_columns(df_imputed, [column], encoder)
     
-    return df
-
-def _handle_categorical_delete(df: pd.DataFrame, i_categ_cols: list) -> pd.DataFrame:
-    """
-    Delete rows that have missing values in (selected) categorical columns 
-    """
-    
-    # Get boolean mask (type: Series) with True if row has missing values in (selected) categorical columns & otherwise False
-    mask = df[i_categ_cols].isna().any(axis=1)
-    
-    # Remove rows, where mask is True (missing categorical value(s))
-    df = df[~mask].reset_index(drop=True)
-    
-    return df
-
-def _handle_categorical_mode(df: pd.DataFrame, i_categ_cols: list) -> pd.DataFrame:
-    """
-    Handle missing values in (selected) categorical columns with mode
-    """
-    
-    for idx in i_categ_cols:
-        # Check if column idx has any missing value
-        if df[idx].isna().any():
-            # Calculate the most frequent value in column idx
-            fill_value = df[idx].mode()[0]
-
-            # Fill missing value(s) in column idx with most frequent value
-            df[idx] = df[idx].fillna(fill_value)
-    
-    return df
-
-def _handle_categorical_knn(df: pd.DataFrame, i_categ_cols: list, n_neighbors: int) -> pd.DataFrame:
-    """
-    Handle (selected) categorical columns with KNN imputation using all columns as features
-    """
-    
-    # Work with copy of df to impute only (selected) categorical columns
-    df_work = df.copy()
-    
-    # Get indexes of all categorical columns 
-    i_all_categ_cols = list(df_work.select_dtypes(include = ['object', 'category', 'bool']).columns)
-    
-    # Encode all categorical columns, such that df_work is only numerical
-    df_work, encoder = _encode_categorical_columns(df_work, i_all_categ_cols)
-    
-    # Standardize all columns of df_work (mean = 0, standard deviation = 1) with StandardScaler()
-    scaler = StandardScaler()
-    df_scaled_array = scaler.fit_transform(df_work)
-
-    # Convert back to DataFrame (scaler returns a np array)
-    df_scaled = pd.DataFrame(df_scaled_array, columns = df_work.columns, index = df_work.index)
-
-    # Apply KNN imputation (fills all missing values, including numerical columns)
-    imputer = KNNImputer(n_neighbors = n_neighbors)
-    df_imputed_array = imputer.fit_transform(df_scaled)
-    
-    # Convert back to DataFrame (KNNImputer returns np array) & inverse standardization (.inverse_transform())
-    df_imputed = pd.DataFrame(scaler.inverse_transform(df_imputed_array),
-                              columns = df_work.columns,
-                              index = df_work.index)
-    
-    # Decode all categorical columns back to original values
-    df_imputed = _decode_categorical_columns(df_imputed, i_all_categ_cols, encoder)
-    
-    # Update only (selected) categorical columns in original dataframe
-    for idx in i_categ_cols:
-        df[idx] = df_imputed[idx]
-    
-    return df
-
-def _handle_categorical_missforest(df: pd.DataFrame, i_categ_cols: list, max_iter: int, n_estimators: int, max_depth: int, min_samples_leaf: int) -> pd.DataFrame:
-    """
-    Handle (selected) categorical columns with MissForest imputation using all columns as features
-    """
-    
-    # Work with copy of df to impute only (selected) categorical columns
-    df_work = df.copy()
-    
-    # Get indexes of all categorical columns
-    i_all_categ_cols = list(df_work.select_dtypes(include = ['object', 'category', 'bool']).columns)
-    
-    # Encode all categorical columns, such that df_work is only numerical
-    df_work, encoder = _encode_categorical_columns(df_work, i_all_categ_cols)
-    
-    # Apply MissForest (fills all missing values, including numerical columns)
-    imputer = IterativeImputer(estimator = RandomForestRegressor(n_estimators = n_estimators, max_depth = max_depth, min_samples_leaf = min_samples_leaf, random_state = 0),
-                               max_iter = max_iter, 
-                               random_state = 0)
-    # Note: random_state = 0 ensures reproducibility
-    df_imputed_array = imputer.fit_transform(df_work.values)
-    
-    # Convert back to DataFrame (IterativeImputer returns np array)
-    df_imputed = pd.DataFrame(df_imputed_array,
-                              columns = df_work.columns,
-                              index = df_work.index)
-    
-    # Decode all categorical columns back to original values
-    df_imputed = _decode_categorical_columns(df_imputed, i_all_categ_cols, encoder)
-    
-    # Update only (selected) categorical columns in original dataframe
-    for idx in i_categ_cols:
-        df[idx] = df_imputed[idx]
+    # Update only target column
+    df[column] = df_imputed[column]
     
     return df
