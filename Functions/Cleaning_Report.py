@@ -712,7 +712,7 @@ def _generate_missing_values_section(report) -> list:
             lines.append("**Note:** Imputed values shown above are pre-rounding. Final values may be rounded in post-processing.")
         
         lines.append("") # empty line
-        
+
         return lines
     
     else:
@@ -765,7 +765,7 @@ def _generate_missing_values_section(report) -> list:
                 lines.append(f"- **Values imputed:** {single_report['n_imputed']}")
             
             # Create table of imputations (if available)
-            if report['n_imputed'] > 0:
+            if single_report['n_imputed'] > 0:
                 lines.append("") # empty line
                 lines.append("#### Imputations")
                 lines.append("") # empty line
