@@ -58,31 +58,31 @@ df, report_sem2 = handle_semantic_outliers(df,
                                            threshold = 0.5,
                                            action = 'nan')
 report_sem.append(report_sem2)
-'''
+
 # =============================================================================
 # OUTLIERS
 # =============================================================================
-'''
+
 df, report_out = handle_outliers(df,
                                  method = 'winsorize',
                                  multiplier = 1.5)
-'''
+
 # =============================================================================
 # DATETIME STANDARDIZATION 
 # =============================================================================
-'''
+
 df, report_date = standardize_datetime(df,
                                        column = 'install_date',  
                                        american = False,
                                        handle_invalid = 'nat')
-'''
+
 # =============================================================================
 # STRUCTURAL ERRORS 
 # =============================================================================
-
+'''
 # Define list to store all reports of handle_structural_errors()
 report_str = []
-''''''
+'''
 df, report_str1 = handle_structural_errors(df,
                                            column = 'funding organization',
                                            similarity = 'embeddings',
@@ -101,63 +101,92 @@ df, report_str2 = handle_structural_errors(df,
                                            canonical = 'llm')
 report_str.append(report_str2)
 
-
-'''
 df, report_str3 = handle_structural_errors(df,
-                                          column = 'water_source',
-                                          similarity = 'rapidfuzz',
-                                          clustering = 'hierarchical',
-                                          threshold_h = 0.85,
-                                          canonical = 'llm')
+                                           column = 'water_source',
+                                           similarity = 'rapidfuzz',
+                                           clustering = 'hierarchical',
+                                           threshold_h = 0.85,
+                                           canonical = 'llm')
 report_str.append(report_str3) 
-'''
-'''
+
 df, report_str4 = handle_structural_errors(df,
                                            column = 'is_functional',
                                            similarity = 'rapidfuzz',
                                            clustering = 'hierarchical',
-                                           threshold_h = 0.8,
-                                           canonical = 'most_frequent')
-report_str.append(report_str4)# 0.85
-
-
+                                           threshold_h = 0.85,
+                                           canonical = 'llm')
+report_str.append(report_str4)
 df, report_str5 = handle_structural_errors(df,
                                            column = 'is_functional',
                                            similarity = 'llm',
-                                           clustering = 'hierarchical',
-                                           threshold_h = 0.7,
+                                           llm_mode = 'reliable',
                                            llm_context = 'Wether water point is working or not',
+                                           clustering = 'hierarchical',
+                                           threshold_h = 0.85,
                                            canonical = 'llm')
 report_str.append(report_str5)
+
+df, report_str6 = handle_structural_errors(df,
+                                           column = 'tank material',
+                                           similarity = 'rapidfuzz',
+                                           clustering = 'hierarchical',
+                                           threshold_h = 0.7,
+                                           canonical = 'llm')
+report_str.append(report_str6)
+df, report_str7 = handle_structural_errors(df,
+                                           column = 'tank material',
+                                           similarity = 'llm',
+                                           llm_mode = 'fast',
+                                           llm_context = 'Material of tank',
+                                           clustering = 'hierarchical',
+                                           threshold_h = 0.5,
+                                           canonical = 'llm')
+report_str.append(report_str7)
 '''
-'''
-df, report_str1 = handle_structural_errors(df,
+df, report_str8 = handle_structural_errors(df,
                                            column = 'sample Volume',
                                            similarity = 'rapidfuzz',
                                            clustering = 'hierarchical',
-                                           threshold_h = 0.6,
+                                           threshold_h = 0.9,
                                            canonical = 'llm')
-report_str.append(report_str1)# 0.9
-
-df, report_str1 = handle_structural_errors(df,
+report_str.append(report_str8)
+df, report_str9 = handle_structural_errors(df,
                                            column = 'sample Volume',
                                            similarity = 'llm',
-                                           clustering = 'hierarchical',
-                                           threshold_h = 0.9,
-                                           units = True,
+                                           llm_mode = 'strict',
                                            llm_context = 'Volume measurements',
+                                           clustering = 'connected_components',
+                                           threshold_cc = 1.0,
                                            canonical = 'llm')
-report_str.append(report_str1)
+report_str.append(report_str9)
 '''
-'''
-df, report_str6 = handle_structural_errors(df,
-                                           column = 'staff_count',
-                                           similarity = 'llm',
-                                           clustering = 'hierarchical',
-                                           threshold_h = 0.7,
-                                           llm_context = 'Number of staff working',
-                                           canonical = 'llm')
-report_str.append(report_str6)
+df, report_str10 = handle_structural_errors(df,
+                                            column = 'country',
+                                            similarity = 'embeddings',
+                                            embedding_model = 'text-embedding-3-large',
+                                            clustering = 'hierarchical',
+                                            threshold_h = 0.6,
+                                            canonical = 'llm')
+report_str.append(report_str10)
+df, report_str11 = handle_structural_errors(df,
+                                            column = 'country',
+                                            similarity = 'llm',
+                                            llm_mode = 'fast',
+                                            llm_context = 'African countries',
+                                            clustering = 'hierarchical',
+                                            threshold_h = 0.8,
+                                            canonical = 'llm')
+report_str.append(report_str11)
+
+df, report_str12 = handle_structural_errors(df,
+                                            column = 'staff_count',
+                                            similarity = 'llm',
+                                            llm_mode = 'fast',
+                                            llm_context = 'Number of staff',
+                                            clustering = 'hierarchical',
+                                            threshold_h = 0.8,
+                                            canonical = 'llm')
+report_str.append(report_str12)
 '''
 # =============================================================================
 # POST-PROCESSING

@@ -3,7 +3,7 @@
 **Name of dataset:** Test Data (made up WHASH dataset)  
 **Filepath of messy dataset:** Data/Test/Test.csv  
 **Filepath of cleaned dataset:** Data/Test/Test_Cleaned.csv  
-**Generated:** 24.01.2026, 00:58:38
+**Generated:** 24.01.2026, 02:11:51
 
 ---
 
@@ -16,7 +16,7 @@
 - **Total values imputed:** 0
 - **Total outliers handled:** 0
 - **Total semantic outliers detected:** 0
-- **Total structural errors fixed:** 42
+- **Total structural errors fixed:** 59
 
 ---
 
@@ -39,51 +39,60 @@
 ## Overview
 
 - **Columns processed:** 2
-- **Total values changed:** 42
-- **Total unique values before:** 29
-- **Total unique values after:** 9
+- **Total values changed:** 59
+- **Total unique values before:** 42
+- **Total unique values after:** 19
 
-### Column: funding organization
+### Column: sample Volume
 
-- **Similarity method:** embeddings
-- **Embedding model:** text-embedding-3-large
-- **Clustering method:** connected_components
-- **Threshold (connected components):** 0.6
-- **Canonical selection:** llm
-- **Values changed:** 40
-- **Unique values before:** 24
-- **Unique values after:** 5
-
-#### Clustering Results
-
-| Original Values | Clustered to Canonical |
-|-----------------|------------------------|
-| Red Crss; RED CROSS; ICRC; International Red Cross; red cross; RedCross | International Red Cross |
-| world health org; WHO; World Health Org; WH0; World Health Organization; W.H.O.; W.H.O; WHO. | World Health Organization |
-| WorldBank; WORLD BANK; World Bank; Wrold Bank; world bank | World Bank |
-| UNICEF; unicef; U.N.I.C.E.F.; United Nations Children's Fund | United Nations Children's Fund |
-| WB | WB |
-
-### Column: funding organization
-
-- **Similarity method:** llm
-- **LLM mode:** fast
-- **LLM context provided:** Funding organizations
+- **Similarity method:** rapidfuzz
 - **Clustering method:** hierarchical
 - **Threshold (hierarchical):** 0.9
 - **Canonical selection:** llm
-- **Values changed:** 2
-- **Unique values before:** 5
-- **Unique values after:** 4
+- **Values changed:** 19
+- **Unique values before:** 26
+- **Unique values after:** 16
 
 #### Clustering Results
 
 | Original Values | Clustered to Canonical |
 |-----------------|------------------------|
-| International Red Cross | International Red Cross |
-| World Health Organization | World Health Organization |
-| World Bank; WB | World Bank |
-| United Nations Children's Fund | United Nations Children's Fund |
+| 500l; 500L | 500L |
+| 1000 l; 1000L; 1000 L | 1000 L |
+| 250l; 250L | 250L |
+| 1 kL | 1 kL |
+| five hundred liters | five hundred liters |
+| 1m³ | 1m³ |
+| 250 litres; 250 Liters; 250 liters | 250 liters |
+| 500 litres; 500 Liters; 500 liters | 500 liters |
+| 1000000 ml | 1000000 ml |
+| 1000 Liters; 1000 liters | 1000 liters |
+| 250 L | 250 L |
+| 0.25 m³ | 0.25 m³ |
+| 1 cubic meter | 1 cubic meter |
+| 250000ml; 250000 ml | 250000 ml |
+| 0.5 kL | 0.5 kL |
+| 500 L | 500 L |
+
+### Column: sample Volume
+
+- **Similarity method:** llm
+- **LLM mode:** strict
+- **LLM context provided:** Volume measurements
+- **Clustering method:** connected_components
+- **Threshold (connected components):** 1.0
+- **Canonical selection:** llm
+- **Values changed:** 40
+- **Unique values before:** 16
+- **Unique values after:** 3
+
+#### Clustering Results
+
+| Original Values | Clustered to Canonical |
+|-----------------|------------------------|
+| 500L; five hundred liters; 500 liters; 0.5 kL; 500 L | 500 L |
+| 1000 L; 1 kL; 1m³; 1000000 ml; 1000 liters; 1 cubic meter | 1000 liters |
+| 250L; 250 liters; 250 L; 0.25 m³; 250000 ml | 250 liters |
 
 ---
 

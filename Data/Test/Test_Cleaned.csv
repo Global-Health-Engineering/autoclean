@@ -1,51 +1,51 @@
 village,install_date,population_served,flow_rate_lps,funding_organization,water_source,is_functional,sample_volume,country,staff_count,tank_material
-Mombasa,15/05/2020,4214,2.62,International Red Cross,BOREHOLE,No,500l,uganda,twenty-five,Concrete
-Arusha,01/03/2021,234,1.04,World Health Organization,HAND PUMP,TRUE,500l,United Republic of Tanzania,Twenty-Five,PVC
-Kigali,28/02/2019,3352,3.71,World Health Organization,Bore hole,FALSE,1000 l,Ugandaa,Twenty-Five,Plastic
-Nakuru,10/11/2022,2155,3.92,World Bank,handpump,broken,250l,UG,Fifteen,Cement
-Mombasa,05/07/2018,1785,3.03,United Nations Children's Fund,handpump,0,1 kL,UG,25,Poly
-sdflkajsdf,22/09/2021,1289,3.97,World Health Organization,PIPED WATER,True,five hundred liters,Kenia,ten,Plastic tank
-Dodoma,14/06/2020,3273,2.72,World Health Organization,Hand pump,not functional,250L,Tanz.,fifteen,Plastic tank
-Mombasa,03/12/2019,1221,2.85,World Health Organization,borehole,working,1000L,Kenia,25,pvc
-Kigali,19/01/2023,-250,2.42,World Bank,Hand punp,yes,1m³,Keyna,10,Cement
-Nakuru,30/08/2022,2813,0.61,World Health Organization,piped water,True,250 litres,TANZANIA,25,PVC
-Arusha,12-04-2021,2050,0.99,International Red Cross,Borehole,yes,500 litres,TZA,20,concrete
-Kigali,07-10-2020,1700,0.64,World Bank,HAND PUMP,working,1 kL,TZA,twenty five,Cement
-Kigali,25-12-2019,3489,0.79,World Bank,BOREHOLE,No,1000000 ml,Ugand,twenty,Iron
-Dodoma,18-03-2022,361,1.91,International Red Cross,piped water,True,1000 Liters,Keyna,twenty-five,PLASTIC
-Kisumu,09-05-2018,498,2.79,World Health Organization,hand pump,YES,500 litres,KEN,eight,Metallic
-Nakuru,21.07.2020,2181,48.7,International Red Cross,Pipedwater,true,1000 Liters,Keyna,Eight,Stainless steel
-Mwanza,16.02.2021,1195,1.62,United Nations Children's Fund,PIPED WATER,false,250 L,Keyna,12,plastic
-Kigali,04.11.2019,3542,2.35,World Health Organization,handpump,broken,0.25 m³,KENYA,8,Plastic
-Kisumu,29.06.2022,1234.89,3.9,World Health Organization,Piped Water,working,1000 l,Ugandaa,eight,PLASTIC
-Mwanza,11.08.2018,789,1.53,World Health Organization,Borehle,true,1 cubic meter,tanzania,Twenty-Five,PE
-Nakuru,2020-05-15,1475,0.85,World Health Organization,piped  water,FALSE,250000ml,Ugand,15,Plastic tank
-Kibera,2021-11-28,1216,1.8,World Health Organization,BOREHOLE,N,250 liters,Republic of Uganda,Fifteen,metal
-I love studying at ETH!,2019-03-07,537,1.23,International Red Cross,borehole,No,1000L,Republic of Uganda,twenty,SS
-Kisumu,2022-08-12,1078,0.96,International Red Cross,Piped  water,FALSE,250 liters,TZA,Fifteen,Plastic
-Lusaka,2023-01-30,1276,4.14,World Health Organization,Bore Hole,NO,500 Liters,tanzania,ten,Iron
-Kibera,"May 15, 2020",225,3.35,International Red Cross,hand pump,y,0.5 kL,Republic of Kenya,twelve,PE
-Entebbe,15 January 2021,579,2.76,World Health Organization,BOREHOLE,TRUE,0.5 kL,Ugandaa,Eight,CONCRETE
-Dodoma,"Dec 7, 2019",692,4.12,World Bank,Bore Hole,y,500 liters,KE,12,Concrete
-Mombasa,3 March 2022,4991,1.34,International Red Cross,Bore hole,True,250000 ml,TZA,ten,CONCRETE
-Arusha,01/06/22,889,1.45,World Bank,HAND PUMP,not working,500L,Tanz.,Eight,Iron
-Lusaka,15/09/21,264,9.2,International Red Cross,Hand pump,0,1000 liters,TANZANIA,Twenty,Stainless steel
-Dodoma,28/02/20,2768,4.13,United Nations Children's Fund,Hand punp,0,1 kL,TANZANIA,ten,Plastic tank
-Nakuru,10/12/19,2227,3.01,World Health Organization,Pipedwater,TRUE,0.5 kL,uganda,ten,Stainless
-Dodoma,29/02/2020,999.99,1.93,United Nations Children's Fund,handpump,not working,1000 liters,KENYA,twelve,Metallic
-Mombasa,17/04/2021,1695,1.0,United Nations Children's Fund,handpump,no,500L,Keyna,Twenty Five,Reinforced concrete
-Nakuru,23/10/2020,591,1.53,World Bank,handpump,false,500 liters,Tanznia,Twenty Five,Cement tank
-Lusaka,06/01/2019,4714,2.42,World Bank,Borehle,No,1000 Liters,Kenya,fifteen,Plastic
-Mombasa,14/07/2022,2076,4.18,World Health Organization,Piped  water,operational,1 cubic meter,KENYA,ten,cement
-1.8,15/2020,not so many,2.94,World Bank,Hand pump,True,500 L,Tanz.,Twenty Five,Reinforced concrete
-Arusha,January 2020,2478,0.53,World Bank,piped  water,y,0.5 kL,TZ,Ten,Polyethylene
-Lusaka,15/25/2020,3299,2.8,World Health Organization,Piped  water,n,500 liters,KENYA,fifteen,CONCRETE
+Mombasa,15/05/2020,4214,2.62,Red Crss,BOREHOLE,No,500 L,uganda,twenty-five,Concrete
+Arusha,01/03/2021,234,1.04,world health org,HAND PUMP,TRUE,500 L,United Republic of Tanzania,Twenty-Five,PVC
+Kigali,28/02/2019,3352,3.71,WHO,Bore hole,FALSE,1000 liters,Ugandaa,Twenty-Five,Plastic
+Nakuru,10/11/2022,2155,3.92,WorldBank,handpump,broken,250 liters,UG,Fifteen,Cement
+Mombasa,05/07/2018,1785,3.03,UNICEF,handpump,0,1000 liters,UG,25,Poly
+sdflkajsdf,22/09/2021,1289,3.97,World Health Org,PIPED WATER,True,500 L,Kenia,ten,Plastic tank
+Dodoma,14/06/2020,3273,2.72,World Health Org,Hand pump,not functional,250 liters,Tanz.,fifteen,Plastic tank
+Mombasa,03/12/2019,1221,2.85,WH0,borehole,working,1000 liters,Kenia,25,pvc
+Kigali,19/01/2023,-250,2.42,WorldBank,Hand punp,yes,1000 liters,Keyna,10,Cement
+Nakuru,30/08/2022,2813,0.61,world health org,piped water,True,250 liters,TANZANIA,25,PVC
+Arusha,12-04-2021,2050,0.99,RED CROSS,Borehole,yes,500 L,TZA,20,concrete
+Kigali,07-10-2020,1700,0.64,WorldBank,HAND PUMP,working,1000 liters,TZA,twenty five,Cement
+Kigali,25-12-2019,3489,0.79,WORLD BANK,BOREHOLE,No,1000 liters,Ugand,twenty,Iron
+Dodoma,18-03-2022,361,1.91,ICRC,piped water,True,1000 liters,Keyna,twenty-five,PLASTIC
+Kisumu,09-05-2018,498,2.79,World Health Organization,hand pump,YES,500 L,KEN,eight,Metallic
+Nakuru,21.07.2020,2181,48.7,International Red Cross,Pipedwater,true,1000 liters,Keyna,Eight,Stainless steel
+Mwanza,16.02.2021,1195,1.62,unicef,PIPED WATER,false,250 liters,Keyna,12,plastic
+Kigali,04.11.2019,3542,2.35,W.H.O.,handpump,broken,250 liters,KENYA,8,Plastic
+Kisumu,29.06.2022,1234.89,3.9,WHO,Piped Water,working,1000 liters,Ugandaa,eight,PLASTIC
+Mwanza,11.08.2018,789,1.53,World Health Organization,Borehle,true,1000 liters,tanzania,Twenty-Five,PE
+Nakuru,2020-05-15,1475,0.85,W.H.O,piped  water,FALSE,250 liters,Ugand,15,Plastic tank
+Kibera,2021-11-28,1216,1.8,World Health Org,BOREHOLE,N,250 liters,Republic of Uganda,Fifteen,metal
+I love studying at ETH!,2019-03-07,537,1.23,red cross,borehole,No,1000 liters,Republic of Uganda,twenty,SS
+Kisumu,2022-08-12,1078,0.96,RedCross,Piped  water,False,250 liters,TZA,Fifteen,Plastic
+Lusaka,2023-01-30,1276,4.14,WHO,Bore Hole,NO,500 L,tanzania,ten,Iron
+Kibera,"May 15, 2020",225,3.35,ICRC,hand pump,y,500 L,Republic of Kenya,twelve,PE
+Entebbe,15 January 2021,579,2.76,W.H.O,BOREHOLE,TRUE,500 L,Ugandaa,Eight,CONCRETE
+Dodoma,"Dec 7, 2019",692,4.12,World Bank,Bore Hole,y,500 L,KE,12,Concrete
+Mombasa,3 March 2022,4991,1.34,Red Crss,Bore hole,True,250 liters,TZA,ten,CONCRETE
+Arusha,01/06/22,889,1.45,World Bank,HAND PUMP,not working,500 L,Tanz.,Eight,Iron
+Lusaka,15/09/21,264,9.2,ICRC,Hand pump,0,1000 liters,TANZANIA,Twenty,Stainless steel
+Dodoma,28/02/20,2768,4.13,unicef,Hand punp,0,1000 liters,TANZANIA,ten,Plastic tank
+Nakuru,10/12/19,2227,3.01,World Health Org,Pipedwater,TRUE,500 L,uganda,ten,Stainless
+Dodoma,29/02/2020,999.99,1.93,U.N.I.C.E.F.,handpump,not working,1000 liters,KENYA,twelve,Metallic
+Mombasa,17/04/2021,1695,1.0,UNICEF,handpump,no,500 L,Keyna,Twenty Five,Reinforced concrete
+Nakuru,23/10/2020,591,1.53,WB,handpump,false,500 L,Tanznia,Twenty Five,Cement tank
+Lusaka,06/01/2019,4714,2.42,Wrold Bank,Borehle,No,1000 liters,Kenya,fifteen,Plastic
+Mombasa,14/07/2022,2076,4.18,WHO,Piped  water,operational,1000 liters,KENYA,ten,cement
+1.8,15/2020,not so many,2.94,world bank,Hand pump,True,500 L,Tanz.,Twenty Five,Reinforced concrete
+Arusha,January 2020,2478,0.53,WB,piped  water,y,500 L,TZ,Ten,Polyethylene
+Lusaka,15/25/2020,3299,2.8,WHO.,Piped  water,n,500 L,KENYA,fifteen,CONCRETE
 unknown,31/04/2020,400,2.38,World Bank,Pipedwater,N,500 L,uganda,Ten,Stainless steel
-Entebbe,29/02/2023,3304,12.8,United Nations Children's Fund,BOREHOLE,YES,250000 ml,TZA,Twelve,Steel
-Lusaka,15/05/2200,1890,1.04,United Nations Children's Fund,PIPED WATER,yes,500 liters,tanzania,Ten,Poly
-Entebbe,15/2020/05,3230,2.02,United Nations Children's Fund,Pipedwater,Y,1000L,Republic of Uganda,8,pvc
-Nakuru,01/25/2024,3845,4.74,World Health Organization,Borhole,y,0.5 kL,uganda,FIFTEEN,PE
-Mwanza,2024/25/01,1004,1.95,World Health Organization,piped water,FALSE,250L,Tanzania,25,cement
-Arusha,unknown,2931,2.83,World Bank,Bore Hole,1,1000 l,TZ,TEN,Steel
-Mombasa,20/06/2021,2973,3.66,United Nations Children's Fund,Borhole,not functional,250l,Tanz.,twelve,PVC
-Kigali,08/09/2020,1770,2.14,World Health Organization,Hand punp,no,500 litres,Tanznia,FIFTEEN,PLASTIC
+Entebbe,29/02/2023,3304,12.8,unicef,BOREHOLE,YES,250 liters,TZA,Twelve,Steel
+Lusaka,15/05/2200,1890,1.04,United Nations Children's Fund,PIPED WATER,yes,500 L,tanzania,Ten,Poly
+Entebbe,15/2020/05,3230,2.02,UNICEF,Pipedwater,Y,1000 liters,Republic of Uganda,8,pvc
+Nakuru,01/25/2024,3845,4.74,WH0,Borhole,y,500 L,uganda,FIFTEEN,PE
+Mwanza,2024/25/01,1004,1.95,W.H.O,piped water,FALSE,250 liters,Tanzania,25,cement
+Arusha,unknown,2931,2.83,world bank,Bore Hole,1,1000 liters,TZ,TEN,Steel
+Mombasa,20/06/2021,2973,3.66,United Nations Children's Fund,Borhole,not functional,250 liters,Tanz.,twelve,PVC
+Kigali,08/09/2020,1770,2.14,world health org,Hand punp,no,500 L,Tanznia,FIFTEEN,PLASTIC

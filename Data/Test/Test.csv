@@ -20,9 +20,9 @@ Kigali   ,04.11.2019,3542,,2.35,2.35,W.H.O.,handpump,broken,0.25 m³,KENYA,8,P
 Kisumu,29.06.2022,1234.89,,3.9,3.9,WHO,Piped Water,working,1000 l,Ugandaa,eight,PLASTIC
 Mwanza,11.08.2018,789,,1.53,1.53,World Health Organization,Borehle,true,1 cubic meter,tanzania,Twenty-Five,PE
 Nakuru,2020-05-15,1475,,0.85,0.85,W.H.O,piped  water,FALSE,250000ml,Ugand,15,Plastic tank
-Kibera,2021-11-28,1216,,1.8,1.8,World Health Org,BOREHOLE,N,250 liters,Republic of Uganda,Fifteen,metal
+Kibera,2021-11-28,1216,,1.8,1.8,World Health Org,BOREHOLE,N,250 Liters,Republic of Uganda,Fifteen,metal
 I love studying at ETH!,2019-03-07,537,,1.23,1.23,red cross,borehole,No,1000L,Republic of Uganda,twenty,SS
-Kisumu,2022-08-12,1078,,0.96,0.96,RedCross,Piped  water,FALSE,250 liters,TZA,Fifteen,Plastic
+Kisumu,2022-08-12,1078,,0.96,0.96,RedCross,Piped  water,False,250 liters,TZA,Fifteen,Plastic
 Lusaka,2023-01-30,1276,,4.14,4.14,WHO,Bore Hole,NO,500 Liters,tanzania,ten,Iron
 ,,,,,,,,,,,,
 Kibera,"May 15, 2020",225,,3.35,3.35,ICRC,hand pump,y,0.5 kL,Republic of Kenya,twelve,PE
@@ -48,6 +48,6 @@ Lusaka,15/05/2200,1890,,1.04,1.04,United Nations Children's Fund,PIPED WATER,yes
 Entebbe,15/2020/05,3230,,2.02,2.02,UNICEF,Pipedwater,Y,1000L,Republic of Uganda,8,pvc
 Nakuru,01/25/2024,3845,,4.74,4.74,WH0,Borhole,y,0.5 kL,uganda,FIFTEEN,PE
 Mwanza,2024/25/01,1004,,1.95,1.95,W.H.O,piped water,FALSE,250L,Tanzania,25,cement
-Arusha,unknown,2931,,2.83,2.83,world bank,Bore Hole,1,1000 l,TZ,TEN,Steel
+Arusha,unknown,2931,,2.83,2.83,world bank,Bore Hole,1,1000 L,TZ,TEN,Steel
 Mombasa,20/06/2021,2973,,3.66,3.66,United Nations Children's Fund,Borhole,not functional,250l,Tanz.,twelve,PVC
 Kigali,08/09/2020,1770,,2.14,2.14,world health org,Hand punp,no,500 litres,Tanznia,FIFTEEN,PLASTIC

@@ -181,9 +181,6 @@ Return similarity score and index as given in input.
         # Extract scores and fill matrix
         for score_item in response.choices[0].message.parsed.scores:
             i, j = batch[score_item.index]
-            
-            # Print with aligned formatting
-            print(f"{values[i]:30} ↔ {values[j]:30} → {score_item.similarity:.2f}")
 
             # Fill both [i,j] and [j,i] (symmetric matrix)
             similarity_matrix[i, j] = score_item.similarity

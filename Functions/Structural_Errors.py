@@ -23,6 +23,8 @@ Parameters:
         'fast': Range scoring (0 to 1) with gpt-4.1, faster but less accurate (default)
         'reliable': Range scoring (0 to 1) with gpt-5-mini, slower but more accurate  
 
+Note: When using llm_mode='strict', use connected_components clustering with threshold_cc = 1.0 for best results.
+
 Returns: 
     Cleaned dataframe and report (as tuple)
 
@@ -121,7 +123,7 @@ def handle_structural_errors(df: pd.DataFrame,
         if llm_context is None:
             raise ValueError("llm_context is required when similarity = 'llm'. Provide a description of the column.")
         
-        similarity_matrix = llm_similarity(unique_values, llm_context, llm_mode, client)
+        similarity_matrix = llm_similarity(unique_values, llm_mode, llm_context, client)
     else:
         raise ValueError(f"Unknown similarity method: {similarity}")
     
