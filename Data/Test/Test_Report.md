@@ -1,6 +1,6 @@
 # AutoClean Report
 
-**Name of dataset:** Test Data (made up WHASH dataset)  
+**Name of dataset:** Test Data (made up WASH dataset)  
 **Filepath of messy dataset:** Data/Test/Test.csv  
 **Filepath of cleaned dataset:** Data/Test/Test_Cleaned.csv  
 **Generated:** 25.01.2026, 18:31:49

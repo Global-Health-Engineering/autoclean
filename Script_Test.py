@@ -22,7 +22,7 @@ from Functions.Cleaning_Report import generate_cleaning_report
 INPUT_FILEPATH = 'Data/Test/Test.csv'
 
 # Optional:
-DATASET_NAME = 'Test Data (made up WHASH dataset)' # For header in Cleaning Report
+DATASET_NAME = 'Test Data (made up WASH dataset)' # For header in Cleaning Report
 OUTPUT_FILEPATH = 'Data/Test/Test_Cleaned.csv'
 REPORT_FILEPATH = 'Data/Test/Test_Report.md'
 
