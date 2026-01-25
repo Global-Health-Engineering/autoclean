@@ -226,11 +226,17 @@ def _generate_preprocessing_section(report: dict) -> list:
     lines.append("## Preprocessing")
     lines.append("") # empty line 
 
-    # Get info about removed rows / columns
+    # Get info about additional values handled as missing, removed rows & columns (if available)
+    if 'additional_na_values' in report:
+        lines.append(f"- **Additional values handled as missing in inport:** {'; '.join(report['additional_na_values'])}")
+        # Note: '; '.join(report['additional_n_values']) joins all elements of report['additional_n_values'] to a string with each element seperated by ;
+
     if report['rows_removed'] > 0:
         lines.append(f"- **Completely empty rows removed:** {report['rows_removed']}")
+
     if report['cols_removed'] > 0:
         lines.append(f"- **Completely empty columns removed:** {report['cols_removed']}")
+        
     if report['rows_removed'] == 0 and report['cols_removed'] == 0: 
         lines.append("No completely empty rows or columns found respectfully removed.")
 
@@ -792,6 +798,9 @@ def _generate_postprocessing_section(report: dict) -> list:
     lines.append("") # empty line
     lines.append("## Postprocessing")
     lines.append("") # empty line 
+    
+    if 'output_missing_values' in report:
+        lines.append(f"**Chosen output format of missing values (np.nan):** {report['output_missing_values']}")
     
     # Get table of precision restoration (rounding) applied in post-processing (if available)
     changes = report['changes']

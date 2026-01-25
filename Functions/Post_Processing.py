@@ -16,6 +16,7 @@ Parameters:
     rounding: If True, rounding is applied (default: False)
     clean_names: If True, standardize column names (default: False)
     output_filepath: Filepath where df is as CSV saved (default: Cleaned_df.csv)
+    output_missing_values: Optionally choose the format (as string) of the missing values in the output (default = '')
 
 Notes: If Outliers.py and or Missing_Values.py was applied, recommended to set rounding = True. 
 
@@ -36,7 +37,8 @@ def postprocess_data(df_cleaned: pd.DataFrame,
                      df_original: pd.DataFrame,
                      output_filepath: str = 'Cleaned_df.csv',
                      clean_names: bool = False,
-                     rounding: bool = False) -> dict:
+                     rounding: bool = False,
+                     output_missing_values: str = '') -> dict:
     # Terminal output: start
     print("Postprocessing... ", end="", flush=True)
     # Note: With flush = True, print is immediately
@@ -94,10 +96,13 @@ def postprocess_data(df_cleaned: pd.DataFrame,
     
     # Update report
     report['final_shape'] = df.shape
-    
+    if output_missing_values != '':
+        report['output_missing_values'] = output_missing_values
+
     # Export final df as csv to specified location (output_filepath)
-    df.to_csv(output_filepath, index = False)
+    df.to_csv(output_filepath, index = False, na_rep = output_missing_values)
     # Note: index = False leads to no row index in final csv 
+    #       na_rep sets the output format of the missing values (np.nan)
 
     # Terminal output: end
     print("✓")

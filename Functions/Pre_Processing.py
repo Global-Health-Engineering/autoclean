@@ -9,6 +9,7 @@ It returns three items (as tuple):
 
 Parameters:
     input_filepath: Filepath to inptu CSV file (dataset to clean)
+    additional_na_values: Optionally, list of additional values (strings) which represent a missing value and should in the inport be replaced by np.nan
     
 Steps applied:
     1. Load data from file & Standardize missing values ("NA", "", "-", "null", etc. → NaN)
@@ -26,14 +27,20 @@ import janitor  # Python library PyJanitor
 # Main Function (Public)
 # =============================================================================
 
-def preprocess_data(input_filepath: str) -> tuple:
+def preprocess_data(input_filepath: str, additional_na_values: list = None) -> tuple:
     # Terminal output: start
     print("Preprocessing... ", end = "", flush = True)
     # Note: With flush = True, print is immediately
-
+    
+    # Adjust na_values if needed
+    if additional_na_values == None:
+        na_values = [' ', '  ', '   ', '    ', '     ', 'none', '-', '--', '.', 'na']
+    else: 
+        na_values = [' ', '  ', '   ', '    ', '     ', 'none', '-', '--', '.', 'na'] + additional_na_values
+    
     # Load data (only CSV file otherwise error)
     if input_filepath.endswith('.csv'):
-        df = pd.read_csv(input_filepath, na_values = [' ', '  ', '   ', '    ', '     ', 'none', '-', '--', '.', 'na'])
+        df = pd.read_csv(input_filepath, na_values = na_values)
     # Note: pd.read_csv converts values like: ““, “#N/A”, “#N/A N/A”, “#NA”, “-1.#IND”, “-1.#QNAN”, “-NaN”, “-nan”, “1.#IND”, “1.#QNAN”, “<NA>”, “N/A”, “NA”, “NULL”, “NaN”, “None”, “n/a”, “nan”, “null“ by default to np.nan.
     # Additionally also the values from the list na_values. 
 
@@ -49,6 +56,10 @@ def preprocess_data(input_filepath: str) -> tuple:
               'rows_removed': 0,
               'cols_removed': 0}
     # Note: .shape = (#rows, #columns)
+
+    # Update report
+    if additional_na_values != None:
+        report['additional_na_values'] = additional_na_values
 
     # Strip whitespace from string columns
     for col in list(df.select_dtypes(include = 'object').columns):

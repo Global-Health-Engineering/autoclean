@@ -1,7 +1,7 @@
 """
 Script to apply cleaning pipeline to dataset Test.csv
 
-Test.csv: made up WASH dataset (monitoring rural water points in East African villages), to demonstrate the cleaning functions & pipeline
+Test.csv: Made up WASH dataset (monitoring rural water points in East African villages). Columns well_depth_m, pump_age_years, Water quality score, Annual maintenance cost & System condition were generated with Generate_Correlated_Columns.py (see in Folder Test). They are correlated and used to apply Missing_Values.py. The rest was generated with the help of AI. 
 """
 
 # Import cleaning functions
@@ -220,6 +220,11 @@ df, report_miss3 = handle_missing_values(df,
                                         features=  ['well_depth_m', 'pump_age_years', 'Water quality score'],
                                         n_neighbors = 3)
 report_miss.append(report_miss3)
+
+# Ground truth values:
+# Water quality score:     Row 3: 47.9, Row 8: 56.56, Row 19: 42.04, Row 32: 60.57, Row 47: 35.59
+# Annual maintenance cost: Row 5: 272, Row 16: 421, Row 28: 353, Row 38: 452, Row 50: 431
+# System condition:        Row 12: Fair, Row 25: Fair, Row 44: Fair
 
 # =============================================================================
 # POST-PROCESSING
