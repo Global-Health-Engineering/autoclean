@@ -40,6 +40,10 @@ from sklearn.experimental import enable_iterative_imputer
 from sklearn.impute import IterativeImputer
 from sklearn.ensemble import RandomForestRegressor
 from sklearn.preprocessing import StandardScaler
+# Ignore Convergence warnings for MissForest
+import warnings
+from sklearn.exceptions import ConvergenceWarning
+warnings.filterwarnings('ignore', category = ConvergenceWarning)
 
 # ============================================================================
 # Main Function (Public)

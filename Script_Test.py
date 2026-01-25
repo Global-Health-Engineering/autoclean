@@ -37,11 +37,10 @@ df, df_original, report_pre = preprocess_data(INPUT_FILEPATH)
 # =============================================================================
 
 df, report_dup = handle_duplicates(df)
-'''
+
 # =============================================================================
 # SEMANTIC OUTLIERS
 # =============================================================================
-
 # Define list to store all reports of handle_semantic_outliers()
 report_sem = []
 
@@ -187,7 +186,7 @@ df, report_str12 = handle_structural_errors(df,
                                             threshold_h = 0.8,
                                             canonical = 'llm')
 report_str.append(report_str12)
-'''
+
 # =============================================================================
 # MISSING VALUES
 # =============================================================================
@@ -234,10 +233,10 @@ report_post = postprocess_data(df, df_original, OUTPUT_FILEPATH, clean_names = T
 
 reports = {'preprocessing': report_pre,
            'duplicates': report_dup,
-           #'semantic_outliers': report_sem,
-           #'outliers': report_out,
-           #'datetime': report_date,
-           #'structural_errors': report_str,
+           'semantic_outliers': report_sem,
+           'outliers': report_out,
+           'datetime': report_date,
+           'structural_errors': report_str,
            'missing_values': report_miss,
            'postprocessing': report_post}
 
