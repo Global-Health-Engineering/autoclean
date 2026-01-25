@@ -37,7 +37,7 @@ df, df_original, report_pre = preprocess_data(INPUT_FILEPATH)
 # =============================================================================
 
 df, report_dup = handle_duplicates(df)
-
+'''
 # =============================================================================
 # SEMANTIC OUTLIERS
 # =============================================================================
@@ -187,6 +187,40 @@ df, report_str12 = handle_structural_errors(df,
                                             threshold_h = 0.8,
                                             canonical = 'llm')
 report_str.append(report_str12)
+'''
+# =============================================================================
+# MISSING VALUES
+# =============================================================================
+
+# Define list to store all reports of handle_missing_values()
+report_miss = []
+
+df, report_miss1 = handle_missing_values(df,
+                                         column = 'Water quality score',
+                                         method = 'missforest',
+                                         features = ['well_depth_m', 'pump_age_years'],
+                                         max_iter = 5,
+                                         n_estimators = 10,
+                                         max_depth = 3,
+                                         min_samples_leaf = 3)
+report_miss.append(report_miss1)
+
+df, report_miss2 = handle_missing_values(df,
+                                         column = 'Annual maintenance cost',
+                                         method = 'missforest',
+                                         features = ['well_depth_m', 'pump_age_years'],
+                                         max_iter = 1,
+                                         n_estimators = 10,
+                                         max_depth = 3,
+                                         min_samples_leaf = 3)
+report_miss.append(report_miss2)
+
+df, report_miss3 = handle_missing_values(df,
+                                        column = 'System condition',
+                                        method = 'knn',
+                                        features=  ['well_depth_m', 'pump_age_years', 'Water quality score'],
+                                        n_neighbors = 3)
+report_miss.append(report_miss3)
 
 # =============================================================================
 # POST-PROCESSING
@@ -200,11 +234,11 @@ report_post = postprocess_data(df, df_original, OUTPUT_FILEPATH, clean_names = T
 
 reports = {'preprocessing': report_pre,
            'duplicates': report_dup,
-           'semantic_outliers': report_sem,
-           'outliers': report_out,
-           'datetime': report_date,
-           'structural_errors': report_str,
-           #'missing_values': report_miss,
+           #'semantic_outliers': report_sem,
+           #'outliers': report_out,
+           #'datetime': report_date,
+           #'structural_errors': report_str,
+           'missing_values': report_miss,
            'postprocessing': report_post}
 
 generate_cleaning_report(reports, REPORT_FILEPATH, DATASET_NAME)

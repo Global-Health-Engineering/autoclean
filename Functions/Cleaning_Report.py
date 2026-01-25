@@ -706,7 +706,7 @@ def _generate_missing_values_section(report) -> list:
             lines.append("|-----|-------------------|")
 
             for imp in report['imputations']:
-                lines.append(f"| {imp['row']} | {imp['new_value']} |")
+                lines.append(f"| {imp['row'] + 1} | {imp['new_value']} |")
             
             lines.append("") # empty line
             lines.append("**Note:** Imputed values shown above are pre-rounding. Final values may be rounded in post-processing.")
@@ -774,7 +774,7 @@ def _generate_missing_values_section(report) -> list:
                 lines.append("|-----|-------------------|")
                 
                 for imp in single_report['imputations']:
-                    lines.append(f"| {imp['row']} | {imp['new_value']} |")
+                    lines.append(f"| {imp['row'] + 1} | {imp['new_value']} |")
                 
                 lines.append("") # empty line
                 lines.append("**Note:** Imputed values shown above are pre-rounding. Final values may be rounded in post-processing.")

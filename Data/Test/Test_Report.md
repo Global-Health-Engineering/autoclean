@@ -3,20 +3,20 @@
 **Name of dataset:** Test Data (made up WHASH dataset)  
 **Filepath of messy dataset:** Data/Test/Test.csv  
 **Filepath of cleaned dataset:** Data/Test/Test_Cleaned.csv  
-**Generated:** 24.01.2026, 02:11:51
+**Generated:** 25.01.2026, 18:11:25
 
 ---
 
 ## Summary
 
-- **Original shape:** 52 rows × 13 columns
-- **Final shape:** 50 rows × 11 columns
+- **Original shape:** 52 rows × 18 columns
+- **Final shape:** 50 rows × 16 columns
 - **Total rows deleted:** 2
 - **Total columns deleted:** 2
-- **Total values imputed:** 0
+- **Total values imputed:** 13
 - **Total outliers handled:** 0
 - **Total semantic outliers detected:** 0
-- **Total structural errors fixed:** 59
+- **Total structural errors fixed:** 0
 
 ---
 
@@ -34,65 +34,75 @@
 
 ---
 
-## Structural Errors
+## Missing Values
 
-## Overview
+### Overview
 
-- **Columns processed:** 2
-- **Total values changed:** 59
-- **Total unique values before:** 42
-- **Total unique values after:** 19
+- **Columns processed:** 3
+- **Total values imputed:** 13
+- **Total rows deleted:** 0
 
-### Column: sample Volume
+### Column: Water quality score
 
-- **Similarity method:** rapidfuzz
-- **Clustering method:** hierarchical
-- **Threshold (hierarchical):** 0.9
-- **Canonical selection:** llm
-- **Values changed:** 19
-- **Unique values before:** 26
-- **Unique values after:** 16
+- **Method:** missforest
+- **Features used:** well_depth_m; pump_age_years
+- **n_estimators:** 10
+- **max_iter:** 5
+- **max_depth:** 3
+- **min_samples_leaf:** 3
+- **Missing values before imputation:** 5
+- **Values imputed:** 5
 
-#### Clustering Results
+#### Imputations
 
-| Original Values | Clustered to Canonical |
-|-----------------|------------------------|
-| 500l; 500L | 500L |
-| 1000 l; 1000L; 1000 L | 1000 L |
-| 250l; 250L | 250L |
-| 1 kL | 1 kL |
-| five hundred liters | five hundred liters |
-| 1m³ | 1m³ |
-| 250 litres; 250 Liters; 250 liters | 250 liters |
-| 500 litres; 500 Liters; 500 liters | 500 liters |
-| 1000000 ml | 1000000 ml |
-| 1000 Liters; 1000 liters | 1000 liters |
-| 250 L | 250 L |
-| 0.25 m³ | 0.25 m³ |
-| 1 cubic meter | 1 cubic meter |
-| 250000ml; 250000 ml | 250000 ml |
-| 0.5 kL | 0.5 kL |
-| 500 L | 500 L |
+| Row | New imputed Value |
+|-----|-------------------|
+| 3 | 41.95842004662004 |
+| 8 | 60.66916903958615 |
+| 19 | 42.199022222222226 |
+| 31 | 66.97927571208032 |
+| 45 | 51.935611732711735 |
 
-### Column: sample Volume
+**Note:** Imputed values shown above are pre-rounding. Final values may be rounded in post-processing.
+### Column: Annual maintenance cost
 
-- **Similarity method:** llm
-- **LLM mode:** strict
-- **LLM context provided:** Volume measurements
-- **Clustering method:** connected_components
-- **Threshold (connected components):** 1.0
-- **Canonical selection:** llm
-- **Values changed:** 40
-- **Unique values before:** 16
-- **Unique values after:** 3
+- **Method:** missforest
+- **Features used:** well_depth_m; pump_age_years
+- **n_estimators:** 10
+- **max_iter:** 1
+- **max_depth:** 3
+- **min_samples_leaf:** 3
+- **Missing values before imputation:** 5
+- **Values imputed:** 5
 
-#### Clustering Results
+#### Imputations
 
-| Original Values | Clustered to Canonical |
-|-----------------|------------------------|
-| 500L; five hundred liters; 500 liters; 0.5 kL; 500 L | 500 L |
-| 1000 L; 1 kL; 1m³; 1000000 ml; 1000 liters; 1 cubic meter | 1000 liters |
-| 250L; 250 liters; 250 L; 0.25 m³; 250000 ml | 250 liters |
+| Row | New imputed Value |
+|-----|-------------------|
+| 5 | 294.60238095238094 |
+| 16 | 421.5731746031746 |
+| 27 | 353.9897113997114 |
+| 36 | 456.8509523809524 |
+| 48 | 434.30095238095237 |
+
+**Note:** Imputed values shown above are pre-rounding. Final values may be rounded in post-processing.
+### Column: System condition
+
+- **Method:** knn
+- **Features used:** well_depth_m; pump_age_years; Water quality score
+- **n_neighbors:** 3
+- **Missing values before imputation:** 3
+- **Values imputed:** 3
+
+#### Imputations
+
+| Row | New imputed Value |
+|-----|-------------------|
+| 12 | Fair |
+| 25 | Fair |
+| 42 | Fair |
+
+**Note:** Imputed values shown above are pre-rounding. Final values may be rounded in post-processing.
 
 ---
 
@@ -103,6 +113,10 @@
 | Column | Action |
 |--------|--------|
 | Flow Rate lps | Rounded to 2 decimals |
+| well_depth_m | Restored to integer |
+| pump_age_years | Restored to integer |
+| Water quality score | Rounded to 2 decimals |
+| Annual maintenance cost | Restored to integer |
 
 ### Renamed Columns
 
@@ -114,3 +128,6 @@
 | funding organization | funding_organization |
 | sample Volume | sample_volume |
 | tank material | tank_material |
+| Water quality score | water_quality_score |
+| Annual maintenance cost | annual_maintenance_cost |
+| System condition | system_condition |

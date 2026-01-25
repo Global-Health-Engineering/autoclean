@@ -3,21 +3,21 @@ Mombasa,15/05/2020,4214,,2.62,2.62,Red Crss,BOREHOLE,No,500l,uganda,twenty-five,
 Arusha,01/03/2021,234,,1.04,1.04,world health org,HAND PUMP,TRUE,500l,United Republic of Tanzania,Twenty-Five,PVC,112,9,68.9,453,Good
 Kigali,28/02/2019,3352,,3.71,3.71,WHO,Bore hole,FALSE,1000 l,Ugandaa,Twenty-Five,Plastic,34,12,none,364,Fair
 Nakuru,10/11/2022,2155,,3.92,3.92,WorldBank,handpump,broken,250l,UG,Fifteen,Cement,91,14,54.65,465,Fair
-Mombasa,05/07/2018,1785,,3.03,3.03,UNICEF,handpump,0,1 kL,UG,25,Poly,80,2,70.48,  ,Good
+Mombasa,05/07/2018,1785,,3.03,3.03,UNICEF,handpump,0,1 kL,UG,25,Poly,80,2,70.48,"  ",Good
 sdflkajsdf,22/09/2021,1289,,3.97,3.97,World Health Org,PIPED WATER,True,five hundred liters,Kenia,ten,Plastic tank,40,10,44.1,319,Poor
 Dodoma,14/06/2020,3273,,2.72,2.72,World Health Org,Hand pump,not functional,250L,Tanz.,fifteen,Plastic tank,102,9,57.83,412,Fair
 Mombasa,03/12/2019,1221,,2.85,2.85,WH0,borehole,working,1000L,Kenia,25,pvc,106,10,-,500,Fair
 Kigali,19/01/2023,-250,,2.42,2.42,WorldBank,Hand punp,yes,1m³,Keyna,10,Cement,94,5,58.82,341,Fair
-   Nakuru,30/08/2022,2813,,0.61,0.61,world health org,piped water,True,250 litres,TANZANIA,25,PVC,94,2,67.37,336,Good
+"   Nakuru",30/08/2022,2813,,0.61,0.61,world health org,piped water,True,250 litres,TANZANIA,25,PVC,94,2,67.37,336,Good
 Arusha,12-04-2021,2050,,0.99,0.99,RED CROSS,Borehole,yes,500 litres,TZA,20,concrete,107,4,77.28,360,Good
 Kigali,07-10-2020,1700,,0.64,0.64,WorldBank,HAND PUMP,working,1 kL,TZA,twenty five,Cement,119,12,57.17,500,
 Kigali,25-12-2019,3489,,0.79,0.79,WORLD BANK,BOREHOLE,No,1000000 ml,Ugand,twenty,Iron,43,15,35.28,417,Poor
-Dodoma,18-03-2022,361,,1.91,1.91,ICRC,piped water,True,1000 Liters,Keyna,twenty-five,PLASTIC,22,12,39.12,,Poor
+Dodoma,18-03-2022,361,,1.91,1.91,ICRC,piped water,True,1000 Liters,Keyna,twenty-five,PLASTIC,22,12,39.12,294,Poor
 Kisumu,09-05-2018,498,,2.79,2.79,World Health Organization,hand pump,YES,500 litres,KEN,eight,Metallic,41,7,49.36,273,Fair
-Nakuru,21.07.2020,2181,,48.7,48.7,International Red Cross,Pipedwater,true,1000 Liters,Keyna,Eight,Stainless steel,72,12,50.59,421,Fair
+Nakuru,21.07.2020,2181,,48.7,48.7,International Red Cross,Pipedwater,true,1000 Liters,Keyna,Eight,Stainless steel,72,12,50.59,,Fair
 Mwanza,16.02.2021,1195,,1.62,1.62,unicef,PIPED WATER,false,250 L,Keyna,12,plastic,21,13,25.82,320,Poor
-Kigali   ,04.11.2019,3542,,2.35,2.35,W.H.O.,handpump,broken,0.25 m³,KENYA,8,Plastic,107,8,65.54,417,Good
-Kisumu,29.06.2022,1234.89,,3.9,3.9,WHO,Piped Water,working,1000 l,Ugandaa,eight,PLASTIC,49,15, ,444,Poor
+"Kigali   ",04.11.2019,3542,,2.35,2.35,W.H.O.,handpump,broken,0.25 m³,KENYA,8,Plastic,107,8,65.54,417,Good
+Kisumu,29.06.2022,1234.89,,3.9,3.9,WHO,Piped Water,working,1000 l,Ugandaa,eight,PLASTIC,49,15," ",444,Poor
 Mwanza,11.08.2018,789,,1.53,1.53,World Health Organization,Borehle,true,1 cubic meter,tanzania,Twenty-Five,PE,57,3,55.48,279,Fair
 Nakuru,2020-05-15,1475,,0.85,0.85,W.H.O,piped  water,FALSE,250000ml,Ugand,15,Plastic tank,21,14,33.05,343,Poor
 Kibera,2021-11-28,1216,,1.8,1.8,World Health Org,BOREHOLE,N,250 Liters,Republic of Uganda,Fifteen,metal,83,1,81.53,279,Good
@@ -33,7 +33,7 @@ Arusha,01/06/22,889,,1.45,1.45,World Bank,HAND PUMP,not working,500L,Tanz.,Eight
 Lusaka,15/09/21,264,,9.2,9.2,ICRC,Hand pump,0,1000 liters,TANZANIA,Twenty,Stainless steel,78,4,n/a,302,Fair
 Dodoma,28/02/20,2768,,4.13,4.13,unicef,Hand punp,0,1 kL,TANZANIA,ten,Plastic tank,61,6,57.05,309,Fair
 Nakuru,10/12/19,2227,,3.01,3.01,World Health Org,Pipedwater,TRUE,0.5 kL,uganda,ten,Stainless,111,13,56.73,500,Fair
-  Dodoma  ,29/02/2020,999.99,,1.93,1.93,U.N.I.C.E.F.,handpump,not working,1000 liters,KENYA,twelve,Metallic,79,15,56.87,482,Fair
+"  Dodoma  ",29/02/2020,999.99,,1.93,1.93,U.N.I.C.E.F.,handpump,not working,1000 liters,KENYA,twelve,Metallic,79,15,56.87,482,Fair
 Arusha,12-04-2021,2050,,0.99,0.99,RED CROSS,Borehole,yes,500 litres,TZA,20,concrete,107,4,77.28,360,Good
 Mombasa,17/04/2021,1695,,1.0,1.0,UNICEF,handpump,no,500L,Keyna,Twenty Five,Reinforced concrete,34,10,36.29,328,Poor
 Nakuru,23/10/2020,591,,1.53,1.53,WB,handpump,false,500 liters,Tanznia,Twenty Five,Cement tank,81,12,52.42,null,Fair
