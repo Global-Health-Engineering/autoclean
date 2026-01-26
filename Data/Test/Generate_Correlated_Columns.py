@@ -154,3 +154,11 @@ df['Annual maintenance cost'] = pd.to_numeric(df['Annual maintenance cost'])
 
 print(df[['well_depth_m', 'pump_age_years', 'Water quality score', 'Annual maintenance cost']].corr().round(3))
 print("\n")
+
+# CORRELATION MATRIX:
+# -----------------------------------------------------------------------------------------------------
+#                          well_depth_m  pump_age_years  Water quality score  Annual maintenance cost
+# well_depth_m                    1.000          -0.247                0.752                    0.531
+# pump_age_years                 -0.247           1.000               -0.715                    0.658
+# Water quality score             0.752          -0.715                1.000                   -0.042
+# Annual maintenance cost         0.531           0.658               -0.042                    1.000

@@ -556,9 +556,13 @@ def _generate_structural_errors_section(report) -> list:
             lines.append("|-----------------|------------------------|")
 
             for canonical, originals in clusters.items():
-                originals_str = "; ".join(originals)
-                # Note: '; '.join(originals) joins all elements of originals to a string with each element seperated by ;
-                lines.append(f"| {originals_str} | {canonical} |")
+                # Remove potential \n to not disrupt the table generation (str() is needed for .replace())
+                originals_clean = [str(o).replace('\n', ' ') for o in originals]
+                canonical_clean = str(canonical).replace('\n', ' ')
+
+                originals_clean_str = "; ".join(originals_clean)
+                # Note: '; '.join(originals_clean) joins all elements of originals_clean to a string with each element seperated by ;
+                lines.append(f"| {originals_clean_str} | {canonical_clean} |")
 
             lines.append("") # empty line 
 
@@ -646,11 +650,15 @@ def _generate_structural_errors_section(report) -> list:
         
                 lines.append("| Original Values | Clustered to Canonical |")
                 lines.append("|-----------------|------------------------|")
-
+                
                 for canonical, originals in clusters.items():
-                    originals_str = "; ".join(originals)
-                    # Note: '; '.join(originals) joins all elements of originals to a string with each element seperated by ;
-                    lines.append(f"| {originals_str} | {canonical} |")
+                    # Remove potential \n to not disrupt the table generation (str() is needed for .replace())
+                    originals_clean = [str(o).replace('\n', ' ') for o in originals]
+                    canonical_clean = str(canonical).replace('\n', ' ')
+
+                    originals_clean_str = "; ".join(originals_clean)
+                    # Note: '; '.join(originals_clean) joins all elements of originals_clean to a string with each element seperated by ;
+                    lines.append(f"| {originals_clean_str} | {canonical_clean} |")
 
                 lines.append("") # empty line 
 
@@ -798,9 +806,6 @@ def _generate_postprocessing_section(report: dict) -> list:
     lines.append("") # empty line
     lines.append("## Postprocessing")
     lines.append("") # empty line 
-    
-    if 'output_missing_values' in report:
-        lines.append(f"**Chosen output format of missing values (np.nan):** {report['output_missing_values']}")
     
     # Get table of precision restoration (rounding) applied in post-processing (if available)
     changes = report['changes']

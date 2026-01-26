@@ -1,2 +1,0 @@
-Source: https://github.com/eyowhite/Messy-dataset
-Use for import: df = pd.read_csv('Relative path', sep=';', encoding='latin-1')

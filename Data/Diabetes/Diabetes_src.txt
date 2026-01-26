@@ -1,2 +1,0 @@
-Source: https://www.kaggle.com/datasets/mathchi/diabetes-data-set
-Note: The messy dataset was generated, so data was removed or replaced by outliers and duplicates were added. 
