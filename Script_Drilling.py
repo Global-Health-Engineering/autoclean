@@ -10,6 +10,8 @@ Columns evaluated:
 
 Both columns contain typos, abbreviations and semantic variations that need standardization.
 """
+# Imported library
+import pandas as pd
 
 # Import cleaning functions
 from Functions.Pre_Processing import preprocess_data
@@ -90,6 +92,14 @@ report_str.append(report_str5)
 # =============================================================================
 # POST-PROCESSING
 # =============================================================================
+
+# Change names for better comparison of results
+df = df.rename(columns={"funding_source": "funding_source_cleaned", 
+                        "drilling_contractor": "drilling_contractor_cleaned",})
+
+# Connect df & df_original for comparison of results & sort
+df = pd.concat([df, df_original], axis = 1)
+df = df[['funding_source','funding_source_cleaned','drilling_contractor','drilling_contractor_cleaned']]
 
 report_post = postprocess_data(df, df_original, OUTPUT_FILEPATH)
 

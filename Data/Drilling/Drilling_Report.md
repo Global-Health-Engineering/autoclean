@@ -3,14 +3,14 @@
 **Name of dataset:** Malawi borehole drilling and construction data  
 **Filepath of messy dataset:** Data/Drilling/Drilling.csv  
 **Filepath of cleaned dataset:** Data/Drilling/Drilling_Cleaned.csv  
-**Generated:** 26.01.2026, 16:55:32
+**Generated:** 26.01.2026, 19:03:24
 
 ---
 
 ## Summary
 
 - **Original shape:** 157 rows × 136 columns
-- **Final shape:** 157 rows × 2 columns
+- **Final shape:** 157 rows × 4 columns
 - **Total rows deleted:** 0
 - **Total columns deleted:** 66
 - **Total values imputed:** 0
