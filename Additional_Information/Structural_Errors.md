@@ -188,6 +188,7 @@ The iteration process:
 3. Update responsibilities using new availabilities
 4. Update availabilities using new responsibilities
 5. Repeat until values stop changing
+6. Form clusters with final responsibilities & availabilities 
 
 For more details: https://en.wikipedia.org/wiki/Affinity_propagation
 
