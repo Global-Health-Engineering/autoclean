@@ -1,0 +1,28 @@
+cff-version: 1.2.0
+message: "To cite this repository, use:"
+license: XXX
+title: "AutoClean: Modular Data Cleaning Functions with Large Language Model Integration - Software"
+date-released: "2026-02-16"
+doi: 10.5281/zenodo.18656175
+type: software
+authors:
+  - family-names: Seiler
+    given-names: Florin
+    email: seilerf@ethz.ch
+  - family-names: Massari
+    given-names: Nicolo
+    email: nicolo.massari@lam.fr
+    orcid: https://orcid.org/0009-0006-8421-930X
+  - family-names: Tkaczuk
+    given-names: Jakub
+    email: jtkaczuk@ethz.ch
+    orcid: https://orcid.org/0000-0001-7997-9423
+  - family-names: Tilley
+    given-names: Elizabeth
+    email: tilleye@ethz.ch
+    orcid: https://orcid.org/0000-0002-2095-9724
+contact:
+  - family-names: Seiler
+    given-names: Florin
+    email: seilerf@ethz.ch
+version: 0.0.1
