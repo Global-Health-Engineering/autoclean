@@ -1,6 +1,6 @@
 cff-version: 1.2.0
 message: "To cite this repository, use:"
-license: XXX
+license: MIT
 title: "AutoClean: Modular Data Cleaning Functions with Large Language Model Integration - Software"
 date-released: "2026-02-16"
 doi: 10.5281/zenodo.18656175
