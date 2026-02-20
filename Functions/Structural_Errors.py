@@ -10,12 +10,12 @@ Pipeline:
 Parameters: 
     - df: DataFrame to clean
     - column: Name of column for which handle_structural_errors needs to be applied 
-    - similarity: "rapidfuzz" (default), "embeddings", or "llm"
-    - clustering: "connected_components", "affinity_propagation", "hierarchical" (default)
-    - canonical: "llm" or "most_frequent" (default)
+    - similarity: 'rapidfuzz' (default), 'embeddings', or 'llm'
+    - clustering: 'connected_components', 'affinity_propagation', 'hierarchical' (default)
+    - canonical: 'llm' or 'most_frequent' (default)
     - threshold_cc:  Threshold for connected components clustering (default = 0.85)
     - threshold_h: Threshold for hierarchical clustering (default = 0.85)
-    - embedding_model: "text-embedding-3-large" or "text-embedding-3-small" (default)
+    - embedding_model: 'text-embedding-3-large' or 'text-embedding-3-small' (default)
     - damping: Controls how values update each round. Without damping, the algorithm replaces old values completely with new computed values. This can cause oscillation  where preferences flip back and forth forever. With damping = 0.7, the new value is blended: 70% old value + 30% newly computed value. This gradual change ensures the algorithm converges to a stable solution. (default: 0.7)
     - llm_context: Description of the column
     - llm_mode: Mode for LLM similarity scoring
@@ -50,15 +50,15 @@ from Functions.Structural_Errors_Helper.Canonical import most_frequent, llm_sele
 
 def handle_structural_errors(df: pd.DataFrame,
                              column: str,
-                             similarity: str = "rapidfuzz",
-                             embedding_model: str = "text-embedding-3-small",
-                             llm_mode: str = "fast",
+                             similarity: str = 'rapidfuzz',
+                             embedding_model: str = 'text-embedding-3-small',
+                             llm_mode: str = 'fast',
                              llm_context: str = None,
-                             clustering: str = "hierarchical",
+                             clustering: str = 'hierarchical',
                              threshold_cc: float = 0.85,
                              threshold_h: float = 0.85,
                              damping: float = 0.7,
-                             canonical: str = "most_frequent") -> tuple:
+                             canonical: str = 'most_frequent') -> tuple:
     # Terminal output: start
     print(f"Fixing structural errors ({column})... ", end = "", flush = True)
     # Note: With flush = True, print is immediately

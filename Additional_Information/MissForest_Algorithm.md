@@ -187,9 +187,9 @@ Continue iterating until:
      pH  turbidity  temperature
 0   7.2       15.0         25.0
 1   6.8       20.0         28.0
-2   7.2       18.0         26.0   ← Imputed with ML!
-3   7.5       20.0         27.0   ← Imputed with ML!
-4   6.9       22.0         27.5   ← Imputed with ML!
+2   7.2       18.0         26.0   ← Imputed with MissForest!
+3   7.5       20.0         27.0   ← Imputed with MissForest!
+4   6.9       22.0         27.5   ← Imputed with MissForest!
 ```
 
 **Note:** If MissForest is used for missing values of (selected) categorical columns, those (selected) categorical columns would be decoded back to text after imputation. 
