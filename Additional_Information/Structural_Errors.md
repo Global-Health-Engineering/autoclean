@@ -25,7 +25,7 @@ Group (cluster) similar values together and replace them with one canonical (sta
 
 ## 2. Pipeline Overview
 
-**Step 1 - Similarity:** Compute a similarity matrix that shows how similar each pair of values is. Different techniques available: character-based (RapidFuzz) or semantic (Embeddings).
+**Step 1 - Similarity:** Compute a similarity matrix that shows how similar each pair of values is. Different techniques available: character-based (RapidFuzz), semantic (Embeddings), or context-aware (LLM).
 
 **Step 2 - Clustering:** Group values that are similar enough into clusters. Different clustering methods available: Hierarchical, Connected Components, or Affinity Propagation.
 
@@ -151,6 +151,67 @@ boston          0.44       0.46    0.41   0.42    0.96     1.00
 
 ---
 
+### Method C: LLM (Context-Aware)
+
+LLM similarity uses a Large Language Model to score how similar two values are, given the context of the column. This is the most powerful similarity method, as it can understand complex equivalences that neither character-based nor embedding-based methods can capture.
+
+#### How It Works
+
+All unique value pairs are sent to the LLM in batches as JSON. For each pair, the LLM returns a similarity score. The user provides a context description (e.g., "Volume measurements" or "Whether water point is working or not") which helps the LLM understand what the values represent.
+
+Input (batch of pairs):
+
+[
+    {"index": 0, "a": "True", "b": "1"},
+    {"index": 1, "a": "True", "b": "working"},
+    {"index": 2, "a": "500ml", "b": "0.5 kL"}
+]
+
+Output (structured via Pydantic schema):
+
+[
+    {"index": 0, "similarity": 0.95},
+    {"index": 1, "similarity": 0.90},
+    {"index": 2, "similarity": 1.0}
+]
+
+#### Modes
+
+The LLM similarity method has three modes, each suited for different use cases:
+
+| Mode | Model | Scoring | Best For |
+|------|-------|---------|----------|
+| **fast** | `gpt-4.1` | Range 0.0–1.0 | General-purpose similarity, faster but less accurate |
+| **reliable** | `gpt-5-mini` | Range 0.0–1.0 | General-purpose similarity, slower but more accurate (uses reasoning) |
+| **strict** | `gpt-5-mini` | Binary 0 or 1 | Similarity scores of values, which are either the same or not (e.g. units) |
+
+**Fast mode** uses `gpt-4.1` with `temperature=0.0` and `seed=42`. It scores on a continuous range and is suited for general-purpose similarity where speed matters.
+
+**Reliable mode** uses `gpt-5-mini` with `reasoning_effort='low'` and `seed=42`. The reasoning capability makes it more accurate for complex equivalences, at the cost of being slower.
+
+**Strict mode** also uses `gpt-5-mini` with `reasoning_effort='low'` and `seed=42`, but only allows binary scores (0 or 1). This is ideal for unit standardization: "500ml" and "0.5 L" represent the same quantity (score 1), while "500ml" and "250ml" are different quantities (score 0). 
+
+Note: Pairs are processed in batches to manage API calls efficiently. The batch size depends on the number of unique values.
+
+#### Example: Boolean Column
+
+For a column with context "Whether water point is working or not":
+
+Pairs and LLM scores:
+- "True"  vs "1"           → 0.95  (both mean functional)
+- "True"  vs "working"     → 0.90  (both mean functional)
+- "True"  vs "No"          → 0.05  (opposite meanings)
+- "False" vs "0"           → 0.95  (both mean not functional)
+- "False" vs "not working" → 0.90  (both mean not functional)
+
+Neither RapidFuzz nor Embeddings can reliably detect that "True", "1", "working", and "operational" all mean the same thing in this context. The LLM understands the context and scores them as highly similar.
+
+**Best for:** Complex equivalences that require context understanding — booleans, units, domain-specific abbreviations, and cases where the meaning depends on the column context.
+
+**Limitation:** Most expensive and slowest method. Requires API calls. LLM outputs can be non-deterministic even with a seed parameter set.
+
+---
+
 ## 4. Step 2: Clustering
 
 ### What is Clustering?
@@ -229,7 +290,7 @@ Picks the value that appears most often in the original data.
 
 ### Method B: LLM Selection
 
-Uses an LLM (GPT-4o-mini) to intelligently select the best canonical form.
+Uses an LLM (`gpt-4.1-mini`) to intelligently select the best canonical form.
 
 **LLM preferences:**
 - Prefers complete forms over abbreviations
